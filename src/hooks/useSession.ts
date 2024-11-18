@@ -31,12 +31,12 @@ export function useSession() {
       // Save to local storage as backup
       storage.saveSession({
         state: 'finished',
-        sessionStart: sessionData.start_time,
-        activeTime: sessionData.active_duration,
-        edgeTime: sessionData.edge_duration,
+        sessionStart: sessionData.start_time ?? null,
+        activeTime: sessionData.active_duration ?? 0,
+        edgeTime: sessionData.edge_duration ?? 0,
         currentEdgeStart: null,
         lastActiveStart: null,
-        sessionId: sessionData.id,
+        sessionId: sessionData.id ?? null,
         finishedDuringEdge: sessionData.finished_during_edge ?? false,
         edgeLaps: []
       })
