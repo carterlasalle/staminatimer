@@ -40,14 +40,14 @@ The **Edging Timer** is a digital tool designed to help men track and improve th
    - Total session time (active + edging). [Done]
    - Active masturbation time. [Done]
    - Total and individual edging times. [Done]
-   - Time between edging events. [To Do]
-   - Average time between edges in a session. [To Do]
-   - Indication of whether climax occurred during edging. [To Do]
+   - Time between edging events. [Done]
+   - Average time between edges in a session. [Done]
+   - Indication of whether climax occurred during edging. [Done]
 
 4. **Progress Tracking**
-   - View historical sessions. [To Do]
-   - Compare metrics such as total session time, average time between edges, and edging duration across sessions. [To Do]
-   - Highlight improvements or regressions over time. [To Do]
+   - View historical sessions. [Done]
+   - Compare metrics such as total session time, average time between edges, and edging duration across sessions. [Done]
+   - Highlight improvements or regressions over time. [Done]
 
 ---
 
@@ -69,17 +69,17 @@ The **Edging Timer** is a digital tool designed to help men track and improve th
      - Active Masturbation Timer resumes. [Done]
 
 4. **Session Finish:**
-   - When finished, user clicks **Finish**: [In Progress]
+   - When finished, user clicks **Finish**: [Done]
      - All timers stop. [Done]
-     - Session data is saved for analysis. [To Do]
+     - Session data is saved for analysis. [Done]
 
 5. **Data Review:**
-   - Access session metrics: [To Do]
-     - Total time (active + edging). [To Do]
-     - Masturbation time. [To Do]
-     - Edging time. [To Do]
-     - Time between edges. [To Do]
-     - Historical data for progress tracking. [To Do]
+   - Access session metrics: [Done]
+     - Total time (active + edging). [Done]
+     - Masturbation time. [Done]
+     - Edging time. [Done]
+     - Time between edges. [Done]
+     - Historical data for progress tracking. [Done]
 
 ---
 
@@ -89,23 +89,23 @@ The **Edging Timer** is a digital tool designed to help men track and improve th
    - Next.js Deployed to Vercel [Done]
    - TailwindCSS for styling [Done]
    - Shadcn/UI for components [Done]
-   - Supabase for database [In Progress]
+   - Supabase for database [Done]
 
 2. **Timers**
    - Real-time tracking with precision to the second. [Done]
 
 3. **Database**
-   - Store session data, including timestamps and calculated metrics. [In Progress]
-   - Enable filtering, sorting, and visualization of historical data. [To Do]
+   - Store session data, including timestamps and calculated metrics. [Done]
+   - Enable filtering, sorting, and visualization of historical data. [Done]
 
 4. **Analytics Engine**
-   - Calculate averages, total times, and other metrics dynamically. [To Do]
-   - Present improvements and trends visually (e.g., graphs, heatmaps). [To Do]
+   - Calculate averages, total times, and other metrics dynamically. [Done]
+   - Present improvements and trends visually (e.g., graphs, heatmaps). [Done]
 
 5. **User Interface**
    - Minimalist design with large, intuitive buttons for key actions: [Done]
      - Start, Edge, End Edge, and Finish. [Done]
-   - Dashboard to display historical data and trends. [To Do]
+   - Dashboard to display historical data and trends. [Done]
 
 
 ---
