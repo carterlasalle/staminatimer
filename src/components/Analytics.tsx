@@ -4,6 +4,23 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { Session } from '@/lib/supabase/schema'
 
+type DBSession = {
+  id: string
+  start_time: string
+  end_time: string
+  total_duration: number
+  active_duration: number
+  edge_duration: number
+  finished_during_edge: boolean
+  created_at: string
+  edge_events: Array<{
+    id: string
+    start_time: string
+    end_time: string
+    duration: number
+  }>
+}
+
 type Analytics = {
   averageSessionDuration: number
   averageEdgeDuration: number
@@ -22,7 +39,7 @@ export function Analytics() {
         .from('sessions')
         .select(`
           *,
-          edge_events (*)
+          edge_events!fk_session (*)
         `)
         .order('created_at', { ascending: false })
         .limit(20)
@@ -32,8 +49,10 @@ export function Analytics() {
         return
       }
 
-      const stats = sessions.reduce((acc, session) => {
-        acc.totalDuration += session.total_duration
+      const typedSessions = sessions as DBSession[]
+      
+      const stats = typedSessions.reduce((acc, session) => {
+        acc.totalDuration += session.total_duration ?? 0
         acc.totalEdges += session.edge_events?.length ?? 0
         
         // Calculate time between edges
@@ -41,9 +60,11 @@ export function Analytics() {
           let previousEdge = session.edge_events[0]
           for (let i = 1; i < session.edge_events.length; i++) {
             const currentEdge = session.edge_events[i]
-            acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
-              new Date(previousEdge.end_time).getTime()
-            acc.edgeIntervalCount++
+            if (previousEdge.end_time && currentEdge.start_time) {
+              acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
+                new Date(previousEdge.end_time).getTime()
+              acc.edgeIntervalCount++
+            }
             previousEdge = currentEdge
           }
         }
@@ -57,29 +78,53 @@ export function Analytics() {
       })
 
       setAnalytics({
-        averageSessionDuration: stats.totalDuration / sessions.length,
-        averageEdgeDuration: sessions.reduce((acc, s) => acc + s.edge_duration, 0) / stats.totalEdges,
-        averageTimeBetweenEdges: stats.totalTimeBetweenEdges / stats.edgeIntervalCount,
-        totalSessions: sessions.length,
-        improvementRate: calculateImprovementRate(sessions)
+        averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
+        averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
+        averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
+        totalSessions: typedSessions.length,
+        improvementRate: calculateImprovementRate(typedSessions)
       })
       
       setLoading(false)
     }
 
     calculateAnalytics()
+    // Set up polling interval
+    const interval = setInterval(calculateAnalytics, 5000)
+    return () => clearInterval(interval)
   }, [])
 
-  function calculateImprovementRate(sessions: Session[]): number {
+  function calculateImprovementRate(sessions: DBSession[]): number {
     if (sessions.length < 2) return 0
     
+    // Get the most recent 5 sessions and oldest 5 sessions
     const recentSessions = sessions.slice(0, 5)
     const olderSessions = sessions.slice(-5)
     
-    const recentAvg = recentSessions.reduce((acc, s) => acc + s.total_duration, 0) / recentSessions.length
-    const olderAvg = olderSessions.reduce((acc, s) => acc + s.total_duration, 0) / olderSessions.length
-    
-    return ((recentAvg - olderAvg) / olderAvg) * 100
+    // Calculate average duration and edge count for recent sessions
+    const recentStats = recentSessions.reduce((acc, s) => ({
+      totalDuration: acc.totalDuration + (s.total_duration ?? 0),
+      edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
+    }), { totalDuration: 0, edgeCount: 0 })
+
+    // Calculate average duration and edge count for older sessions
+    const olderStats = olderSessions.reduce((acc, s) => ({
+      totalDuration: acc.totalDuration + (s.total_duration ?? 0),
+      edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
+    }), { totalDuration: 0, edgeCount: 0 })
+
+    // Calculate improvement metrics
+    const recentAvgDuration = recentStats.totalDuration / recentSessions.length
+    const olderAvgDuration = olderStats.totalDuration / olderSessions.length
+    const recentAvgEdges = recentStats.edgeCount / recentSessions.length
+    const olderAvgEdges = olderStats.edgeCount / olderSessions.length
+
+    // Calculate overall improvement (considering both duration and edge count)
+    const durationImprovement = ((recentAvgDuration - olderAvgDuration) / olderAvgDuration) * 100
+    const edgeImprovement = ((recentAvgEdges - olderAvgEdges) / olderAvgEdges) * 100
+
+    // Return weighted average of improvements
+    return (durationImprovement + edgeImprovement) / 2
   }
 
   if (loading) return <div>Calculating analytics...</div>

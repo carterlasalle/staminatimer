@@ -1,22 +1,38 @@
-create table public.sessions (
-  id uuid default uuid_generate_v4() primary key,
-  start_time timestamp with time zone not null,
-  end_time timestamp with time zone,
-  total_duration integer,
-  active_duration integer,
-  edge_duration integer,
-  finished_during_edge boolean default false,
-  created_at timestamp with time zone default now()
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create sessions table
+CREATE TABLE IF NOT EXISTS public.sessions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ,
+    total_duration INTEGER,
+    active_duration INTEGER,
+    edge_duration INTEGER,
+    finished_during_edge BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-create table public.edge_events (
-  id uuid default uuid_generate_v4() primary key,
-  session_id uuid references public.sessions(id),
-  start_time timestamp with time zone not null,
-  end_time timestamp with time zone,
-  duration integer
+-- Create edge_events table with proper foreign key
+CREATE TABLE IF NOT EXISTS public.edge_events (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    session_id UUID NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ,
+    duration INTEGER,
+    CONSTRAINT fk_session
+        FOREIGN KEY(session_id)
+        REFERENCES public.sessions(id)
+        ON DELETE CASCADE
 );
 
 -- Enable RLS
-alter table public.sessions enable row level security;
-alter table public.edge_events enable row level security; 
+ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.edge_events ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Enable all access for all users" ON public.sessions
+    FOR ALL USING (true);
+
+CREATE POLICY "Enable all access for all users" ON public.edge_events
+    FOR ALL USING (true); 

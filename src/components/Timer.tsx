@@ -3,8 +3,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 type TimerState = 'idle' | 'active' | 'edging' | 'finished'
+
+type EdgeLap = {
+  startTime: Date
+  endTime?: Date
+  duration?: number
+}
 
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000)
@@ -22,6 +29,29 @@ export function Timer() {
   const [lastActiveStart, setLastActiveStart] = useState<Date | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [finishedDuringEdge, setFinishedDuringEdge] = useState(false)
+  const [displayActiveTime, setDisplayActiveTime] = useState(0)
+  const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
+  const [edgeLaps, setEdgeLaps] = useState<EdgeLap[]>([])
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+
+    if (state === 'active' && lastActiveStart) {
+      interval = setInterval(() => {
+        const now = new Date()
+        setDisplayActiveTime(activeTime + (now.getTime() - lastActiveStart.getTime()))
+      }, 1000)
+    } else if (state === 'edging' && currentEdgeStart) {
+      interval = setInterval(() => {
+        const now = new Date()
+        setDisplayEdgeTime(edgeTime + (now.getTime() - currentEdgeStart.getTime()))
+      }, 1000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [state, lastActiveStart, currentEdgeStart, activeTime, edgeTime])
 
   const startSession = useCallback(async () => {
     const now = new Date()
@@ -36,6 +66,7 @@ export function Timer() {
       .single()
 
     if (error) {
+      toast.error('Failed to start session')
       console.error('Error starting session:', error)
       return
     }
@@ -60,8 +91,11 @@ export function Timer() {
         })
 
       if (error) {
+        toast.error('Failed to record edge event')
         console.error('Error recording edge event:', error)
       }
+
+      setEdgeLaps(prev => [...prev, { startTime: now }])
     }
     setCurrentEdgeStart(now)
     setState('edging')
@@ -83,8 +117,19 @@ export function Timer() {
         .is('end_time', null)
 
       if (error) {
+        toast.error('Failed to update edge event')
         console.error('Error updating edge event:', error)
       }
+
+      setEdgeLaps(prev => {
+        const newLaps = [...prev]
+        const currentLap = newLaps[newLaps.length - 1]
+        if (currentLap) {
+          currentLap.endTime = now
+          currentLap.duration = now.getTime() - currentLap.startTime.getTime()
+        }
+        return newLaps
+      })
     }
     setLastActiveStart(now)
     setCurrentEdgeStart(null)
@@ -116,6 +161,7 @@ export function Timer() {
         .eq('id', sessionId)
 
       if (error) {
+        toast.error('Failed to finish session')
         console.error('Error finishing session:', error)
       }
     }
@@ -134,6 +180,7 @@ export function Timer() {
     setLastActiveStart(null)
     setSessionId(null)
     setFinishedDuringEdge(false)
+    setEdgeLaps([])
   }, [])
 
   return (
@@ -146,9 +193,23 @@ export function Timer() {
       </div>
       
       <div className="grid grid-cols-2 gap-4">
-        <div>Active Time: {formatDuration(activeTime)}</div>
-        <div>Edge Time: {formatDuration(edgeTime)}</div>
+        <div>Active Time: {formatDuration(state === 'active' ? displayActiveTime : activeTime)}</div>
+        <div>Edge Time: {formatDuration(state === 'edging' ? displayEdgeTime : edgeTime)}</div>
       </div>
+
+      {edgeLaps.length > 0 && (
+        <div className="w-full max-w-md mt-4">
+          <h3 className="text-lg font-semibold mb-2">Edge Laps</h3>
+          <div className="space-y-2">
+            {edgeLaps.map((lap, index) => (
+              <div key={index} className="flex justify-between items-center bg-gray-100 p-2 rounded">
+                <span>Edge {index + 1}</span>
+                <span>{lap.duration ? formatDuration(lap.duration) : 'In Progress'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-4">
         {state === 'idle' && (

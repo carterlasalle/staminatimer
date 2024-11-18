@@ -42,17 +42,17 @@ export function Charts() {
       }
 
       const chartData = {
-        labels: sessions.map(s => new Date(s.created_at).toLocaleDateString()),
+        labels: sessions.map(s => new Date(s.created_at).toLocaleTimeString()),
         datasets: [
           {
             label: 'Total Duration',
-            data: sessions.map(s => s.total_duration / 1000 / 60), // Convert to minutes
+            data: sessions.map(s => Math.round(s.total_duration / 1000 / 60 * 100) / 100), // Convert to minutes with 2 decimal places
             borderColor: 'rgb(75, 192, 192)',
             tension: 0.1
           },
           {
             label: 'Edge Duration',
-            data: sessions.map(s => s.edge_duration / 1000 / 60),
+            data: sessions.map(s => Math.round(s.edge_duration / 1000 / 60 * 100) / 100),
             borderColor: 'rgb(255, 99, 132)',
             tension: 0.1
           }
@@ -64,13 +64,16 @@ export function Charts() {
     }
 
     fetchChartData()
+    // Set up polling interval
+    const interval = setInterval(fetchChartData, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   if (loading) return <div>Loading charts...</div>
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-8 p-6 bg-gray-50 rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Progress Over Time</h2>
+      <h2 className="text-2xl font-bold mb-6">Progress Over Time (Minutes)</h2>
       {data && (
         <Line
           data={data}
@@ -81,6 +84,16 @@ export function Charts() {
                 title: {
                   display: true,
                   text: 'Duration (minutes)'
+                },
+                ticks: {
+                  callback: (value) => `${value}m`
+                }
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
                 }
               }
             }
