@@ -5,7 +5,7 @@ import { Charts } from '@/components/Charts'
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-24 max-w-7xl mx-auto">
       <Timer />
       <Analytics />
       <Charts />

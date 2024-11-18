@@ -125,6 +125,17 @@ export function Timer() {
     setState('finished')
   }, [state, lastActiveStart, currentEdgeStart, sessionId, activeTime, edgeTime, finishedDuringEdge])
 
+  const resetTimer = useCallback(() => {
+    setState('idle')
+    setSessionStart(null)
+    setActiveTime(0)
+    setEdgeTime(0)
+    setCurrentEdgeStart(null)
+    setLastActiveStart(null)
+    setSessionId(null)
+    setFinishedDuringEdge(false)
+  }, [])
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="text-2xl font-bold">
@@ -152,6 +163,11 @@ export function Timer() {
         {(state === 'active' || state === 'edging') && (
           <Button onClick={finishSession} variant="destructive">
             Finish
+          </Button>
+        )}
+        {state === 'finished' && (
+          <Button onClick={resetTimer} variant="outline">
+            Start New Session
           </Button>
         )}
       </div>
