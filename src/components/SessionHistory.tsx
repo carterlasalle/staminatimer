@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner'
 import { Trash2, RefreshCw } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { SessionDetails } from '@/components/SessionDetails'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
 type SortOrder = 'desc' | 'asc'
@@ -40,6 +41,7 @@ export function SessionHistory() {
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+  const [selectedSession, setSelectedSession] = useState<DBSession | null>(null)
 
   useEffect(() => {
     fetchSessions()
@@ -132,7 +134,8 @@ export function SessionHistory() {
           {sessions.map((session) => (
             <div 
               key={session.id} 
-              className="relative bg-card border rounded-lg p-4"
+              className="relative bg-card border rounded-lg p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => setSelectedSession(session)}
             >
               <Button
                 variant="ghost"
@@ -171,6 +174,12 @@ export function SessionHistory() {
           ))}
         </div>
       </CardContent>
+
+      <SessionDetails
+        session={selectedSession}
+        open={!!selectedSession}
+        onOpenChange={(open) => !open && setSelectedSession(null)}
+      />
     </Card>
   )
 } 
