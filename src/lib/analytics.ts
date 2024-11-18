@@ -44,17 +44,37 @@ export function calculateDetailedAnalytics(sessions: DBSession[]): DetailedAnaly
     }
   }
 
+  // Handle potential null/undefined values
+  const validSessions = sessions.filter(s => 
+    typeof s.total_duration === 'number' && 
+    typeof s.edge_duration === 'number'
+  )
+
+  if (!validSessions.length) return {
+    averageSessionDuration: 0,
+    averageEdgeDuration: 0,
+    averageTimeBetweenEdges: 0,
+    averageEdgesPerSession: 0,
+    longestSession: 0,
+    shortestSession: 0,
+    successRate: 0,
+    totalSessions: sessions.length,
+    totalEdges,
+    improvementRate: 0,
+    streakCount
+  }
+
   return {
-    averageSessionDuration: sessions.reduce((acc, s) => acc + s.total_duration, 0) / sessions.length,
-    averageEdgeDuration: sessions.reduce((acc, s) => acc + s.edge_duration, 0) / totalEdges,
-    averageTimeBetweenEdges: calculateAverageTimeBetweenEdges(sessions),
-    averageEdgesPerSession: totalEdges / sessions.length,
-    longestSession: Math.max(...sessions.map(s => s.total_duration)),
-    shortestSession: Math.min(...sessions.map(s => s.total_duration)),
+    averageSessionDuration: validSessions.reduce((acc, s) => acc + s.total_duration, 0) / validSessions.length,
+    averageEdgeDuration: validSessions.reduce((acc, s) => acc + s.edge_duration, 0) / totalEdges,
+    averageTimeBetweenEdges: calculateAverageTimeBetweenEdges(validSessions),
+    averageEdgesPerSession: totalEdges / validSessions.length,
+    longestSession: Math.max(...validSessions.map(s => s.total_duration)),
+    shortestSession: Math.min(...validSessions.map(s => s.total_duration)),
     successRate: (successfulSessions.length / sessions.length) * 100,
     totalSessions: sessions.length,
     totalEdges,
-    improvementRate: calculateImprovementRate(sessions),
+    improvementRate: calculateImprovementRate(validSessions),
     streakCount
   }
 }
@@ -66,10 +86,16 @@ function calculateAverageTimeBetweenEdges(sessions: DBSession[]): number {
   sessions.forEach(session => {
     const events = session.edge_events ?? []
     for (let i = 1; i < events.length; i++) {
-      if (events[i-1].end_time && events[i].start_time) {
-        totalTime += new Date(events[i].start_time).getTime() - 
-                    new Date(events[i-1].end_time).getTime()
-        count++
+      const prevEvent = events[i-1]
+      const currEvent = events[i]
+      // Only calculate if both timestamps exist
+      if (prevEvent.end_time && currEvent.start_time) {
+        const endTime = new Date(prevEvent.end_time).getTime()
+        const startTime = new Date(currEvent.start_time).getTime()
+        if (!isNaN(endTime) && !isNaN(startTime)) {
+          totalTime += startTime - endTime
+          count++
+        }
       }
     }
   })
@@ -95,6 +121,9 @@ function calculateImprovementRate(sessions: DBSession[]): number {
     totalDuration: acc.totalDuration + (s.total_duration ?? 0),
     edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
   }), { totalDuration: 0, edgeCount: 0 })
+
+  // Prevent division by zero
+  if (olderStats.totalDuration === 0 || olderStats.edgeCount === 0) return 0
 
   // Calculate improvement metrics
   const recentAvgDuration = recentStats.totalDuration / recentSessions.length
