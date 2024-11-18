@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { Session } from '@/lib/supabase/schema'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from 'sonner'
-import { Trash2 } from 'lucide-react'
+import { Trash2, RefreshCw } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
 type SortOrder = 'desc' | 'asc'
@@ -42,10 +43,11 @@ export function SessionHistory() {
 
   useEffect(() => {
     fetchSessions()
-    // Set up polling interval
-    const interval = setInterval(fetchSessions, 5000)
-    return () => clearInterval(interval)
   }, [sortField, sortOrder])
+
+  const refreshSessions = useCallback(() => {
+    fetchSessions()
+  }, [])
 
   async function fetchSessions() {
     setLoading(true)
@@ -96,9 +98,9 @@ export function SessionHistory() {
   if (loading) return <div>Loading sessions...</div>
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Recent Sessions</h2>
+    <Card className="w-full max-w-4xl mx-auto mt-8">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Recent Sessions</CardTitle>
         <div className="flex gap-4">
           <Select value={sortField} onValueChange={(value: SortField) => setSortField(value)}>
             <SelectTrigger className="w-[180px]">
@@ -116,49 +118,59 @@ export function SessionHistory() {
           >
             {sortOrder === 'desc' ? '↓' : '↑'}
           </Button>
-        </div>
-      </div>
-      <div className="grid gap-4">
-        {sessions.map((session) => (
-          <div 
-            key={session.id} 
-            className="bg-gray-100 p-4 rounded-lg relative"
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={refreshSessions}
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-              onClick={() => deleteSession(session.id)}
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4">
+          {sessions.map((session) => (
+            <div 
+              key={session.id} 
+              className="relative bg-card border rounded-lg p-4"
             >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="font-medium">Total Time</div>
-                <div>{formatDuration(session.total_duration)}</div>
-              </div>
-              <div>
-                <div className="font-medium">Active Time</div>
-                <div>{formatDuration(session.active_duration)}</div>
-              </div>
-              <div>
-                <div className="font-medium">Edge Time</div>
-                <div>{formatDuration(session.edge_duration)}</div>
-              </div>
-              <div>
-                <div className="font-medium">Finished During Edge</div>
-                <div>{session.finished_during_edge ? 'Yes' : 'No'}</div>
-              </div>
-              <div className="col-span-2 text-sm text-gray-500">
-                {new Date(session.created_at).toLocaleString()}
-              </div>
-              <div className="col-span-2 text-sm text-gray-500">
-                Edge Count: {session.edge_events?.length ?? 0}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+                onClick={() => deleteSession(session.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="font-medium text-muted-foreground">Total Time</div>
+                  <div className="text-foreground">{formatDuration(session.total_duration)}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-muted-foreground">Active Time</div>
+                  <div className="text-foreground">{formatDuration(session.active_duration)}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-muted-foreground">Edge Time</div>
+                  <div className="text-foreground">{formatDuration(session.edge_duration)}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-muted-foreground">Edge Count</div>
+                  <div className="text-foreground">{session.edge_events?.length ?? 0}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="font-medium text-muted-foreground">Finished During Edge</div>
+                  <div className="text-foreground">{session.finished_during_edge ? 'Yes' : 'No'}</div>
+                </div>
+                <div className="col-span-2 text-sm text-muted-foreground">
+                  {new Date(session.created_at).toLocaleString()}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 } 

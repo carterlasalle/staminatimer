@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 ChartJS.register(
   CategoryScale,
@@ -46,14 +47,16 @@ export function Charts() {
         datasets: [
           {
             label: 'Total Duration',
-            data: sessions.map(s => Math.round(s.total_duration / 1000 / 60 * 100) / 100), // Convert to minutes with 2 decimal places
+            data: sessions.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
             borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
             tension: 0.1
           },
           {
             label: 'Edge Duration',
-            data: sessions.map(s => Math.round(s.edge_duration / 1000 / 60 * 100) / 100),
+            data: sessions.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
             borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
             tension: 0.1
           }
         ]
@@ -64,7 +67,6 @@ export function Charts() {
     }
 
     fetchChartData()
-    // Set up polling interval
     const interval = setInterval(fetchChartData, 5000)
     return () => clearInterval(interval)
   }, [])
@@ -72,34 +74,61 @@ export function Charts() {
   if (loading) return <div>Loading charts...</div>
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8 p-6 bg-gray-50 rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Progress Over Time (Minutes)</h2>
-      {data && (
-        <Line
-          data={data}
-          options={{
-            responsive: true,
-            scales: {
-              y: {
-                title: {
-                  display: true,
-                  text: 'Duration (minutes)'
+    <Card className="w-full max-w-4xl mx-auto mt-8">
+      <CardHeader>
+        <CardTitle>Progress Over Time (Minutes)</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="w-full aspect-[2/1] relative">
+          {data && (
+            <Line
+              data={data}
+              options={{
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                  mode: 'index' as const,
+                  intersect: false,
                 },
-                ticks: {
-                  callback: (value) => `${value}m`
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Duration (minutes)'
+                    },
+                    ticks: {
+                      callback: (value) => `${value}m`
+                    },
+                    grid: {
+                      color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                  },
+                  x: {
+                    ticks: {
+                      maxRotation: 45,
+                      minRotation: 45
+                    },
+                    grid: {
+                      display: false
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    position: 'top' as const,
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
+                    }
+                  }
                 }
-              }
-            },
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
-                }
-              }
-            }
-          }}
-        />
-      )}
-    </div>
+              }}
+            />
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 } 

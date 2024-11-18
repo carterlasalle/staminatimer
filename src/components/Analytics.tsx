@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { Session } from '@/lib/supabase/schema'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 type DBSession = {
   id: string
@@ -130,27 +131,31 @@ export function Analytics() {
   if (loading) return <div>Calculating analytics...</div>
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8 p-6 bg-gray-50 rounded-lg">
-      <h2 className="text-2xl font-bold mb-6">Performance Analytics</h2>
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <div className="font-medium text-gray-600">Average Session Duration</div>
-          <div className="text-xl">{formatDuration(analytics?.averageSessionDuration ?? 0)}</div>
+    <Card className="w-full max-w-4xl mx-auto mt-8">
+      <CardHeader>
+        <CardTitle>Performance Analytics</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <div className="text-sm text-muted-foreground">Average Session Duration</div>
+            <div className="text-xl">{formatDuration(analytics?.averageSessionDuration ?? 0)}</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Average Edge Duration</div>
+            <div className="text-xl">{formatDuration(analytics?.averageEdgeDuration ?? 0)}</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Average Time Between Edges</div>
+            <div className="text-xl">{formatDuration(analytics?.averageTimeBetweenEdges ?? 0)}</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Improvement Rate</div>
+            <div className="text-xl">{analytics?.improvementRate.toFixed(1)}%</div>
+          </div>
         </div>
-        <div>
-          <div className="font-medium text-gray-600">Average Edge Duration</div>
-          <div className="text-xl">{formatDuration(analytics?.averageEdgeDuration ?? 0)}</div>
-        </div>
-        <div>
-          <div className="font-medium text-gray-600">Average Time Between Edges</div>
-          <div className="text-xl">{formatDuration(analytics?.averageTimeBetweenEdges ?? 0)}</div>
-        </div>
-        <div>
-          <div className="font-medium text-gray-600">Improvement Rate</div>
-          <div className="text-xl">{analytics?.improvementRate.toFixed(1)}%</div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
