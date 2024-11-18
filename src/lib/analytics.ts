@@ -75,4 +75,37 @@ function calculateAverageTimeBetweenEdges(sessions: DBSession[]): number {
   })
 
   return count > 0 ? totalTime / count : 0
+}
+
+function calculateImprovementRate(sessions: DBSession[]): number {
+  if (sessions.length < 2) return 0
+  
+  // Get the most recent 5 sessions and oldest 5 sessions
+  const recentSessions = sessions.slice(0, 5)
+  const olderSessions = sessions.slice(-5)
+  
+  // Calculate average duration and edge count for recent sessions
+  const recentStats = recentSessions.reduce((acc, s) => ({
+    totalDuration: acc.totalDuration + (s.total_duration ?? 0),
+    edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
+  }), { totalDuration: 0, edgeCount: 0 })
+
+  // Calculate average duration and edge count for older sessions
+  const olderStats = olderSessions.reduce((acc, s) => ({
+    totalDuration: acc.totalDuration + (s.total_duration ?? 0),
+    edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
+  }), { totalDuration: 0, edgeCount: 0 })
+
+  // Calculate improvement metrics
+  const recentAvgDuration = recentStats.totalDuration / recentSessions.length
+  const olderAvgDuration = olderStats.totalDuration / olderSessions.length
+  const recentAvgEdges = recentStats.edgeCount / recentSessions.length
+  const olderAvgEdges = olderStats.edgeCount / olderSessions.length
+
+  // Calculate overall improvement (considering both duration and edge count)
+  const durationImprovement = ((recentAvgDuration - olderAvgDuration) / olderAvgDuration) * 100
+  const edgeImprovement = ((recentAvgEdges - olderAvgEdges) / olderAvgEdges) * 100
+
+  // Return weighted average of improvements
+  return (durationImprovement + edgeImprovement) / 2
 } 
