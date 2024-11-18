@@ -17,7 +17,7 @@ A Next.js application for tracking and improving personal endurance metrics thro
 - Tailwind CSS
 - Supabase
 - Chart.js
-- Shadcn/UI
+- ShadCn/UI
 
 ## Getting Started
 
