@@ -26,7 +26,11 @@ ChartJS.register(
   Legend
 )
 
-export function Charts() {
+interface ChartsProps {
+  data?: any[]
+}
+
+export function Charts({ data: externalData }: ChartsProps = {}) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const { theme } = useTheme()
@@ -34,6 +38,31 @@ export function Charts() {
   useEffect(() => {
     async function fetchChartData() {
       try {
+        if (externalData) {
+          const chartData = {
+            labels: externalData.map(s => new Date(s.created_at).toLocaleTimeString()),
+            datasets: [
+              {
+                label: 'Total Duration',
+                data: externalData.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
+                borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
+                backgroundColor: theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
+                tension: 0.1
+              },
+              {
+                label: 'Edge Duration',
+                data: externalData.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
+                borderColor: theme === 'dark' ? 'rgb(248, 113, 113)' : 'rgb(255, 99, 132)',
+                backgroundColor: theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+                tension: 0.1
+              }
+            ]
+          }
+          setData(chartData)
+          setLoading(false)
+          return
+        }
+
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
           console.log('No user found')
@@ -123,9 +152,11 @@ export function Charts() {
     }
 
     fetchChartData()
-    const interval = setInterval(fetchChartData, 5000)
-    return () => clearInterval(interval)
-  }, [theme])
+    if (!externalData) {
+      const interval = setInterval(fetchChartData, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [theme, externalData])
 
   if (loading) {
     return (

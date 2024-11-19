@@ -30,72 +30,125 @@ type Analytics = {
   improvementRate: number
 }
 
-export function Analytics() {
+interface AnalyticsProps {
+  data?: any[] // Add proper typing based on your data structure
+}
+
+export function Analytics({ data: externalData }: AnalyticsProps = {}) {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function calculateAnalytics() {
-      const { data: { user } } = await supabase.auth.getUser()
-      const { data: sessions, error } = await supabase
-        .from('sessions')
-        .select(`
-          *,
-          edge_events!fk_session (*)
-        `)
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(20)
-
-      if (error) {
-        console.error('Error fetching analytics data:', error)
-        return
-      }
-
-      const typedSessions = sessions as DBSession[]
-      
-      const stats = typedSessions.reduce((acc, session) => {
-        acc.totalDuration += session.total_duration ?? 0
-        acc.totalEdges += session.edge_events?.length ?? 0
-        
-        // Calculate time between edges
-        if (session.edge_events && session.edge_events.length > 1) {
-          let previousEdge = session.edge_events[0]
-          for (let i = 1; i < session.edge_events.length; i++) {
-            const currentEdge = session.edge_events[i]
-            if (previousEdge.end_time && currentEdge.start_time) {
-              acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
-                new Date(previousEdge.end_time).getTime()
-              acc.edgeIntervalCount++
+      try {
+        // If external data is provided, use it instead of fetching
+        if (externalData) {
+          const typedSessions = externalData as DBSession[]
+          
+          const stats = typedSessions.reduce((acc, session) => {
+            acc.totalDuration += session.total_duration ?? 0
+            acc.totalEdges += session.edge_events?.length ?? 0
+            
+            // Calculate time between edges
+            if (session.edge_events && session.edge_events.length > 1) {
+              let previousEdge = session.edge_events[0]
+              for (let i = 1; i < session.edge_events.length; i++) {
+                const currentEdge = session.edge_events[i]
+                if (previousEdge.end_time && currentEdge.start_time) {
+                  acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
+                    new Date(previousEdge.end_time).getTime()
+                  acc.edgeIntervalCount++
+                }
+                previousEdge = currentEdge
+              }
             }
-            previousEdge = currentEdge
-          }
-        }
-        
-        return acc
-      }, {
-        totalDuration: 0,
-        totalEdges: 0,
-        totalTimeBetweenEdges: 0,
-        edgeIntervalCount: 0
-      })
+            
+            return acc
+          }, {
+            totalDuration: 0,
+            totalEdges: 0,
+            totalTimeBetweenEdges: 0,
+            edgeIntervalCount: 0
+          })
 
-      setAnalytics({
-        averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
-        averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
-        averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
-        totalSessions: typedSessions.length,
-        improvementRate: calculateImprovementRate(typedSessions)
-      })
-      
-      setLoading(false)
+          setAnalytics({
+            averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
+            averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
+            averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
+            totalSessions: typedSessions.length,
+            improvementRate: calculateImprovementRate(typedSessions)
+          })
+          
+          setLoading(false)
+          return
+        }
+
+        const { data: { user } } = await supabase.auth.getUser()
+        const { data: sessions, error } = await supabase
+          .from('sessions')
+          .select(`
+            *,
+            edge_events!fk_session (*)
+          `)
+          .eq('user_id', user?.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        if (error) {
+          console.error('Error fetching analytics data:', error)
+          return
+        }
+
+        const typedSessions = sessions as DBSession[]
+        
+        const stats = typedSessions.reduce((acc, session) => {
+          acc.totalDuration += session.total_duration ?? 0
+          acc.totalEdges += session.edge_events?.length ?? 0
+          
+          // Calculate time between edges
+          if (session.edge_events && session.edge_events.length > 1) {
+            let previousEdge = session.edge_events[0]
+            for (let i = 1; i < session.edge_events.length; i++) {
+              const currentEdge = session.edge_events[i]
+              if (previousEdge.end_time && currentEdge.start_time) {
+                acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
+                  new Date(previousEdge.end_time).getTime()
+                acc.edgeIntervalCount++
+              }
+              previousEdge = currentEdge
+            }
+          }
+          
+          return acc
+        }, {
+          totalDuration: 0,
+          totalEdges: 0,
+          totalTimeBetweenEdges: 0,
+          edgeIntervalCount: 0
+        })
+
+        setAnalytics({
+          averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
+          averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
+          averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
+          totalSessions: typedSessions.length,
+          improvementRate: calculateImprovementRate(typedSessions)
+        })
+        
+        setLoading(false)
+      } catch (err) {
+        console.error('Error calculating analytics:', err)
+        setLoading(false)
+      }
     }
 
     calculateAnalytics()
-    // Set up polling interval
-    const interval = setInterval(calculateAnalytics, 5000)
-    return () => clearInterval(interval)
-  }, [])
+    // Only set up polling if we're not using external data
+    if (!externalData) {
+      const interval = setInterval(calculateAnalytics, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [externalData])
 
   function calculateImprovementRate(sessions: DBSession[]): number {
     if (sessions.length < 2) return 0
