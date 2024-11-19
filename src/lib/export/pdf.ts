@@ -9,24 +9,22 @@ declare module 'jspdf' {
     lastAutoTable: {
       finalY: number
     }
-    internal: {
-      events: any
-      scaleFactor: number
-      pageSize: {
-        width: number
-        getWidth: () => number
-        height: number
-        getHeight: () => number
-      }
-      pages: number[]
-      getEncryptor(objectId: number): (data: string) => string
-      getNumberOfPages: () => number
+  }
+}
+
+// Create a custom type for internal to avoid conflicts
+type CustomJsPDF = jsPDF & {
+  internal: {
+    getNumberOfPages: () => number
+    pageSize: {
+      width: number
+      height: number
     }
   }
 }
 
 export async function generatePDF(sessions: any[]) {
-  const doc = new jsPDF()
+  const doc = new jsPDF() as CustomJsPDF
   
   // Set dark theme colors
   const colors = {
