@@ -53,12 +53,15 @@ export function SessionHistory() {
 
   async function fetchSessions() {
     setLoading(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    
     const { data, error } = await supabase
       .from('sessions')
       .select(`
         *,
         edge_events!fk_session (*)
       `)
+      .eq('user_id', user?.id)
       .order(sortField, { ascending: sortOrder === 'asc' })
       .limit(10)
 

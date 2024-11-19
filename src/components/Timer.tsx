@@ -57,12 +57,14 @@ export function Timer() {
 
   const startSession = useCallback(async () => {
     const now = new Date()
+    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('sessions')
       .insert({
         start_time: now.toISOString(),
         active_duration: 0,
         edge_duration: 0,
+        user_id: user?.id
       })
       .select()
       .single()

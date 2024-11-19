@@ -36,12 +36,14 @@ export function Analytics() {
 
   useEffect(() => {
     async function calculateAnalytics() {
+      const { data: { user } } = await supabase.auth.getUser()
       const { data: sessions, error } = await supabase
         .from('sessions')
         .select(`
           *,
           edge_events!fk_session (*)
         `)
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(20)
 
