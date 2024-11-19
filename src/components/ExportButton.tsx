@@ -2,17 +2,24 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Share2, FileDown, Copy, Check } from 'lucide-react'
+import { Share2, FileDown, Copy, Check, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
 import { toast } from 'sonner'
 import { generatePDF } from '@/lib/export/pdf'
 import { generateShareableLink } from '@/lib/export/share'
+
+type ShareDuration = '1h' | '24h' | '7d' | '30d' | 'infinite'
 
 export function ExportButton() {
   const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +51,7 @@ export function ExportButton() {
     }
   }
 
-  const handleShare = async () => {
+  const handleShare = async (duration: ShareDuration) => {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
@@ -61,7 +68,7 @@ export function ExportButton() {
 
       if (error) throw error
 
-      const shareableLink = await generateShareableLink(sessions)
+      const shareableLink = await generateShareableLink(sessions, duration)
       await navigator.clipboard.writeText(shareableLink)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -82,14 +89,30 @@ export function ExportButton() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleShare} disabled={isLoading}>
-          {copied ? (
-            <Check className="mr-2 h-4 w-4" />
-          ) : (
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
             <Copy className="mr-2 h-4 w-4" />
-          )}
-          Copy Share Link
-        </DropdownMenuItem>
+            Share Link
+            <Clock className="ml-2 h-4 w-4" />
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem onClick={() => handleShare('1h')}>
+              1 Hour
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleShare('24h')}>
+              24 Hours
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleShare('7d')}>
+              7 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleShare('30d')}>
+              30 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleShare('infinite')}>
+              Never Expires
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuItem onClick={handleExportPDF} disabled={isLoading}>
           <FileDown className="mr-2 h-4 w-4" />
           Export as PDF
