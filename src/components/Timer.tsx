@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Timer as TimerIcon } from 'lucide-react'
+import { useAchievements } from '@/hooks/useAchievements'
 
 type TimerState = 'idle' | 'active' | 'edging' | 'finished'
 
@@ -34,6 +35,7 @@ export function Timer() {
   const [displayActiveTime, setDisplayActiveTime] = useState(0)
   const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
   const [edgeLaps, setEdgeLaps] = useState<EdgeLap[]>([])
+  const { checkAchievements } = useAchievements()
 
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -153,27 +155,47 @@ export function Timer() {
     }
 
     if (sessionId) {
+      const sessionData = {
+        end_time: now.toISOString(),
+        active_duration: finalActiveTime,
+        edge_duration: finalEdgeTime,
+        finished_during_edge: finishedDuringEdge,
+        total_duration: finalActiveTime + finalEdgeTime,
+      }
+
       const { error } = await supabase
         .from('sessions')
-        .update({
-          end_time: now.toISOString(),
-          active_duration: finalActiveTime,
-          edge_duration: finalEdgeTime,
-          finished_during_edge: finishedDuringEdge,
-          total_duration: finalActiveTime + finalEdgeTime,
-        })
+        .update(sessionData)
         .eq('id', sessionId)
 
       if (error) {
         toast.error('Failed to finish session')
         console.error('Error finishing session:', error)
+        return
       }
+
+      await checkAchievements({
+        id: sessionId,
+        start_time: sessionStart?.toISOString() ?? '',
+        end_time: now.toISOString(),
+        total_duration: finalActiveTime + finalEdgeTime,
+        active_duration: finalActiveTime,
+        edge_duration: finalEdgeTime,
+        finished_during_edge: finishedDuringEdge,
+        created_at: sessionStart?.toISOString() ?? '',
+        edge_events: edgeLaps.map(lap => ({
+          id: crypto.randomUUID(),
+          start_time: lap.startTime.toISOString(),
+          end_time: lap.endTime?.toISOString() ?? null,
+          duration: lap.duration ?? null
+        }))
+      })
     }
 
     setActiveTime(finalActiveTime)
     setEdgeTime(finalEdgeTime)
     setState('finished')
-  }, [state, lastActiveStart, currentEdgeStart, sessionId, activeTime, edgeTime, finishedDuringEdge])
+  }, [state, lastActiveStart, currentEdgeStart, sessionId, activeTime, edgeTime, finishedDuringEdge, sessionStart, edgeLaps, checkAchievements])
 
   const resetTimer = useCallback(() => {
     setState('idle')

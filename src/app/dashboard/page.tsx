@@ -2,6 +2,7 @@ import { Timer } from '@/components/Timer'
 import { SessionHistory } from '@/components/SessionHistory'
 import { Analytics } from '@/components/Analytics'
 import { Charts } from '@/components/Charts'
+import { Achievements } from '@/components/Achievements'
 import { ModeToggle } from '@/components/mode-toggle'
 import { UserMenu } from '@/components/UserMenu'
 import { ExportButton } from '@/components/ExportButton'
@@ -20,6 +21,7 @@ export default function Dashboard() {
       <Timer />
       <Analytics />
       <Charts />
+      <Achievements />
       <SessionHistory />
     </main>
   )
