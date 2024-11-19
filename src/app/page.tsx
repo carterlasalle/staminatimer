@@ -1,19 +1,26 @@
-import { redirect } from 'next/navigation'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode-toggle'
 import Link from 'next/link'
-import { Timer as TimerIcon, LineChart, Share2, Shield, Activity, Scale } from 'lucide-react'
+import { Timer as TimerIcon, LineChart, Share2, Shield } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 
-export default async function Home() {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: { session } } = await supabase.auth.getSession()
+export default function Home() {
+  const router = useRouter()
 
-  if (session) {
-    redirect('/dashboard')
-  }
+  useEffect(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.push('/dashboard')
+      }
+    }
+    checkSession()
+  }, [router])
 
   return (
     <div className="flex min-h-screen flex-col">
