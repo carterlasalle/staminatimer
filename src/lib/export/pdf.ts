@@ -2,6 +2,13 @@ import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import { formatDuration } from '@/lib/utils'
 
+// Add type augmentation for the autotable plugin
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF
+  }
+}
+
 export async function generatePDF(sessions: any[]) {
   const doc = new jsPDF()
   
