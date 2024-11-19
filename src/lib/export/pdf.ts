@@ -2,9 +2,13 @@ import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import { formatDuration } from '@/lib/utils'
 
+// Extend jsPDF types to include autoTable
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF
+    lastAutoTable: {
+      finalY: number
+    }
   }
 }
 
@@ -81,7 +85,7 @@ export async function generatePDF(sessions: any[]) {
   // Add recent sessions
   doc.setFontSize(16)
   doc.setTextColor(colors.primary)
-  doc.text('Recent Sessions', 20, doc.autoTable.previous.finalY + 20)
+  doc.text('Recent Sessions', 20, doc.lastAutoTable.finalY + 20)
 
   const sessionData = sessions.map(session => [
     new Date(session.created_at).toLocaleDateString(),
@@ -93,7 +97,7 @@ export async function generatePDF(sessions: any[]) {
   ])
 
   doc.autoTable({
-    startY: doc.autoTable.previous.finalY + 30,
+    startY: doc.lastAutoTable.finalY + 30,
     head: [['Date', 'Duration', 'Edge Time', 'Edges', 'Avg Edge', 'Success']],
     body: sessionData,
     theme: 'grid',
@@ -115,13 +119,13 @@ export async function generatePDF(sessions: any[]) {
   })
 
   // Add edge analysis
-  if (doc.autoTable.previous.finalY > doc.internal.pageSize.height - 60) {
+  if (doc.lastAutoTable.finalY > doc.internal.pageSize.height - 60) {
     doc.addPage()
   }
 
   doc.setFontSize(16)
   doc.setTextColor(colors.primary)
-  doc.text('Edge Analysis', 20, doc.autoTable.previous.finalY + 20)
+  doc.text('Edge Analysis', 20, doc.lastAutoTable.finalY + 20)
 
   const edgeData = sessions.flatMap(session => 
     session.edge_events.map((edge: any, index: number) => [
@@ -135,7 +139,7 @@ export async function generatePDF(sessions: any[]) {
   )
 
   doc.autoTable({
-    startY: doc.autoTable.previous.finalY + 30,
+    startY: doc.lastAutoTable.finalY + 30,
     head: [['Session Date', 'Edge #', 'Duration', 'Recovery Time']],
     body: edgeData,
     theme: 'grid',
