@@ -81,21 +81,23 @@ export function useAchievements() {
           break
 
         case 'custom':
-          switch (achievement.id) {
-            case 'minimal_pause': // Total edge time less than 10% of session duration
+          // Get achievement name from the database record
+          const achievementName = achievement.name.toLowerCase().replace(/\s+/g, '_')
+          switch (achievementName) {
+            case 'minimal_pause':
               const edgeTimePercent = (session.edge_duration / session.total_duration) * 100
               progress = Math.min(100, (10 / edgeTimePercent) * 100)
               unlocked = edgeTimePercent <= 10
               break
 
-            case 'straight_through': // 15+ minute session with no edges
+            case 'straight_through':
               if (session.total_duration >= 900000 && (session.edge_events?.length ?? 0) === 0) {
                 progress = 100
                 unlocked = true
               }
               break
 
-            case 'getting_stronger': // Increase average active duration by 25%
+            case 'getting_stronger':
               if (historicalSessions && historicalSessions.length > 1) {
                 const oldAvg = historicalSessions.slice(1).reduce((acc, s) => acc + s.active_duration, 0) / (historicalSessions.length - 1)
                 const improvement = ((session.active_duration - oldAvg) / oldAvg) * 100
@@ -103,8 +105,6 @@ export function useAchievements() {
                 unlocked = improvement >= 25
               }
               break
-
-            // Add more custom achievement checks...
           }
           break
       }
