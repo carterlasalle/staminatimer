@@ -10,11 +10,17 @@ declare module 'jspdf' {
       finalY: number
     }
     internal: {
-      getNumberOfPages: () => number
+      events: any
+      scaleFactor: number
       pageSize: {
         width: number
+        getWidth: () => number
         height: number
+        getHeight: () => number
       }
+      pages: number[]
+      getEncryptor(objectId: number): (data: string) => string
+      getNumberOfPages: () => number
     }
   }
 }
