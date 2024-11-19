@@ -107,8 +107,23 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="border-t py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-          <p>© 2024 Stamina Timer. All rights reserved.</p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex gap-4 text-sm text-muted-foreground">
+              <Link href="/license" className="hover:text-primary transition-colors">
+                License
+              </Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
+            </div>
+            <p className="text-center text-muted-foreground">
+              © 2024 Stamina Timer. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
