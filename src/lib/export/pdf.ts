@@ -2,12 +2,19 @@ import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import { formatDuration } from '@/lib/utils'
 
-// Extend jsPDF types to include autoTable
+// Extend jsPDF types to include autoTable and internal methods
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF
     lastAutoTable: {
       finalY: number
+    }
+    internal: {
+      getNumberOfPages: () => number
+      pageSize: {
+        width: number
+        height: number
+      }
     }
   }
 }
