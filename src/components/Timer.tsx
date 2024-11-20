@@ -106,45 +106,50 @@ export function Timer() {
   }, [])
 
   const startEdge = useCallback(async () => {
-    if (!sessionId) {
-      toast.error('No active session')
-      return
-    }
-
-    const now = new Date()
-    if (lastActiveStart) {
-      const newActiveTime = activeTime + (now.getTime() - lastActiveStart.getTime())
-      setActiveTime(newActiveTime)
-
-      const { error: sessionError } = await supabase
-        .from('sessions')
-        .update([{ active_duration: newActiveTime }])
-        .eq('id', sessionId)
-        .select()
-        .single()
-
-      if (sessionError) {
-        console.error('Error updating session:', sessionError)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user || !sessionId) {
+        toast.error('No active session')
+        return
       }
 
-      const { error: edgeError } = await supabase
-        .from('edge_events')
-        .insert([{
-          session_id: sessionId,
-          start_time: now.toISOString()
-        }])
-        .select()
-        .single()
+      const now = new Date()
+      if (lastActiveStart) {
+        const newActiveTime = activeTime + (now.getTime() - lastActiveStart.getTime())
+        setActiveTime(newActiveTime)
 
-      if (edgeError) {
-        toast.error('Failed to record edge event')
-        console.error('Error recording edge event:', edgeError)
+        const { error: sessionError } = await supabase
+          .from('sessions')
+          .update({ active_duration: newActiveTime })
+          .eq('id', sessionId)
+          .eq('user_id', user.id)
+          .single()
+
+        if (sessionError) {
+          console.error('Error updating session:', sessionError)
+        }
+
+        const { error: edgeError } = await supabase
+          .from('edge_events')
+          .insert({
+            session_id: sessionId,
+            start_time: now.toISOString()
+          })
+          .single()
+
+        if (edgeError) {
+          toast.error('Failed to record edge event')
+          console.error('Error recording edge event:', edgeError)
+        }
+
+        setEdgeLaps(prev => [...prev, { startTime: now }])
       }
-
-      setEdgeLaps(prev => [...prev, { startTime: now }])
+      setCurrentEdgeStart(now)
+      setState('edging')
+    } catch (err) {
+      toast.error('Error starting edge')
+      console.error('Edge error:', err)
     }
-    setCurrentEdgeStart(now)
-    setState('edging')
   }, [lastActiveStart, sessionId, activeTime])
 
   const endEdge = useCallback(async () => {
@@ -185,18 +190,24 @@ export function Timer() {
   }, [currentEdgeStart, sessionId, edgeTime])
 
   const finishSession = useCallback(async () => {
-    const now = new Date()
-    let finalActiveTime = activeTime
-    let finalEdgeTime = edgeTime
-    
-    if (state === 'active' && lastActiveStart) {
-      finalActiveTime += (now.getTime() - lastActiveStart.getTime())
-    } else if (state === 'edging' && currentEdgeStart) {
-      finalEdgeTime += (now.getTime() - currentEdgeStart.getTime())
-      setFinishedDuringEdge(true)
-    }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user || !sessionId) {
+        toast.error('Session error')
+        return
+      }
 
-    if (sessionId) {
+      const now = new Date()
+      let finalActiveTime = activeTime
+      let finalEdgeTime = edgeTime
+      
+      if (state === 'active' && lastActiveStart) {
+        finalActiveTime += (now.getTime() - lastActiveStart.getTime())
+      } else if (state === 'edging' && currentEdgeStart) {
+        finalEdgeTime += (now.getTime() - currentEdgeStart.getTime())
+        setFinishedDuringEdge(true)
+      }
+
       const sessionData = {
         end_time: now.toISOString(),
         active_duration: finalActiveTime,
@@ -209,6 +220,8 @@ export function Timer() {
         .from('sessions')
         .update(sessionData)
         .eq('id', sessionId)
+        .eq('user_id', user.id)
+        .single()
 
       if (error) {
         toast.error('Failed to finish session')
@@ -232,11 +245,14 @@ export function Timer() {
           duration: lap.duration ?? null
         }))
       })
-    }
 
-    setActiveTime(finalActiveTime)
-    setEdgeTime(finalEdgeTime)
-    setState('finished')
+      setActiveTime(finalActiveTime)
+      setEdgeTime(finalEdgeTime)
+      setState('finished')
+    } catch (err) {
+      toast.error('Error finishing session')
+      console.error('Session error:', err)
+    }
   }, [state, lastActiveStart, currentEdgeStart, sessionId, activeTime, edgeTime, finishedDuringEdge, sessionStart, edgeLaps, checkAchievements])
 
   const resetTimer = useCallback(() => {
