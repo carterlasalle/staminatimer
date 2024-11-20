@@ -153,25 +153,44 @@ export function Timer() {
   }, [lastActiveStart, sessionId, activeTime])
 
   const endEdge = useCallback(async () => {
-    const now = new Date()
-    if (currentEdgeStart && sessionId) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user || !sessionId || !currentEdgeStart) {
+        toast.error('Invalid session state')
+        return
+      }
+
+      const now = new Date()
       const newEdgeTime = edgeTime + (now.getTime() - currentEdgeStart.getTime())
       setEdgeTime(newEdgeTime)
 
-      const { error } = await supabase
+      // First get the latest unfinished edge event
+      const { data: edgeEvents, error: fetchError } = await supabase
+        .from('edge_events')
+        .select('*')
+        .eq('session_id', sessionId)
+        .is('end_time', null)
+        .single()
+
+      if (fetchError) {
+        console.error('Error fetching edge event:', fetchError)
+        return
+      }
+
+      // Then update that specific edge event
+      const { error: updateError } = await supabase
         .from('edge_events')
         .update({
           end_time: now.toISOString(),
-          duration: now.getTime() - currentEdgeStart.getTime(),
+          duration: now.getTime() - currentEdgeStart.getTime()
         })
+        .eq('id', edgeEvents.id)
         .eq('session_id', sessionId)
-        .is('end_time', null)
-        .select()
         .single()
 
-      if (error) {
+      if (updateError) {
         toast.error('Failed to update edge event')
-        console.error('Error updating edge event:', error)
+        console.error('Error updating edge event:', updateError)
       }
 
       setEdgeLaps(prev => {
@@ -183,10 +202,14 @@ export function Timer() {
         }
         return newLaps
       })
+
+      setLastActiveStart(now)
+      setCurrentEdgeStart(null)
+      setState('active')
+    } catch (err) {
+      toast.error('Error ending edge')
+      console.error('Edge error:', err)
     }
-    setLastActiveStart(now)
-    setCurrentEdgeStart(null)
-    setState('active')
   }, [currentEdgeStart, sessionId, edgeTime])
 
   const finishSession = useCallback(async () => {
