@@ -60,13 +60,22 @@ export function Timer() {
   const startSession = useCallback(async () => {
     const now = new Date()
     const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      toast.error('User not authenticated')
+      return
+    }
+
     const { data, error } = await supabase
       .from('sessions')
       .insert({
+        user_id: user.id,
         start_time: now.toISOString(),
+        total_duration: 0,
         active_duration: 0,
         edge_duration: 0,
-        user_id: user?.id
+        finished_during_edge: false,
+        created_at: now.toISOString()
       })
       .select()
       .single()
@@ -84,21 +93,37 @@ export function Timer() {
   }, [])
 
   const startEdge = useCallback(async () => {
+    if (!sessionId) {
+      toast.error('No active session')
+      return
+    }
+
     const now = new Date()
-    if (lastActiveStart && sessionId) {
+    if (lastActiveStart) {
       const newActiveTime = activeTime + (now.getTime() - lastActiveStart.getTime())
       setActiveTime(newActiveTime)
 
-      const { error } = await supabase
+      // Update session with new active time
+      const { error: sessionError } = await supabase
+        .from('sessions')
+        .update({ active_duration: newActiveTime })
+        .eq('id', sessionId)
+
+      if (sessionError) {
+        console.error('Error updating session:', sessionError)
+      }
+
+      // Create new edge event
+      const { error: edgeError } = await supabase
         .from('edge_events')
         .insert({
           session_id: sessionId,
-          start_time: now.toISOString(),
+          start_time: now.toISOString()
         })
 
-      if (error) {
+      if (edgeError) {
         toast.error('Failed to record edge event')
-        console.error('Error recording edge event:', error)
+        console.error('Error recording edge event:', edgeError)
       }
 
       setEdgeLaps(prev => [...prev, { startTime: now }])
