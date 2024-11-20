@@ -86,6 +86,11 @@ export function Timer() {
       return
     }
 
+    if (!data?.id) {
+      toast.error('Failed to create session')
+      return
+    }
+
     setSessionId(data.id)
     setSessionStart(now)
     setLastActiveStart(now)
@@ -108,6 +113,8 @@ export function Timer() {
         .from('sessions')
         .update({ active_duration: newActiveTime })
         .eq('id', sessionId)
+        .select()
+        .single()
 
       if (sessionError) {
         console.error('Error updating session:', sessionError)
@@ -120,6 +127,8 @@ export function Timer() {
           session_id: sessionId,
           start_time: now.toISOString()
         })
+        .select()
+        .single()
 
       if (edgeError) {
         toast.error('Failed to record edge event')
@@ -146,6 +155,8 @@ export function Timer() {
         })
         .eq('session_id', sessionId)
         .is('end_time', null)
+        .select()
+        .single()
 
       if (error) {
         toast.error('Failed to update edge event')
