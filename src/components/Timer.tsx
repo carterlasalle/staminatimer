@@ -58,43 +58,49 @@ export function Timer() {
   }, [state, lastActiveStart, currentEdgeStart, activeTime, edgeTime])
 
   const startSession = useCallback(async () => {
-    const now = new Date()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      toast.error('User not authenticated')
-      return
+    try {
+      const now = new Date()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        toast.error('User not authenticated')
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert({
+          user_id: user.id,
+          start_time: now.toISOString(),
+          total_duration: 0,
+          active_duration: 0,
+          edge_duration: 0,
+          finished_during_edge: false,
+          created_at: now.toISOString()
+        })
+        .select()
+        .single()
+
+      if (error) {
+        toast.error('Failed to start session')
+        console.error('Error starting session:', error)
+        return
+      }
+
+      if (!data?.id) {
+        toast.error('Failed to create session')
+        return
+      }
+
+      setSessionId(data.id)
+      setSessionStart(now)
+      setLastActiveStart(now)
+      setState('active')
+
+    } catch (err) {
+      toast.error('Error initializing session')
+      console.error('Session error:', err)
     }
-
-    const { data, error } = await supabase
-      .from('sessions')
-      .insert({
-        user_id: user.id,
-        start_time: now.toISOString(),
-        total_duration: 0,
-        active_duration: 0,
-        edge_duration: 0,
-        finished_during_edge: false,
-        created_at: now.toISOString()
-      })
-      .select()
-      .single()
-
-    if (error) {
-      toast.error('Failed to start session')
-      console.error('Error starting session:', error)
-      return
-    }
-
-    if (!data?.id) {
-      toast.error('Failed to create session')
-      return
-    }
-
-    setSessionId(data.id)
-    setSessionStart(now)
-    setLastActiveStart(now)
-    setState('active')
   }, [])
 
   const startEdge = useCallback(async () => {
