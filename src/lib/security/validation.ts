@@ -1,8 +1,10 @@
 export interface ValidationRules {
-  required?: boolean
-  min?: number
-  max?: number
-  pattern?: RegExp
+  [key: string]: {
+    required?: boolean
+    min?: number
+    max?: number
+    pattern?: RegExp
+  }
 }
 
 export class Validator {
@@ -20,6 +22,10 @@ export class Validator {
 
       if (rule.max !== undefined && data[field] > rule.max) {
         errors.push(`${field} must be at most ${rule.max}`)
+      }
+
+      if (rule.pattern && !rule.pattern.test(data[field])) {
+        errors.push(`${field} has an invalid format`)
       }
     }
 
