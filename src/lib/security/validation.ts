@@ -6,38 +6,26 @@ export interface ValidationRules {
 }
 
 export class Validator {
-  static validate(data: Record<string, unknown>, rules: Record<string, ValidationRules>): boolean {
-    for (const [field, rule] of Object.entries(rules)) {
-      const value = data[field]
+  static validate(data: any, rules: ValidationRules) {
+    const errors: string[] = []
 
-      if (rule.required && (value === undefined || value === null || value === '')) {
-        throw new Error(`${field} is required`)
+    for (const [field, rule] of Object.entries(rules)) {
+      if (rule.required && !data[field]) {
+        errors.push(`${field} is required`)
       }
 
-      if (value !== undefined && value !== null) {
-        // Convert value to number if it's a numeric string
-        const numericValue = typeof value === 'string' ? parseFloat(value) : value
-        
-        // Check if value is actually a number before comparing
-        if (typeof numericValue === 'number' && !isNaN(numericValue)) {
-          if (rule.min !== undefined && numericValue < rule.min) {
-            throw new Error(`${field} must be at least ${rule.min}`)
-          }
+      if (rule.min !== undefined && data[field] < rule.min) {
+        errors.push(`${field} must be at least ${rule.min}`)
+      }
 
-          if (rule.max !== undefined && numericValue > rule.max) {
-            throw new Error(`${field} must be at most ${rule.max}`)
-          }
-        } else if (rule.min !== undefined || rule.max !== undefined) {
-          throw new Error(`${field} must be a number for min/max validation`)
-        }
-
-        if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
-          throw new Error(`${field} has invalid format`)
-        }
+      if (rule.max !== undefined && data[field] > rule.max) {
+        errors.push(`${field} must be at most ${rule.max}`)
       }
     }
 
-    return true
+    if (errors.length > 0) {
+      throw new Error(errors.join(', '))
+    }
   }
 
   static isNumber(value: unknown): value is number {

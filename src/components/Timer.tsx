@@ -210,25 +210,31 @@ export function Timer() {
   }, [])
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-center text-2xl">
-          <TimerIcon className="mr-2" />
-          {state === 'idle' && 'Ready to Start'}
-          {state === 'active' && 'Active'}
-          {state === 'edging' && 'Edging'}
-          {state === 'finished' && 'Session Complete'}
+    <Card className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl">
+      <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
+        <CardTitle className="text-xl sm:text-2xl mb-4 sm:mb-0 flex items-center">
+          <TimerIcon className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
+          <span>
+            {state === 'idle' && 'Ready to Start'}
+            {state === 'active' && 'Active'}
+            {state === 'edging' && 'Edging'}
+            {state === 'finished' && 'Session Complete'}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className="text-center p-4 bg-secondary/50 rounded-lg">
             <p className="text-sm text-muted-foreground">Active Time</p>
-            <p className="text-2xl font-bold">{formatDuration(state === 'active' ? displayActiveTime : activeTime)}</p>
+            <p className="text-2xl sm:text-3xl font-bold">
+              {formatDuration(state === 'active' ? displayActiveTime : activeTime)}
+            </p>
           </div>
-          <div className="text-center">
+          <div className="text-center p-4 bg-secondary/50 rounded-lg">
             <p className="text-sm text-muted-foreground">Edge Time</p>
-            <p className="text-2xl font-bold">{formatDuration(state === 'edging' ? displayEdgeTime : edgeTime)}</p>
+            <p className="text-2xl sm:text-3xl font-bold">
+              {formatDuration(state === 'edging' ? displayEdgeTime : edgeTime)}
+            </p>
           </div>
         </div>
 
