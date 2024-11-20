@@ -9,9 +9,13 @@ export async function middleware(req: NextRequest) {
   // Rate limiting
   const ip = req.ip ?? '127.0.0.1'
   const rateLimitKey = `rate_limit:${ip}`
-  const attempts = await supabase.rpc('increment_rate_limit', { key: rateLimitKey })
+  const { data: attempts, error: rateError } = await supabase.rpc('increment_rate_limit', { key: rateLimitKey })
   
-  if (attempts > 100) { // 100 requests per minute
+  if (rateError) {
+    console.error('Rate limit error:', rateError)
+  }
+  
+  if (attempts && attempts > 100) { // 100 requests per minute
     return new NextResponse('Too Many Requests', { status: 429 })
   }
 
