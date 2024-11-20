@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
-
+  /*
   // Rate limiting
   const ip = req.ip ?? '127.0.0.1'
   const rateLimitKey = `rate_limit:${ip}`
@@ -18,6 +18,7 @@ export async function middleware(req: NextRequest) {
   if (attempts && attempts > 1000) { // 100 requests per minute
     return new NextResponse('Too Many Requests', { status: 429 })
   }
+  */
 
   // CSRF Protection
   if (req.method !== 'GET') {
