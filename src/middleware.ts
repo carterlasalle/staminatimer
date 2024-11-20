@@ -15,7 +15,7 @@ export async function middleware(req: NextRequest) {
     console.error('Rate limit error:', rateError)
   }
   
-  if (attempts && attempts > 100) { // 100 requests per minute
+  if (attempts && attempts > 1000) { // 100 requests per minute
     return new NextResponse('Too Many Requests', { status: 429 })
   }
 

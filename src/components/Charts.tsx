@@ -65,24 +65,18 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-          console.log('No user found')
           return
         }
-        console.log('Current user:', user.id)
 
         const { data: checkSessions, error: checkError } = await supabase
           .from('sessions')
           .select('id, user_id, created_at')
           .eq('user_id', user.id)
 
-        console.log('Check sessions query:', checkSessions)
         if (checkError) {
           console.error('Check sessions error:', checkError)
           return
         }
-
-        console.log('Sessions for user:', user.id)
-        console.log('Found sessions in check:', checkSessions?.length)
 
         const { data: sessions, error } = await supabase
           .from('sessions')
@@ -107,17 +101,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
           return
         }
 
-        console.log('Sessions found:', sessions?.length)
-        console.log('Raw sessions:', sessions)
-        console.log('Query details:', {
-          userId: user.id,
-          sessionCount: sessions?.length,
-          firstSession: sessions?.[0],
-          checkSessionsCount: checkSessions?.length
-        })
-
         if (!sessions || sessions.length === 0) {
-          console.log('No sessions found for user')
           setData(null)
           setLoading(false)
           return
@@ -250,4 +234,4 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
       </CardContent>
     </Card>
   )
-} 
+}
