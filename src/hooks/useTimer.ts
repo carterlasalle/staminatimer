@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
@@ -22,6 +22,37 @@ export function useTimer() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [finishedDuringEdge, setFinishedDuringEdge] = useState(false)
   const [edgeLaps, setEdgeLaps] = useState<EdgeLap[]>([])
+  const [displayActiveTime, setDisplayActiveTime] = useState(0)
+  const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null
+
+    if (state === 'active' || state === 'edging') {
+      intervalId = setInterval(() => {
+        const now = new Date().getTime()
+
+        if (state === 'active' && lastActiveStart) {
+          const currentActiveTime = activeTime + (now - lastActiveStart.getTime())
+          setDisplayActiveTime(currentActiveTime)
+        }
+
+        if (state === 'edging' && currentEdgeStart) {
+          const currentEdgeTime = edgeTime + (now - currentEdgeStart.getTime())
+          setDisplayEdgeTime(currentEdgeTime)
+        }
+      }, 1000)
+    } else {
+      setDisplayActiveTime(activeTime)
+      setDisplayEdgeTime(edgeTime)
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [state, activeTime, edgeTime, lastActiveStart, currentEdgeStart])
 
   const startSession = useCallback(async () => {
     try {
@@ -217,12 +248,12 @@ export function useTimer() {
 
   return {
     state,
-    activeTime,
-    edgeTime,
+    activeTime: displayActiveTime,
+    edgeTime: displayEdgeTime,
     edgeLaps,
     startSession,
     startEdge,
-    endEdge, 
+    endEdge,
     finishSession,
     resetTimer
   }
