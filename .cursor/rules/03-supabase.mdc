@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Supabase Integration
+
+This project uses Supabase for its backend (auth, database).
+
+- **Database Schema:** `[schema.sql](mdc:supabase/schema.sql)`
+- **Generated DB Types:** `[types.ts](mdc:src/lib/supabase/types.ts)` (Verify generation/sync process).
+- **Client (Browser):** Use `createClient` from `[client.ts](mdc:src/lib/supabase/client.ts)`.
+- **Client (Server):** Use `createServerClient` from `@supabase/ssr` as shown in `[middleware.ts](mdc:src/middleware.ts)` and `[getData.ts](mdc:src/lib/server/getData.ts)`.
+- **Authentication:** Managed by `[AuthContext.tsx](mdc:src/contexts/AuthContext.tsx)` and `[middleware.ts](mdc:src/middleware.ts)`.
+- **Realtime:** Used in `[GlobalContext.tsx](mdc:src/contexts/GlobalContext.tsx)`.
+
+## 🚨 CRITICAL: Supabase SSR Cookie Handling 🚨
+
+When creating Supabase clients (especially server-side or in middleware), **DO NOT** use deprecated cookie methods (`get`, `set`, `remove`) or the old `@supabase/auth-helpers-nextjs` package.
+
+**ALWAYS** use the `@supabase/ssr` package and the `getAll`/`setAll` cookie methods as demonstrated in:
+- `[middleware.ts](mdc:src/middleware.ts)`
+- `[getData.ts](mdc:src/lib/server/getData.ts)`
+
+Failure to follow this pattern **WILL BREAK** authentication and session management.
+

@@ -1,0 +1,14 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Custom Hooks
+
+Reusable component logic and stateful operations are encapsulated in custom hooks within the `src/hooks` directory.
+
+- `[useTimer.ts](mdc:src/hooks/useTimer.ts)`: Manages the core timer logic (start, stop, edge events, state transitions) and interacts with Supabase to persist session data.
+- `[useAuth.ts](mdc:src/hooks/useAuth.ts)`: Likely a simple hook to consume the `AuthContext` (verify implementation).
+- `[useGlobal.ts](mdc:src/hooks/useGlobal.ts)`: A hook to consume the `GlobalContext`.
+- `[useAnalytics.ts](mdc:src/hooks/useAnalytics.ts)`: Seems related to calculating or fetching analytics data (verify implementation).
+- `[useGlobalStats.ts](mdc:src/hooks/useGlobalStats.ts)`: Fetches overall application statistics (e.g., active users, total sessions) likely via Supabase RPC calls.

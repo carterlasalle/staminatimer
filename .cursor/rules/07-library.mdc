@@ -1,0 +1,17 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Library & Utilities
+
+The `src/lib` directory contains shared utility functions, type definitions, and logic not tied to specific components or contexts.
+
+- **Utilities:** General helper functions are in `[utils.ts](mdc:src/lib/utils.ts)` (e.g., `cn` for class merging, `formatDuration`).
+- **Types:** Shared TypeScript types, especially those related to the database (`DBSession`), are defined in `[types.ts](mdc:src/lib/types.ts)`. Achievement-related types are in `[achievements.ts](mdc:src/lib/types/achievements.ts)`.
+- **Supabase Helpers:** Supabase client setup (`[client.ts](mdc:src/lib/supabase/client.ts)`) and potentially generated types (`[types.ts](mdc:src/lib/supabase/types.ts)`) are in `[src/lib/supabase](mdc:src/lib/supabase/)`.
+- **Server Logic:** Code intended only for the server environment, like server-side Supabase client creation and data fetching, is in `[src/lib/server](mdc:src/lib/server/)` (e.g., `[getData.ts](mdc:src/lib/server/getData.ts)`).
+- **Export Logic:** Functions related to data export features (PDF, sharing links) are in `[src/lib/export](mdc:src/lib/export/)` (e.g., `[pdf.ts](mdc:src/lib/export/pdf.ts)`, `[share.ts](mdc:src/lib/export/share.ts)`).
+- **Analytics Logic:** Core calculation logic for analytics seems to be in `[analytics.ts](mdc:src/lib/analytics.ts)`.
+- **Security:** Validation logic is located in `[validation.ts](mdc:src/lib/security/validation.ts)`.
+

@@ -1,13 +1,15 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # Application Structure
 
 The core application structure resides within the `src/app` directory, following Next.js App Router conventions.
 
-- The main entry point and root layout is defined in `[layout.tsx](mdc:src/app/layout.tsx)`. This file typically includes global styles, context providers, and the main HTML structure.
-- The root page component is `[page.tsx](mdc:src/app/page.tsx)`.
-- Subdirectories within `[src/app](mdc:src/app)` represent different routes (e.g., `[dashboard](mdc:src/app/dashboard)`, `[settings](mdc:src/app/settings)`).
-- Global styles are defined in `[globals.css](mdc:src/app/globals.css)`.
+- **Root Layout:** `[layout.tsx](mdc:src/app/layout.tsx)` defines the main HTML structure, global context providers (`ThemeProvider`, `AuthProvider`, `GlobalProvider`), and includes global styles and essential scripts/components like `Toaster`, Vercel Analytics/Speed Insights, and the `ServiceWorkerRegistrar`.
+- **Root Page:** `[page.tsx](mdc:src/app/page.tsx)` is the main landing page component.
+- **Routing:** Subdirectories within `[src/app](mdc:src/app)` define routes (e.g., `[dashboard](mdc:src/app/dashboard)`, `[settings](mdc:src/app/settings)`, `[share/[id]](mdc:src/app/share/[id])`, `[login](mdc:src/app/login)`).
+- **Global Styles:** Base styles are in `[globals.css](mdc:src/app/globals.css)`, primarily setting up Tailwind CSS.
+- **Middleware:** Routing logic, authentication checks, and Supabase session handling occur in `[middleware.ts](mdc:src/middleware.ts)`.
+

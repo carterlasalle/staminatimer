@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# State Management (Contexts)
+
+Global state and shared logic are managed using React Context API within the `src/contexts` directory.
+
+- **Authentication Context:** `[AuthContext.tsx](mdc:src/contexts/AuthContext.tsx)` manages user authentication state, providing user information and potentially auth-related functions. It relies on the Supabase client.
+- **Global Context:** `[GlobalContext.tsx](mdc:src/contexts/GlobalContext.tsx)` seems to handle fetching and providing shared application data like `recentSessions`. It uses Supabase realtime subscriptions to keep data fresh.
+- **Providers:** Context providers (`AuthProvider`, `GlobalProvider`) are wrapped around the application in the root `[layout.tsx](mdc:src/app/layout.tsx)`.
+- **Usage:** Contexts are consumed in components using their respective hooks (e.g., `useAuth()`, `useGlobal()`).

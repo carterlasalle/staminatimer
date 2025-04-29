@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Service Worker
+
+The application uses a service worker, likely for caching or offline capabilities.
+
+- **Registration:** The service worker is registered by the client component `[ServiceWorkerRegistrar.tsx](mdc:src/components/ServiceWorkerRegistrar.tsx)`. This component is included in the root layout `[layout.tsx](mdc:src/app/layout.tsx)`.
+- **Worker File:** The actual service worker implementation is located at `[sw.js](mdc:public/sw.js)`.
+- **Environment:** Registration currently only occurs in the `production` environment.
+

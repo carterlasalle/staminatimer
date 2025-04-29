@@ -1,0 +1,18 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Configuration Files
+
+Project configuration is managed through various files in the root directory:
+
+- `[package.json](mdc:package.json)`: Node.js dependencies, scripts (`dev`, `build`, `lint`, etc.). Note the `packageManager` field specifies `yarn`.
+- `[tsconfig.json](mdc:tsconfig.json)`: TypeScript compiler options.
+- `[next.config.js](mdc:next.config.js)`: Next.js configuration.
+- `[tailwind.config.ts](mdc:tailwind.config.ts)`: Tailwind CSS theme and plugin configuration.
+- `[postcss.config.mjs](mdc:postcss.config.mjs)`: PostCSS configuration (used by Tailwind).
+- `[components.json](mdc:components.json)`: Configuration for `shadcn/ui` components.
+- `[.eslintrc.json](mdc:.eslintrc.json)`: ESLint configuration for code linting rules.
+- `[.gitignore](mdc:.gitignore)`: Specifies files and directories ignored by Git.
+- `[.env.local](mdc:.env.local)`: Local environment variables (e.g., Supabase keys). **Do not commit this file.**
