@@ -7,7 +7,7 @@ import { ModeToggle } from '@/components/mode-toggle'
 import { UserMenu } from '@/components/UserMenu'
 import { ExportButton } from '@/components/ExportButton'
 
-export default function Dashboard() {
+export default function Dashboard(): JSX.Element {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-24 max-w-7xl mx-auto">
       <div className="w-full flex justify-between items-center mb-8">
@@ -25,4 +25,4 @@ export default function Dashboard() {
       <SessionHistory />
     </main>
   )
-} 
+}

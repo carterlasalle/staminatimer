@@ -9,12 +9,12 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
-export default function LoginPage() {
+export default function LoginPage(): JSX.Element {
   const router = useRouter()
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
         router.push('/dashboard')
         router.refresh()
       }
@@ -23,7 +23,7 @@ export default function LoginPage() {
     return () => subscription.unsubscribe()
   }, [router])
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (): Promise<void> => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

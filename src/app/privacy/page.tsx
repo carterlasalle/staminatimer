@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
-export default function PrivacyPage() {
+export default function PrivacyPage(): JSX.Element {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Link href="/">
@@ -53,7 +53,7 @@ export default function PrivacyPage() {
 
           <h2>4. Data Storage and Security</h2>
           <ul>
-            <li>All data is stored securely on Supabase's infrastructure</li>
+            <li>All data is stored securely on Supabase&apos;s infrastructure</li>
             <li>We implement appropriate technical and organizational security measures</li>
             <li>Data is encrypted in transit and at rest</li>
             <li>Personal data is isolated and protected through role-based access control</li>
@@ -86,7 +86,7 @@ export default function PrivacyPage() {
             <li>Anonymous analytics: Up to 24 months</li>
           </ul>
 
-          <h2>8. Children's Privacy</h2>
+          <h2>8. Children&apos;s Privacy</h2>
           <p>Our service is not intended for users under 18 years of age. We do not knowingly collect data from users under 18.</p>
 
           <h2>9. Cookies and Tracking</h2>
@@ -141,4 +141,4 @@ export default function PrivacyPage() {
       </Card>
     </div>
   )
-} 
+}

@@ -37,31 +37,20 @@ type DBSession = {
   }>
 }
 
-export function SessionHistory() {
+export function SessionHistory(): JSX.Element {
   const [sessions, setSessions] = useState<DBSession[]>([])
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [selectedSession, setSelectedSession] = useState<DBSession | null>(null)
 
-  useEffect(() => {
-    fetchSessions()
-  }, [sortField, sortOrder])
-
-  const refreshSessions = useCallback(() => {
-    fetchSessions()
-  }, [])
-
-  async function fetchSessions() {
+  const fetchSessions = useCallback(async (): Promise<void> => {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     
     const { data, error } = await supabase
       .from('sessions')
-      .select(`
-        *,
-        edge_events!fk_session (*)
-      `)
+      .select(`*, edge_events!fk_session (*)`)
       .eq('user_id', user?.id)
       .order(sortField, { ascending: sortOrder === 'asc' })
       .limit(10)
@@ -71,11 +60,11 @@ export function SessionHistory() {
       return
     }
 
-    setSessions(data)
+    setSessions(data as DBSession[])
     setLoading(false)
-  }
+  }, [sortField, sortOrder])
 
-  async function deleteSession(sessionId: string) {
+  const deleteSession = useCallback(async (sessionId: string): Promise<void> => {
     const confirmDelete = window.confirm('Are you sure you want to delete this session?')
     if (!confirmDelete) return
 
@@ -91,8 +80,12 @@ export function SessionHistory() {
     }
 
     toast.success('Session deleted')
-    fetchSessions() // Refresh the list
-  }
+    fetchSessions()
+  }, [fetchSessions])
+
+  useEffect(() => {
+    fetchSessions()
+  }, [fetchSessions])
 
   if (loading) return <div>Loading sessions...</div>
 
@@ -120,7 +113,7 @@ export function SessionHistory() {
           <Button
             variant="outline"
             size="icon"
-            onClick={refreshSessions}
+            onClick={fetchSessions}
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
@@ -179,4 +172,4 @@ export function SessionHistory() {
       />
     </Card>
   )
-} 
+}

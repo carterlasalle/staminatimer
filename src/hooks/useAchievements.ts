@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
 import { toast } from 'sonner'
 
-export function useAchievements() {
+export function useAchievements(): { checkAchievements: (session: DBSession) => Promise<void> } {
   const checkAchievements = useCallback(async (session: DBSession) => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -49,21 +49,23 @@ export function useAchievements() {
             : session.total_duration <= achievement.condition_value
           break
 
-        case 'edge_count':
+        case 'edge_count': {
           const edgeCount = session.edge_events?.length ?? 0
           progress = achievement.condition_value === 0 
             ? edgeCount === 0 ? 100 : 0
             : Math.min(100, (edgeCount / achievement.condition_value) * 100)
           unlocked = edgeCount === achievement.condition_value
           break
+        }
 
-        case 'edge_duration':
+        case 'edge_duration': {
           const maxEdgeDuration = Math.max(...(session.edge_events?.map(e => e.duration ?? 0) ?? [0]))
           progress = Math.min(100, (achievement.condition_value / maxEdgeDuration) * 100)
           unlocked = achievement.condition_comparison === 'less'
             ? maxEdgeDuration <= achievement.condition_value
             : maxEdgeDuration >= achievement.condition_value
           break
+        }
 
         case 'streak':
           if (historicalSessions) {
@@ -80,15 +82,16 @@ export function useAchievements() {
           }
           break
 
-        case 'custom':
+        case 'custom': {
           // Get achievement name from the database record
           const achievementName = achievement.name.toLowerCase().replace(/\s+/g, '_')
           switch (achievementName) {
-            case 'minimal_pause':
+            case 'minimal_pause': {
               const edgeTimePercent = (session.edge_duration / session.total_duration) * 100
               progress = Math.min(100, (10 / edgeTimePercent) * 100)
               unlocked = edgeTimePercent <= 10
               break
+            }
 
             case 'straight_through':
               if (session.total_duration >= 900000 && (session.edge_events?.length ?? 0) === 0) {
@@ -107,6 +110,7 @@ export function useAchievements() {
               break
           }
           break
+        }
       }
 
       // Update or create user achievement
@@ -136,4 +140,4 @@ export function useAchievements() {
   }, [])
 
   return { checkAchievements }
-} 
+}

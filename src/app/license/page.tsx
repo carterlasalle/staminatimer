@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
-export default function LicensePage() {
+export default function LicensePage(): JSX.Element {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Link href="/">
@@ -44,4 +44,4 @@ export default function LicensePage() {
       </Card>
     </div>
   )
-} 
+}

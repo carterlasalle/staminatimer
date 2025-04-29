@@ -9,12 +9,12 @@ import Link from 'next/link'
 import { Timer as TimerIcon, LineChart, Share2, Shield } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 
-export default function Home() {
+export default function Home(): JSX.Element {
   const router = useRouter()
 
   useEffect(() => {
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession()
+    async function checkSession(): Promise<void> {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         router.push('/dashboard')
       }
@@ -137,7 +137,7 @@ export default function Home() {
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }): JSX.Element {
   return (
     <div className="flex flex-col items-center text-center p-6 rounded-lg bg-card border">
       <div className="text-primary mb-4">{icon}</div>
