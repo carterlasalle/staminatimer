@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { supabase } from '@/lib/supabase/client'
 import { LogOut, Settings, User } from 'lucide-react'
@@ -71,4 +71,4 @@ export function UserMenu(): JSX.Element | null {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-} 
+}

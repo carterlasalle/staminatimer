@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
-import { supabase } from '@/lib/supabase/client'
+import { useGlobal } from '@/contexts/GlobalContext'
 import type { DBSession } from '@/lib/types'
 import type { ChartOptions } from 'chart.js'
 import {
@@ -46,8 +46,10 @@ type LineChartData = {
 
 export function Charts({ data: externalData }: ChartsProps = {}): JSX.Element {
   const [chartData, setChartData] = useState<LineChartData | null>(null)
-  const [loading, setLoading] = useState(true)
   const { theme } = useTheme()
+  const { loading: globalLoading, recentSessions } = useGlobal()
+
+  const isLoading = externalData === undefined && globalLoading;
 
   const processSessionsForChart = useCallback((sessions: DBSession[]): LineChartData => {
     const sortedSessions = [...sessions].sort((a, b) => 
@@ -76,55 +78,25 @@ export function Charts({ data: externalData }: ChartsProps = {}): JSX.Element {
   }, [theme])
 
   useEffect(() => {
-    async function fetchChartData(): Promise<void> {
-      try {
-        if (externalData) {
-          setChartData(processSessionsForChart(externalData))
-          setLoading(false)
-          return
-        }
+    let sessionsToProcess: DBSession[] | undefined;
 
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          setLoading(false)
-          return
-        }
-
-        const { data: sessions, error } = await supabase
-          .from('sessions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: true })
-          .limit(20)
-
-        if (error) {
-          console.error('Error fetching chart data:', error)
-          setLoading(false)
-          return
-        }
-
-        if (!sessions || sessions.length === 0) {
-          setChartData(null)
-          setLoading(false)
-          return
-        }
-
-        setChartData(processSessionsForChart(sessions))
-        setLoading(false)
-      } catch (err) {
-        console.error('Error in fetchChartData:', err)
-        setLoading(false)
-      }
+    if (externalData) {
+      sessionsToProcess = externalData
+    } else if (!globalLoading && recentSessions) {
+      sessionsToProcess = recentSessions
+    } else {
+      setChartData(null)
+      return;
     }
 
-    fetchChartData()
-    if (!externalData) {
-      const interval = setInterval(fetchChartData, 30000)
-      return () => clearInterval(interval)
+    if (!sessionsToProcess || sessionsToProcess.length === 0) {
+      setChartData(null)
+    } else {
+      setChartData(processSessionsForChart(sessionsToProcess))
     }
-  }, [theme, externalData, processSessionsForChart])
+  }, [theme, externalData, recentSessions, globalLoading, processSessionsForChart])
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="w-full max-w-4xl mx-auto mt-8">
         <CardHeader>

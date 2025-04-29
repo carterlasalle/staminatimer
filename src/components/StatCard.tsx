@@ -1,10 +1,11 @@
 'use client'
 
 import { useGlobalStats } from '@/hooks/useGlobalStats'
+import { Loader2 } from 'lucide-react'
 
 type StatCardProps = {
-  number: string
-  label: string
+  number: string // Default/placeholder number
+  label: string // Stat label
 }
 
 export function StatCard({ number, label }: StatCardProps): JSX.Element {
@@ -17,7 +18,7 @@ export function StatCard({ number, label }: StatCardProps): JSX.Element {
   }
 
   const getDisplayNumber = (): string => {
-    if (loading) return '...'
+    if (loading) return '-'
     if (!stats) return number
     
     switch (label) {
@@ -26,6 +27,8 @@ export function StatCard({ number, label }: StatCardProps): JSX.Element {
       case 'Sessions Tracked':
         return formatNumber(stats.total_sessions_count)
       default:
+        // If the label doesn't match a known stat, use the provided number
+        // This allows for static stats like "Achievements to Unlock"
         return number
     }
   }
@@ -33,9 +36,13 @@ export function StatCard({ number, label }: StatCardProps): JSX.Element {
   return (
     <div className="p-6 rounded-lg bg-card border">
       <div className="text-3xl font-bold text-primary mb-2">
-        {getDisplayNumber()}
+        {loading ? (
+          <Loader2 className="h-8 w-8 animate-spin inline-block text-muted-foreground" />
+        ) : (
+          getDisplayNumber()
+        )}
       </div>
       <div className="text-muted-foreground">{label}</div>
     </div>
   )
-} 
+}

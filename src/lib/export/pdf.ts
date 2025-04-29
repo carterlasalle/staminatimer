@@ -6,7 +6,8 @@ import type { UserOptions } from 'jspdf-autotable'; // Import UserOptions
 
 // Extend jsPDF types to include autoTable and internal methods
 declare module 'jspdf' {
-  interface jsPDF { // Augment the existing jsPDF interface
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface jsPDF { // Interface required for module augmentation
     autoTable: (options: UserOptions) => jsPDF;
     lastAutoTable: {
       finalY: number;

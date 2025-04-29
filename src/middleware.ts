@@ -56,9 +56,10 @@ export async function middleware(req: NextRequest) {
 
   // Public routes that don't require authentication
   // Also include API routes like /auth/callback
-  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback', '/share'] // Added /auth/callback and /share base
+  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback']
   const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname) ||
                         req.nextUrl.pathname.startsWith('/share/') || // Allow specific share links
+                        req.nextUrl.pathname === '/offline.html' || // Allow offline page
                         req.nextUrl.pathname.startsWith('/api/') // Allow general API routes if any
 
   // If user is not signed in and the route is protected, redirect to login
@@ -82,6 +83,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|offline.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)', // Added more exclusions
   ],
 }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode-toggle'
-import Link from 'next/link'
+import Link from 'next/link';
 import { Timer as TimerIcon, LineChart, Share2, Shield } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 
@@ -23,14 +23,14 @@ export default function Home(): JSX.Element {
   }, [router])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between items-center">
             <div className="flex items-center gap-8">
               <div className="flex items-center">
-                <TimerIcon className="h-8 w-8 text-primary" />
+                <TimerIcon className="h-8 w-8 text-primary shrink-0" />
                 <span className="ml-2 text-2xl font-bold">Stamina Timer</span>
               </div>
               <Link 
@@ -51,14 +51,14 @@ export default function Home(): JSX.Element {
       </nav>
 
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-16 sm:py-32 bg-gradient-to-b from-background to-muted/30">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
           Master Your <span className="text-primary">Stamina</span>
         </h1>
-        <p className="mt-6 text-xl text-muted-foreground max-w-2xl">
+        <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl">
           Track, analyze, and improve your endurance with our advanced timing and analytics platform.
         </p>
-        <div className="mt-10 flex flex-col sm:flex-row gap-4">
+        <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center">
           <Link href="/login">
             <Button size="lg" className="text-lg px-8">
               Get Started
@@ -73,9 +73,9 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-muted/50">
+      <section id="features" className="py-20 sm:py-28 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-16">Key Features</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Why Choose Stamina Timer?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard 
               icon={<TimerIcon className="h-10 w-10" />}
@@ -102,19 +102,20 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Stats Section */}
-      <section className="py-24">
+      <section className="py-20 sm:py-28 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Join Thousands Training Smarter</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <StatCard number="10k+" label="Active Users" />
             <StatCard number="1M+" label="Sessions Tracked" />
-            <StatCard number="99.9%" label="Uptime" />
+            <StatCard number="15+" label="Achievements to Unlock" />
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="border-t py-10 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-4 text-sm text-muted-foreground">
               <Link href="/license" className="hover:text-primary transition-colors">
@@ -127,7 +128,7 @@ export default function Home(): JSX.Element {
                 Terms of Service
               </Link>
             </div>
-            <p className="text-center text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               © 2024 Stamina Timer. All rights reserved.
             </p>
           </div>
@@ -139,7 +140,7 @@ export default function Home(): JSX.Element {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }): JSX.Element {
   return (
-    <div className="flex flex-col items-center text-center p-6 rounded-lg bg-card border">
+    <div className="flex flex-col items-center text-center p-6 rounded-lg bg-card border shadow-sm hover:shadow-md transition-shadow duration-300">
       <div className="text-primary mb-4">{icon}</div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground">{description}</p>

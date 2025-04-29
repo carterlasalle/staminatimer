@@ -2,6 +2,8 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { useCallback, useEffect, useState } from 'react'
+import { useAchievements } from '@/hooks/useAchievements'
+import type { DBSession } from '@/lib/types'
 import { toast } from 'sonner'
 
 type TimerState = 'idle' | 'active' | 'edging' | 'finished'
@@ -22,6 +24,7 @@ export function useTimer() {
   const [edgeLaps, setEdgeLaps] = useState<EdgeLap[]>([])
   const [displayActiveTime, setDisplayActiveTime] = useState(0)
   const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
+  const { checkAchievements } = useAchievements()
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null
@@ -209,7 +212,8 @@ export function useTimer() {
           end_time: now.toISOString(),
           active_duration: finalActiveTime,
           edge_duration: finalEdgeTime,
-          total_duration: finalActiveTime + finalEdgeTime
+          total_duration: finalActiveTime + finalEdgeTime,
+          finished_during_edge: state === 'edging'
         })
         .eq('id', sessionId)
 
@@ -221,11 +225,24 @@ export function useTimer() {
       setEdgeTime(finalEdgeTime)
       setState('finished')
 
+      const { data: completedSession, error: fetchError } = await supabase
+        .from('sessions')
+        .select('*, edge_events!fk_session (*)')
+        .eq('id', sessionId)
+        .single()
+
+      if (fetchError) {
+        console.error('Error fetching completed session for achievements:', fetchError)
+        toast.error("Couldn't check achievements for the session.")
+      } else if (completedSession) {
+        await checkAchievements(completedSession as DBSession)
+      }
+
     } catch (err) {
       console.error('Error finishing session:', err)
       toast.error('Failed to finish session')
     }
-  }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime])
+  }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime, checkAchievements])
 
   const resetTimer = useCallback(() => {
     setState('idle')
@@ -248,4 +265,4 @@ export function useTimer() {
     finishSession,
     resetTimer
   }
-} 
+}

@@ -13,23 +13,28 @@ export function Achievements(): JSX.Element {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchAchievements(): Promise<void> {
+    async function fetchAchievements(): Promise<void> { 
+      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser()
       
+      if (!user) {
+         setLoading(false);
+         return; 
+      }
+
       const { data, error } = await supabase
         .from('user_achievements')
         .select(`
           *,
           achievement:achievements(*)
         `)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
 
       if (error) {
         console.error('Error fetching achievements:', error)
-        return
+      } else {
+        setAchievements(data || [])
       }
-
-      setAchievements(data)
       setLoading(false)
     }
 

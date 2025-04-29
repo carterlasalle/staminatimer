@@ -1,51 +1,84 @@
 'use client'
 
-import { createContext, useContext, useReducer, ReactNode } from 'react'
+import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { useAuth } from './AuthContext'
 
 type GlobalState = {
   currentSession: DBSession | null
-  sessions: DBSession[]
+  recentSessions: DBSession[]
   loading: boolean
   error: Error | null
+  fetchSessions: () => Promise<void>
 }
 
-type GlobalAction = 
-  | { type: 'SET_CURRENT_SESSION'; payload: DBSession | null }
-  | { type: 'SET_SESSIONS'; payload: DBSession[] }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: Error | null }
-
-const GlobalContext = createContext<{
-  state: GlobalState
-  dispatch: React.Dispatch<GlobalAction>
-} | undefined>(undefined)
-
-function globalReducer(state: GlobalState, action: GlobalAction): GlobalState {
-  switch (action.type) {
-    case 'SET_CURRENT_SESSION':
-      return { ...state, currentSession: action.payload }
-    case 'SET_SESSIONS':
-      return { ...state, sessions: action.payload }
-    case 'SET_LOADING':
-      return { ...state, loading: action.payload }
-    case 'SET_ERROR':
-      return { ...state, error: action.payload }
-    default:
-      return state
-  }
-}
+const GlobalContext = createContext<GlobalState | undefined>(undefined)
 
 export function GlobalProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(globalReducer, {
-    currentSession: null,
-    sessions: [],
-    loading: false,
-    error: null
-  })
+  const { user } = useAuth()
+  const [currentSession] = useState<DBSession | null>(null)
+  const [recentSessions, setRecentSessions] = useState<DBSession[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  const fetchSessions = useCallback(async () => {
+    if (!user) {
+      setRecentSessions([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('sessions')
+        .select(`*, edge_events!fk_session (*)`)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (fetchError) throw fetchError
+
+      setRecentSessions(data as DBSession[])
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch sessions'))
+      toast.error('Could not load session data.')
+      console.error("Error fetching sessions:", err)
+    } finally {
+      setLoading(false)
+    }
+  }, [user])
+
+  useEffect(() => {
+    fetchSessions()
+
+    const channel = supabase
+      .channel('public:sessions')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
+        (payload) => {
+          console.log('Realtime session change received!', payload)
+          fetchSessions()
+        })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user, fetchSessions])
+
+  const state: GlobalState = {
+    currentSession,
+    recentSessions,
+    loading,
+    error,
+    fetchSessions
+  }
 
   return (
-    <GlobalContext.Provider value={{ state, dispatch }}>
+    <GlobalContext.Provider value={state}>
       {children}
     </GlobalContext.Provider>
   )
@@ -57,4 +90,4 @@ export function useGlobal() {
     throw new Error('useGlobal must be used within a GlobalProvider')
   }
   return context
-} 
+}

@@ -1,9 +1,11 @@
-import { Metadata } from "next"
-import { Toaster } from "sonner"
+import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { GlobalProvider } from "@/contexts/GlobalContext"
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Metadata } from "next"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -26,10 +28,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <Toaster />
-            <SpeedInsights />
-            <Analytics />
+            <GlobalProvider>
+              {children}
+              <Toaster />
+              <SpeedInsights />
+              <Analytics />
+              <ServiceWorkerRegistrar />
+            </GlobalProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
