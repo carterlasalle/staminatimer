@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Configuration Files
+
+Key project configuration files:
+
+- `[package.json](mdc:package.json)`: Manages project dependencies and scripts.
+- `[tsconfig.json](mdc:tsconfig.json)`: Configures the TypeScript compiler options.
+- `[next.config.js](mdc:next.config.js)`: Configures Next.js specific settings.
+- `[tailwind.config.ts](mdc:tailwind.config.ts)`: Configures Tailwind CSS utility classes and theme.
+- `[components.json](mdc:components.json)`: Likely related to shadcn/ui component configuration.
+- `[.eslintrc.json](mdc:.eslintrc.json)`: Configures ESLint for code linting.
+- `[.gitignore](mdc:.gitignore)`: Specifies intentionally untracked files that Git should ignore.
+- `[postcss.config.mjs](mdc:postcss.config.mjs)`: Configuration for PostCSS processing.
