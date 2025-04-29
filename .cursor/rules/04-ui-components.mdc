@@ -1,12 +1,12 @@
 ---
-description:
-globs:
+description: Reusable UI elements are located in `src/components`.
+globs: 
 alwaysApply: false
 ---
 # UI Components
 
 Reusable UI elements are located in `src/components`.
 
-- **Core Components:** Application-specific components like `[Timer.tsx](mdc:src/components/Timer.tsx)`, `[SessionHistory.tsx](mdc:src/components/SessionHistory.tsx)`, `[Charts.tsx](mdc:src/components/Charts.tsx)`, `[Achievements.tsx](mdc:src/components/Achievements.tsx)`, `[UserMenu.tsx](mdc:src/components/UserMenu.tsx)`, etc., reside directly in `[src/components](mdc:src/components/)`.
-- **shadcn/ui Primitives:** Base UI primitives provided by `shadcn/ui` (e.g., Button, Card, Dialog) are located in `[src/components/ui](mdc:src/components/ui/)`. These are typically added via the `shadcn-ui` CLI and can be customized there.
+- **Core Components:** Application-specific components like `[Timer.tsx](mdc:src/components/Timer.tsx)`, `[SessionHistory.tsx](mdc:src/components/SessionHistory.tsx)`, `[Charts.tsx](mdc:src/components/Charts.tsx)`, `[Achievements.tsx](mdc:src/components/Achievements.tsx)`, `[UserMenu.tsx](mdc:src/components/UserMenu.tsx)`, etc., reside directly in `[src/components](mdc:src/components)`.
+- **shadcn/ui Primitives:** Base UI primitives provided by `shadcn/ui` (e.g., Button, Card, Dialog) are located in `[src/components/ui](mdc:src/components/ui)`. These are typically added via the `shadcn-ui` CLI and can be customized there.
 - **Theme Toggle:** Dark/light mode switching is handled by `[mode-toggle.tsx](mdc:src/components/mode-toggle.tsx)` and configured via `[theme-provider.tsx](mdc:src/components/theme-provider.tsx)`.

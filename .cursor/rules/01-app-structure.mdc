@@ -1,5 +1,5 @@
 ---
-description: 
+description: The core application structure resides within the `src/app` directory, following Next.js App Router conventions.
 globs: 
 alwaysApply: false
 ---

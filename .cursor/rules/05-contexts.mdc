@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: # State Management (Contexts)  Global state and shared logic are managed using React Context API within the `src/contexts` directory.
+globs: 
 alwaysApply: false
 ---
 # State Management (Contexts)

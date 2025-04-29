@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Reusable component logic and stateful operations are encapsulated in custom hooks within the `src/hooks` directory.
+globs: 
 alwaysApply: false
 ---
 # Custom Hooks

@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: The application uses a service worker, likely for caching or offline capabilities.
+globs: 
 alwaysApply: false
 ---
 # Service Worker

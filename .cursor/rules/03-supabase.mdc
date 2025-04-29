@@ -1,5 +1,5 @@
 ---
-description: 
+description: This project uses Supabase for its backend (auth, database).
 globs: 
 alwaysApply: false
 ---

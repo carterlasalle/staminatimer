@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Project configuration is managed through various files in the root directory:
+globs: 
 alwaysApply: false
 ---
 # Configuration Files
