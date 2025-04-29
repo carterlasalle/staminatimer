@@ -1,19 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Trophy, Shield, TrendingUp, Star } from 'lucide-react'
-import type { Achievement, UserAchievement } from '@/lib/types/achievements'
+import { supabase } from '@/lib/supabase/client'
+import type { UserAchievement } from '@/lib/types/achievements'
+import { Shield, Star, TrendingUp, Trophy } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
-export function Achievements() {
+export function Achievements(): JSX.Element {
   const [achievements, setAchievements] = useState<UserAchievement[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchAchievements() {
+    async function fetchAchievements(): Promise<void> {
       const { data: { user } } = await supabase.auth.getUser()
       
       const { data, error } = await supabase
@@ -85,7 +85,7 @@ export function Achievements() {
   )
 }
 
-function AchievementCard({ userAchievement }: { userAchievement: UserAchievement }) {
+function AchievementCard({ userAchievement }: { userAchievement: UserAchievement }): JSX.Element {
   const { achievement, progress, unlocked_at } = userAchievement
   const unlocked = progress === 100
 

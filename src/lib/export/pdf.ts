@@ -2,11 +2,12 @@ import type { DBSession } from '@/lib/types'; // Import the session type
 import { formatDuration } from '@/lib/utils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import type { UserOptions } from 'jspdf-autotable'; // Import UserOptions
 
 // Extend jsPDF types to include autoTable and internal methods
 declare module 'jspdf' {
-  type jsPDF = {
-    autoTable: (options: any) => jsPDF
+  type jsPDF = { // Use interface instead of type for declaration merging
+    autoTable: (options: UserOptions) => jsPDF; // Use UserOptions type
     lastAutoTable: {
       finalY: number
     }

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
+import type { DBSession } from '@/lib/types'
 
 type ShareDuration = '1h' | '24h' | '7d' | '30d' | 'infinite'
 
@@ -10,7 +11,7 @@ const durationMap = {
   'infinite': null
 }
 
-export async function generateShareableLink(sessions: any[], duration: ShareDuration) {
+export async function generateShareableLink(sessions: DBSession[], duration: ShareDuration): Promise<string> {
   const expiresAt = durationMap[duration] 
     ? new Date(Date.now() + durationMap[duration]!).toISOString()
     : null

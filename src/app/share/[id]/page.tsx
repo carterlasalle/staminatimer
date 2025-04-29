@@ -8,13 +8,13 @@ import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
 import { useEffect, useState } from 'react'
 
-export default function SharePage({ params }: { params: { id: string } }) {
+export default function SharePage({ params }: { params: { id: string } }): JSX.Element {
   const [sharedData, setSharedData] = useState<DBSession[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchSharedData() {
+    async function fetchSharedData(): Promise<void> {
       const { data, error } = await supabase
         .from('shared_sessions')
         .select('sessions_data')
@@ -45,7 +45,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
           <CardTitle>Shared Training Data</CardTitle>
         </CardHeader>
         <CardContent>
-          <Charts externalData={sharedData} />
+          <Charts data={sharedData} />
           <Analytics externalData={sharedData} />
         </CardContent>
       </Card>

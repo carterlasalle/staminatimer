@@ -1,23 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import type { ChartData, ChartOptions } from 'chart.js'
-import { supabase } from '@/lib/supabase/client'
-import { Line } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { useTheme } from 'next-themes'
-import type { DBSession } from '@/lib/types'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
+import { supabase } from '@/lib/supabase/client'
+import type { DBSession } from '@/lib/types'
+import type { ChartOptions } from 'chart.js'
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip
+} from 'chart.js'
+import { useTheme } from 'next-themes'
+import { useCallback, useEffect, useState } from 'react'
+import { Line } from 'react-chartjs-2'
 
 ChartJS.register(
   CategoryScale,
@@ -44,12 +44,12 @@ type LineChartData = {
   }[]
 }
 
-export function Charts({ data: externalData }: ChartsProps = {}) {
+export function Charts({ data: externalData }: ChartsProps = {}): JSX.Element {
   const [chartData, setChartData] = useState<LineChartData | null>(null)
   const [loading, setLoading] = useState(true)
   const { theme } = useTheme()
 
-  const processSessionsForChart = (sessions: DBSession[]): LineChartData => {
+  const processSessionsForChart = useCallback((sessions: DBSession[]): LineChartData => {
     const sortedSessions = [...sessions].sort((a, b) => 
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
@@ -73,10 +73,10 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
         }
       ]
     }
-  }
+  }, [theme])
 
   useEffect(() => {
-    async function fetchChartData() {
+    async function fetchChartData(): Promise<void> {
       try {
         if (externalData) {
           setChartData(processSessionsForChart(externalData))
@@ -92,7 +92,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
 
         const { data: sessions, error } = await supabase
           .from('sessions')
-          .select('created_at, total_duration, edge_duration')
+          .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: true })
           .limit(20)
@@ -122,7 +122,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
       const interval = setInterval(fetchChartData, 30000)
       return () => clearInterval(interval)
     }
-  }, [theme, externalData])
+  }, [theme, externalData, processSessionsForChart])
 
   if (loading) {
     return (

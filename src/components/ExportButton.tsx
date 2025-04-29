@@ -1,31 +1,28 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Share2, FileDown, Copy, Check, Clock } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from 'sonner'
 import { generatePDF } from '@/lib/export/pdf'
 import { generateShareableLink } from '@/lib/export/share'
+import { supabase } from '@/lib/supabase/client'
+import { Clock, Copy, FileDown, Share2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 type ShareDuration = '1h' | '24h' | '7d' | '30d' | 'infinite'
 
-export function ExportButton() {
+export function ExportButton(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = async (): Promise<void> => {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
@@ -51,7 +48,7 @@ export function ExportButton() {
     }
   }
 
-  const handleShare = async (duration: ShareDuration) => {
+  const handleShare = async (duration: ShareDuration): Promise<void> => {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
@@ -70,8 +67,6 @@ export function ExportButton() {
 
       const shareableLink = await generateShareableLink(sessions, duration)
       await navigator.clipboard.writeText(shareableLink)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
       toast.success('Share link copied to clipboard')
     } catch (error) {
       toast.error('Failed to generate share link')

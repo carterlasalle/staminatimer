@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import type { DBSession } from '@/lib/types' // Use consolidated type
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { calculateDetailedAnalytics } from '@/lib/analytics' // Use centralized calculation
-import { formatDuration } from '@/lib/utils' // Use utility function
-import { Loading } from '@/components/ui/loading'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loading } from '@/components/ui/loading';
+import { calculateDetailedAnalytics } from '@/lib/analytics'; // Use centralized calculation
+import { supabase } from '@/lib/supabase/client';
+import type { DBSession } from '@/lib/types'; // Use consolidated type
+import { formatDuration } from '@/lib/utils'; // Use utility function
+import { useEffect, useState } from 'react';
 
 type Analytics = {
   averageSessionDuration: number
@@ -17,15 +17,15 @@ type Analytics = {
 }
 
 type AnalyticsProps = {
-  externalData?: DBSession[] // Use correct type
+  externalData?: DBSession[] // Renamed from data to externalData
 }
 
-export function Analytics({ data: externalData }: AnalyticsProps = {}) {
+export function Analytics({ externalData }: AnalyticsProps = {}): JSX.Element { // Changed prop destructuring
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function calculateAnalytics() {
+    async function calculateAnalytics(): Promise<void> {
       try {
         // If external data is provided, use it instead of fetching
         let sessionsToAnalyze: DBSession[];

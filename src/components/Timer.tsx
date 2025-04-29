@@ -1,12 +1,12 @@
 'use client'
 
-import { useTimer } from '@/hooks/useTimer'
 import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Timer as TimerIcon } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTimer } from '@/hooks/useTimer'
 import { formatDuration } from '@/lib/utils'
+import { Timer as TimerIcon } from 'lucide-react'
 
-export function Timer() {
+export function Timer(): JSX.Element {
   const {
     state,
     activeTime,

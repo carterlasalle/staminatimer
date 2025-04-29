@@ -1,9 +1,9 @@
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
-export default function TermsPage() {
+export default function TermsPage(): JSX.Element {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Link href="/">

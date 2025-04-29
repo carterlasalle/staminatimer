@@ -7,16 +7,16 @@ type StatCardProps = {
   label: string
 }
 
-export function StatCard({ number, label }: StatCardProps) {
+export function StatCard({ number, label }: StatCardProps): JSX.Element {
   const { stats, loading } = useGlobalStats()
   
-  const formatNumber = (n: number) => {
+  const formatNumber = (n: number): string => {
     if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M+`
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k+`
     return n.toString()
   }
 
-  const getDisplayNumber = () => {
+  const getDisplayNumber = (): string => {
     if (loading) return '...'
     if (!stats) return number
     

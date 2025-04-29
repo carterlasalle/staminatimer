@@ -1,19 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
 import { Loading } from '@/components/ui/loading'
+import { supabase } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
-export default function SettingsPage() {
+export default function SettingsPage(): JSX.Element {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function getProfile() {
+    async function getProfile(): Promise<void> {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         setEmail(user.email)
@@ -23,7 +23,7 @@ export default function SettingsPage() {
     getProfile()
   }, [])
 
-  const updateEmail = async () => {
+  const updateEmail = async (): Promise<void> => {
     try {
       const { error } = await supabase.auth.updateUser({ email })
       if (error) throw error

@@ -1,33 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Settings } from 'lucide-react'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { supabase } from '@/lib/supabase/client'
+import { LogOut, Settings, User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-export function UserMenu() {
+export function UserMenu(): JSX.Element | null {
   const [email, setEmail] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    async function getUser() {
+    async function getUser(): Promise<void> {
       const { data: { user } } = await supabase.auth.getUser()
       setEmail(user?.email ?? null)
     }
     getUser()
   }, [])
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (): Promise<void> => {
     try {
       await supabase.auth.signOut()
       toast.success('Signed out successfully')

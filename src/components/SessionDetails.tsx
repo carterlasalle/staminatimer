@@ -1,15 +1,15 @@
 'use client'
 
-import { Line } from 'react-chartjs-2'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatDuration } from '@/lib/utils'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 import type { DBSession } from '@/lib/types'
+import { formatDuration } from '@/lib/utils'
+import { Line } from 'react-chartjs-2'
 
 type SessionDetailsProps = {
   session: DBSession | null
@@ -17,7 +17,7 @@ type SessionDetailsProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function SessionDetails({ session, open, onOpenChange }: SessionDetailsProps) {
+export function SessionDetails({ session, open, onOpenChange }: SessionDetailsProps): JSX.Element | null {
   if (!session) return null
 
   const edgeEvents = session.edge_events ?? []

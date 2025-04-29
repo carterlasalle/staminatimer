@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 type TimerState = 'idle' | 'active' | 'edging' | 'finished'
@@ -14,13 +14,11 @@ type EdgeLap = {
 
 export function useTimer() {
   const [state, setState] = useState<TimerState>('idle')
-  const [sessionStart, setSessionStart] = useState<Date | null>(null)
   const [activeTime, setActiveTime] = useState(0)
   const [edgeTime, setEdgeTime] = useState(0)
   const [currentEdgeStart, setCurrentEdgeStart] = useState<Date | null>(null)
   const [lastActiveStart, setLastActiveStart] = useState<Date | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
-  const [finishedDuringEdge, setFinishedDuringEdge] = useState(false)
   const [edgeLaps, setEdgeLaps] = useState<EdgeLap[]>([])
   const [displayActiveTime, setDisplayActiveTime] = useState(0)
   const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
@@ -91,7 +89,6 @@ export function useTimer() {
       }
 
       setSessionId(data.id)
-      setSessionStart(now)
       setLastActiveStart(now)
       setState('active')
 
@@ -198,14 +195,12 @@ export function useTimer() {
     const now = new Date()
     let finalActiveTime = activeTime
     let finalEdgeTime = edgeTime
-    let wasFinishedDuringEdge = false
 
     try {
       if (state === 'active' && lastActiveStart) {
         finalActiveTime += (now.getTime() - lastActiveStart.getTime())
       } else if (state === 'edging' && currentEdgeStart) {
         finalEdgeTime += (now.getTime() - currentEdgeStart.getTime())
-        wasFinishedDuringEdge = true
       }
 
       const { error } = await supabase
@@ -214,7 +209,6 @@ export function useTimer() {
           end_time: now.toISOString(),
           active_duration: finalActiveTime,
           edge_duration: finalEdgeTime,
-          finished_during_edge: wasFinishedDuringEdge,
           total_duration: finalActiveTime + finalEdgeTime
         })
         .eq('id', sessionId)
@@ -225,7 +219,6 @@ export function useTimer() {
 
       setActiveTime(finalActiveTime)
       setEdgeTime(finalEdgeTime)
-      setFinishedDuringEdge(wasFinishedDuringEdge)
       setState('finished')
 
     } catch (err) {
@@ -236,13 +229,11 @@ export function useTimer() {
 
   const resetTimer = useCallback(() => {
     setState('idle')
-    setSessionStart(null)
     setActiveTime(0)
     setEdgeTime(0)
     setCurrentEdgeStart(null)
     setLastActiveStart(null)
     setSessionId(null)
-    setFinishedDuringEdge(false)
     setEdgeLaps([])
   }, [])
 

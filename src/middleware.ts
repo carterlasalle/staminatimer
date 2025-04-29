@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 // import { RateLimiter } from '@/lib/security/rateLimiter' // In-memory limiter not suitable for serverless
 
 export async function middleware(req: NextRequest) {
@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
           return req.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => req.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value, options: _options }) => req.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request: {
               headers: req.headers,

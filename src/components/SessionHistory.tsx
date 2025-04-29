@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import type { Session } from '@/lib/supabase/schema'
+import { SessionDetails } from '@/components/SessionDetails'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -11,11 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { toast } from 'sonner'
-import { Trash2, RefreshCw } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { SessionDetails } from '@/components/SessionDetails'
+import { supabase } from '@/lib/supabase/client'
 import { formatDuration } from '@/lib/utils'
+import { RefreshCw, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
 type SortOrder = 'desc' | 'asc'

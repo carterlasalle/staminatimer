@@ -1,9 +1,9 @@
 'use client'
 
-import { Component, ErrorInfo, ReactNode } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RefreshCw } from 'lucide-react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 type Props = {
   children: ReactNode
@@ -24,11 +24,11 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error }
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('Uncaught error:', error, errorInfo)
   }
 
-  public render() {
+  public render(): ReactNode {
     if (this.state.hasError) {
       return (
         <Card className="w-full max-w-md mx-auto mt-8">
