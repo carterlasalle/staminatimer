@@ -6,11 +6,11 @@ import type { UserOptions } from 'jspdf-autotable'; // Import UserOptions
 
 // Extend jsPDF types to include autoTable and internal methods
 declare module 'jspdf' {
-  type jsPDF = { // Use interface instead of type for declaration merging
-    autoTable: (options: UserOptions) => jsPDF; // Use UserOptions type
+  interface jsPDF { // Augment the existing jsPDF interface
+    autoTable: (options: UserOptions) => jsPDF;
     lastAutoTable: {
-      finalY: number
-    }
+      finalY: number;
+    };
   }
 }
 
