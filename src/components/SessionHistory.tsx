@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { Trash2, RefreshCw } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { SessionDetails } from '@/components/SessionDetails'
+import { formatDuration } from '@/lib/utils'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
 type SortOrder = 'desc' | 'asc'
@@ -72,13 +73,6 @@ export function SessionHistory() {
 
     setSessions(data)
     setLoading(false)
-  }
-
-  function formatDuration(ms: number): string {
-    const seconds = Math.floor(ms / 1000)
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
   async function deleteSession(sessionId: string) {

@@ -2,7 +2,7 @@ export type AchievementCategory = 'endurance' | 'control' | 'progress' | 'specia
 export type ConditionType = 'duration' | 'edge_count' | 'edge_duration' | 'streak' | 'custom'
 export type ComparisonType = 'greater' | 'less' | 'equal'
 
-export interface Achievement {
+export type Achievement = {
   id: string
   name: string
   description: string
@@ -14,7 +14,7 @@ export interface Achievement {
   icon: string
 }
 
-export interface UserAchievement {
+export type UserAchievement = {
   id: string
   user_id: string
   achievement_id: string

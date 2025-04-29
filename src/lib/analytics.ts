@@ -1,6 +1,6 @@
 import type { DBSession } from './types'
 
-export interface DetailedAnalytics {
+export type DetailedAnalytics = {
   averageSessionDuration: number
   averageEdgeDuration: number
   averageTimeBetweenEdges: number

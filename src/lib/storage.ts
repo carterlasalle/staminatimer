@@ -1,4 +1,4 @@
-export interface StorageSession {
+export type StorageSession = {
   state: string
   sessionStart: string | null
   activeTime: number

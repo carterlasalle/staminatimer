@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { ChartData, ChartOptions } from 'chart.js'
 import { supabase } from '@/lib/supabase/client'
 import { Line } from 'react-chartjs-2'
 import {
@@ -15,6 +16,8 @@ import {
 } from 'chart.js'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useTheme } from 'next-themes'
+import type { DBSession } from '@/lib/types'
+import { Loading } from '@/components/ui/loading'
 
 ChartJS.register(
   CategoryScale,
@@ -26,108 +29,87 @@ ChartJS.register(
   Legend
 )
 
-interface ChartsProps {
-  data?: any[]
+type ChartsProps = {
+  data?: DBSession[]
+}
+
+type LineChartData = {
+  labels: string[]
+  datasets: {
+    label: string
+    data: number[]
+    borderColor: string
+    backgroundColor: string
+    tension: number
+  }[]
 }
 
 export function Charts({ data: externalData }: ChartsProps = {}) {
-  const [data, setData] = useState<any>(null)
+  const [chartData, setChartData] = useState<LineChartData | null>(null)
   const [loading, setLoading] = useState(true)
   const { theme } = useTheme()
+
+  const processSessionsForChart = (sessions: DBSession[]): LineChartData => {
+    const sortedSessions = [...sessions].sort((a, b) => 
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+
+    return {
+      labels: sortedSessions.map(s => new Date(s.created_at).toLocaleTimeString()),
+      datasets: [
+        {
+          label: 'Total Duration',
+          data: sortedSessions.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
+          borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
+          backgroundColor: theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
+          tension: 0.1
+        },
+        {
+          label: 'Edge Duration',
+          data: sortedSessions.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
+          borderColor: theme === 'dark' ? 'rgb(251, 113, 133)' : 'rgb(239, 68, 68)',
+          backgroundColor: theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+          tension: 0.1
+        }
+      ]
+    }
+  }
 
   useEffect(() => {
     async function fetchChartData() {
       try {
         if (externalData) {
-          const chartData = {
-            labels: externalData.map(s => new Date(s.created_at).toLocaleTimeString()),
-            datasets: [
-              {
-                label: 'Total Duration',
-                data: externalData.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
-                borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
-                backgroundColor: theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
-                tension: 0.1
-              },
-              {
-                label: 'Edge Duration',
-                data: externalData.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
-                borderColor: theme === 'dark' ? 'rgb(248, 113, 113)' : 'rgb(255, 99, 132)',
-                backgroundColor: theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-                tension: 0.1
-              }
-            ]
-          }
-          setData(chartData)
+          setChartData(processSessionsForChart(externalData))
           setLoading(false)
           return
         }
 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-          return
-        }
-
-        const { data: checkSessions, error: checkError } = await supabase
-          .from('sessions')
-          .select('id, user_id, created_at')
-          .eq('user_id', user.id)
-
-        if (checkError) {
-          console.error('Check sessions error:', checkError)
+          setLoading(false)
           return
         }
 
         const { data: sessions, error } = await supabase
           .from('sessions')
-          .select(`
-            id,
-            user_id,
-            start_time,
-            end_time,
-            total_duration,
-            active_duration,
-            edge_duration,
-            created_at
-          `)
+          .select('created_at, total_duration, edge_duration')
           .eq('user_id', user.id)
           .order('created_at', { ascending: true })
           .limit(20)
 
         if (error) {
           console.error('Error fetching chart data:', error)
-          console.error('Error details:', error.details)
-          console.error('Error hint:', error.hint)
-          return
-        }
-
-        if (!sessions || sessions.length === 0) {
-          setData(null)
           setLoading(false)
           return
         }
 
-        const chartData = {
-          labels: sessions.map(s => new Date(s.created_at).toLocaleTimeString()),
-          datasets: [
-            {
-              label: 'Total Duration',
-              data: sessions.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
-              borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
-              backgroundColor: theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
-              tension: 0.1
-            },
-            {
-              label: 'Edge Duration',
-              data: sessions.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
-              borderColor: theme === 'dark' ? 'rgb(248, 113, 113)' : 'rgb(255, 99, 132)',
-              backgroundColor: theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-              tension: 0.1
-            }
-          ]
+        if (!sessions || sessions.length === 0) {
+          setChartData(null)
+          setLoading(false)
+          return
         }
 
-        setData(chartData)
+        setChartData(processSessionsForChart(sessions))
         setLoading(false)
       } catch (err) {
         console.error('Error in fetchChartData:', err)
@@ -137,7 +119,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
 
     fetchChartData()
     if (!externalData) {
-      const interval = setInterval(fetchChartData, 5000)
+      const interval = setInterval(fetchChartData, 30000)
       return () => clearInterval(interval)
     }
   }, [theme, externalData])
@@ -149,15 +131,13 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
           <CardTitle>Progress Over Time (Minutes)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-[300px]">
-            Loading charts...
-          </div>
+          <Loading text="Loading chart..." className="h-[300px]" />
         </CardContent>
       </Card>
     )
   }
 
-  if (!data) {
+  if (!chartData || chartData.labels.length === 0) {
     return (
       <Card className="w-full max-w-4xl mx-auto mt-8">
         <CardHeader>
@@ -172,6 +152,55 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
     )
   }
 
+  const chartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Duration (minutes)',
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+        },
+        ticks: {
+          callback: (value) => `${value}m`,
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+        },
+        grid: {
+          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        }
+      },
+      x: {
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+        },
+        grid: {
+          display: false
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          color: theme === 'dark' ? '#e2e8f0' : '#1e293b'
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
+        }
+      }
+    }
+  }
+
   return (
     <Card className="w-full max-w-4xl mx-auto mt-8">
       <CardHeader>
@@ -179,57 +208,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
       </CardHeader>
       <CardContent>
         <div className="w-full aspect-[2/1] relative">
-          <Line
-            data={data}
-            options={{
-              responsive: true,
-              maintainAspectRatio: true,
-              interaction: {
-                mode: 'index',
-                intersect: false,
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  title: {
-                    display: true,
-                    text: 'Duration (minutes)',
-                    color: theme === 'dark' ? '#e5e5e5' : '#171717'
-                  },
-                  ticks: {
-                    callback: (value) => `${value}m`,
-                    color: theme === 'dark' ? '#e5e5e5' : '#171717'
-                  },
-                  grid: {
-                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                  }
-                },
-                x: {
-                  ticks: {
-                    maxRotation: 45,
-                    minRotation: 45,
-                    color: theme === 'dark' ? '#e5e5e5' : '#171717'
-                  },
-                  grid: {
-                    display: false
-                  }
-                }
-              },
-              plugins: {
-                legend: {
-                  position: 'top',
-                  labels: {
-                    color: theme === 'dark' ? '#e5e5e5' : '#171717'
-                  }
-                },
-                tooltip: {
-                  callbacks: {
-                    label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
-                  }
-                }
-              }
-            }}
-          />
+          <Line data={chartData} options={chartOptions} />
         </div>
       </CardContent>
     </Card>

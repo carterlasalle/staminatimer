@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-interface ResponsiveContainerProps {
+type ResponsiveContainerProps = {
   children: React.ReactNode
   className?: string
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'

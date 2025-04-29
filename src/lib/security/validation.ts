@@ -1,4 +1,4 @@
-export interface ValidationRules {
+export type ValidationRules = {
   [key: string]: {
     required?: boolean
     min?: number

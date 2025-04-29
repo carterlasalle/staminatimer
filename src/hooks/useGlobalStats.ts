@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 
-interface GlobalStats {
+type GlobalStats = {
   active_users_count: number
   total_sessions_count: number
   last_updated: string

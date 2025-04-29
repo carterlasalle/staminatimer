@@ -3,7 +3,7 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react'
 import type { DBSession } from '@/lib/types'
 
-interface GlobalState {
+type GlobalState = {
   currentSession: DBSession | null
   sessions: DBSession[]
   loading: boolean

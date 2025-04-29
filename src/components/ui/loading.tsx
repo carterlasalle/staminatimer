@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-interface LoadingProps {
+type LoadingProps = {
   className?: string
   size?: 'sm' | 'md' | 'lg'
   text?: string

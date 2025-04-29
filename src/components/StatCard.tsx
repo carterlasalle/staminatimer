@@ -2,7 +2,7 @@
 
 import { useGlobalStats } from '@/hooks/useGlobalStats'
 
-interface StatCardProps {
+type StatCardProps = {
   number: string
   label: string
 }

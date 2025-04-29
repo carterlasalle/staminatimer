@@ -1,51 +1,87 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+// import { RateLimiter } from '@/lib/security/rateLimiter' // In-memory limiter not suitable for serverless
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+  let supabaseResponse = NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => req.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
   /*
-  // Rate limiting
+  // Rate limiting - Needs a persistent store (e.g., Redis, DB) for serverless
   const ip = req.ip ?? '127.0.0.1'
-  const rateLimitKey = `rate_limit:${ip}`
-  const { data: attempts, error: rateError } = await supabase.rpc('increment_rate_limit', { key: rateLimitKey })
-  
+  // const { data: attempts, error: rateError } = await supabase.rpc(...) // Example DB approach
   if (rateError) {
     console.error('Rate limit error:', rateError)
   }
-  
-  if (attempts && attempts > 1000) { // 100 requests per minute
+  if (attempts && attempts > 100) { // Example: 100 requests per window
     return new NextResponse('Too Many Requests', { status: 429 })
   }
   */
 
-  // CSRF Protection
-  if (req.method !== 'GET') {
-    const csrfToken = req.headers.get('x-csrf-token')
-    const storedToken = req.cookies.get('csrf-token')
-    
-    if (!csrfToken || !storedToken || csrfToken !== storedToken.value) {
-      return new NextResponse('Invalid CSRF token', { status: 403 })
-    }
-  }
+  // IMPORTANT: Avoid adding code between createServerClient and supabase.auth.getUser()
+  // as per Supabase docs to prevent hard-to-debug auth issues.
 
-  // Auth check
-  const { data: { session } } = await supabase.auth.getSession()
-  
+  // Refresh session if expired - Required for Server Components
+  // IMPORTANT: Add `.auth.getUser()` function to securely refresh session cookies.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms']
-  const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname)
+  // Also include API routes like /auth/callback
+  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback', '/share'] // Added /auth/callback and /share base
+  const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname) ||
+                        req.nextUrl.pathname.startsWith('/share/') || // Allow specific share links
+                        req.nextUrl.pathname.startsWith('/api/') // Allow general API routes if any
 
-  if (!session && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  // If user is not signed in and the route is protected, redirect to login
+  if (!user && !isPublicRoute) {
+    const url = req.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  return res
+  // IMPORTANT: You *must* return the supabaseResponse object.
+  // Do not create a new NextResponse.next() object without copying cookies.
+  return supabaseResponse
 }
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)',
   ],
-} 
+}

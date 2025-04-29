@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
+import { Loading } from '@/components/ui/loading'
 
 export default function SettingsPage() {
   const [email, setEmail] = useState('')
@@ -34,7 +35,7 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading text="Loading settings..." className="py-8"/>
   }
 
   return (
@@ -60,4 +61,4 @@ export default function SettingsPage() {
       </Card>
     </div>
   )
-} 
+}

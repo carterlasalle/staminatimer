@@ -5,11 +5,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
 
-interface Props {
+type Props = {
   children: ReactNode
 }
 
-interface State {
+type State = {
   hasError: boolean
   error: Error | null
 }

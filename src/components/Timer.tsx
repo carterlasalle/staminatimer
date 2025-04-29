@@ -4,13 +4,7 @@ import { useTimer } from '@/hooks/useTimer'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Timer as TimerIcon } from 'lucide-react'
-
-function formatDuration(ms: number): string {
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
-}
+import { formatDuration } from '@/lib/utils'
 
 export function Timer() {
   const {

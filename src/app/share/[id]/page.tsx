@@ -1,14 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Charts } from '@/components/Charts'
 import { Analytics } from '@/components/Analytics'
+import { Charts } from '@/components/Charts'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Loading } from '@/components/ui/loading'
+import { supabase } from '@/lib/supabase/client'
+import type { DBSession } from '@/lib/types'
+import { useEffect, useState } from 'react'
 
 export default function SharePage({ params }: { params: { id: string } }) {
-  const [data, setData] = useState<any>(null)
+  const [sharedData, setSharedData] = useState<DBSession[] | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchSharedData() {
@@ -18,20 +21,22 @@ export default function SharePage({ params }: { params: { id: string } }) {
         .eq('id', params.id)
         .single()
 
-      if (error) {
+      if (error || !data) {
         console.error('Error fetching shared data:', error)
+        setError(error?.message || 'Shared link not found or expired')
+        setLoading(false)
         return
       }
 
-      setData(data.sessions_data)
+      setSharedData(data.sessions_data as DBSession[])
       setLoading(false)
     }
 
     fetchSharedData()
   }, [params.id])
 
-  if (loading) return <div>Loading shared data...</div>
-  if (!data) return <div>Share link not found or expired</div>
+  if (loading) return <Loading text="Loading shared data..." fullScreen />
+  if (error || !sharedData) return <div className="container mx-auto py-8 text-center text-destructive">{error || 'Share link not found or expired'}</div>
 
   return (
     <div className="container max-w-7xl mx-auto py-8">
@@ -40,10 +45,10 @@ export default function SharePage({ params }: { params: { id: string } }) {
           <CardTitle>Shared Training Data</CardTitle>
         </CardHeader>
         <CardContent>
-          <Charts data={data} />
-          <Analytics data={data} />
+          <Charts externalData={sharedData} />
+          <Analytics externalData={sharedData} />
         </CardContent>
       </Card>
     </div>
   )
-} 
+}

@@ -2,25 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import type { Session } from '@/lib/supabase/schema'
+import type { DBSession } from '@/lib/types' // Use consolidated type
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-
-type DBSession = {
-  id: string
-  start_time: string
-  end_time: string
-  total_duration: number
-  active_duration: number
-  edge_duration: number
-  finished_during_edge: boolean
-  created_at: string
-  edge_events: Array<{
-    id: string
-    start_time: string
-    end_time: string
-    duration: number
-  }>
-}
+import { calculateDetailedAnalytics } from '@/lib/analytics' // Use centralized calculation
+import { formatDuration } from '@/lib/utils' // Use utility function
+import { Loading } from '@/components/ui/loading'
 
 type Analytics = {
   averageSessionDuration: number
@@ -30,8 +16,8 @@ type Analytics = {
   improvementRate: number
 }
 
-interface AnalyticsProps {
-  data?: any[] // Add proper typing based on your data structure
+type AnalyticsProps = {
+  externalData?: DBSession[] // Use correct type
 }
 
 export function Analytics({ data: externalData }: AnalyticsProps = {}) {
@@ -42,48 +28,14 @@ export function Analytics({ data: externalData }: AnalyticsProps = {}) {
     async function calculateAnalytics() {
       try {
         // If external data is provided, use it instead of fetching
+        let sessionsToAnalyze: DBSession[];
+
         if (externalData) {
-          const typedSessions = externalData as DBSession[]
-          
-          const stats = typedSessions.reduce((acc, session) => {
-            acc.totalDuration += session.total_duration ?? 0
-            acc.totalEdges += session.edge_events?.length ?? 0
-            
-            // Calculate time between edges
-            if (session.edge_events && session.edge_events.length > 1) {
-              let previousEdge = session.edge_events[0]
-              for (let i = 1; i < session.edge_events.length; i++) {
-                const currentEdge = session.edge_events[i]
-                if (previousEdge.end_time && currentEdge.start_time) {
-                  acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
-                    new Date(previousEdge.end_time).getTime()
-                  acc.edgeIntervalCount++
-                }
-                previousEdge = currentEdge
-              }
-            }
-            
-            return acc
-          }, {
-            totalDuration: 0,
-            totalEdges: 0,
-            totalTimeBetweenEdges: 0,
-            edgeIntervalCount: 0
-          })
-
-          setAnalytics({
-            averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
-            averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
-            averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
-            totalSessions: typedSessions.length,
-            improvementRate: calculateImprovementRate(typedSessions)
-          })
-          
+          sessionsToAnalyze = externalData;
+        } else {
+          // Fetch data only if externalData is not provided
+          const { data: { user } } = await supabase.auth.getUser();
           setLoading(false)
-          return
-        }
-
-        const { data: { user } } = await supabase.auth.getUser()
         const { data: sessions, error } = await supabase
           .from('sessions')
           .select(`
@@ -92,49 +44,26 @@ export function Analytics({ data: externalData }: AnalyticsProps = {}) {
           `)
           .eq('user_id', user?.id)
           .order('created_at', { ascending: false })
-          .limit(20)
+          .limit(20); // Limit for performance
 
         if (error) {
           console.error('Error fetching analytics data:', error)
+          setLoading(false);
           return
         }
+        sessionsToAnalyze = sessions as DBSession[];
+        }
 
-        const typedSessions = sessions as DBSession[]
-        
-        const stats = typedSessions.reduce((acc, session) => {
-          acc.totalDuration += session.total_duration ?? 0
-          acc.totalEdges += session.edge_events?.length ?? 0
-          
-          // Calculate time between edges
-          if (session.edge_events && session.edge_events.length > 1) {
-            let previousEdge = session.edge_events[0]
-            for (let i = 1; i < session.edge_events.length; i++) {
-              const currentEdge = session.edge_events[i]
-              if (previousEdge.end_time && currentEdge.start_time) {
-                acc.totalTimeBetweenEdges += new Date(currentEdge.start_time).getTime() - 
-                  new Date(previousEdge.end_time).getTime()
-                acc.edgeIntervalCount++
-              }
-              previousEdge = currentEdge
-            }
-          }
-          
-          return acc
-        }, {
-          totalDuration: 0,
-          totalEdges: 0,
-          totalTimeBetweenEdges: 0,
-          edgeIntervalCount: 0
-        })
+        // Use centralized calculation function
+        const calculatedStats = calculateDetailedAnalytics(sessionsToAnalyze);
 
         setAnalytics({
-          averageSessionDuration: stats.totalDuration / typedSessions.length || 0,
-          averageEdgeDuration: typedSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / (stats.totalEdges || 1),
-          averageTimeBetweenEdges: stats.edgeIntervalCount > 0 ? stats.totalTimeBetweenEdges / stats.edgeIntervalCount : 0,
-          totalSessions: typedSessions.length,
-          improvementRate: calculateImprovementRate(typedSessions)
-        })
-        
+          averageSessionDuration: calculatedStats.averageSessionDuration,
+          averageEdgeDuration: calculatedStats.averageEdgeDuration,
+          averageTimeBetweenEdges: calculatedStats.averageTimeBetweenEdges,
+          totalSessions: calculatedStats.totalSessions, // Assuming totalSessions is part of DetailedAnalytics
+          improvementRate: calculatedStats.improvementRate
+        });
         setLoading(false)
       } catch (err) {
         console.error('Error calculating analytics:', err)
@@ -143,47 +72,20 @@ export function Analytics({ data: externalData }: AnalyticsProps = {}) {
     }
 
     calculateAnalytics()
+
     // Only set up polling if we're not using external data
     if (!externalData) {
+      // Consider alternatives to polling if possible
       const interval = setInterval(calculateAnalytics, 5000)
       return () => clearInterval(interval)
     }
-  }, [externalData])
+    // No return needed if externalData is provided, as useEffect runs once
+  }, [externalData]) // Depend only on externalData
 
-  function calculateImprovementRate(sessions: DBSession[]): number {
-    if (sessions.length < 2) return 0
-    
-    // Get the most recent 5 sessions and oldest 5 sessions
-    const recentSessions = sessions.slice(0, 5)
-    const olderSessions = sessions.slice(-5)
-    
-    // Calculate average duration and edge count for recent sessions
-    const recentStats = recentSessions.reduce((acc, s) => ({
-      totalDuration: acc.totalDuration + (s.total_duration ?? 0),
-      edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
-    }), { totalDuration: 0, edgeCount: 0 })
 
-    // Calculate average duration and edge count for older sessions
-    const olderStats = olderSessions.reduce((acc, s) => ({
-      totalDuration: acc.totalDuration + (s.total_duration ?? 0),
-      edgeCount: acc.edgeCount + (s.edge_events?.length ?? 0)
-    }), { totalDuration: 0, edgeCount: 0 })
+  if (loading) return <Loading text="Calculating analytics..." className="mt-8" />;
 
-    // Calculate improvement metrics
-    const recentAvgDuration = recentStats.totalDuration / recentSessions.length
-    const olderAvgDuration = olderStats.totalDuration / olderSessions.length
-    const recentAvgEdges = recentStats.edgeCount / recentSessions.length
-    const olderAvgEdges = olderStats.edgeCount / olderSessions.length
-
-    // Calculate overall improvement (considering both duration and edge count)
-    const durationImprovement = ((recentAvgDuration - olderAvgDuration) / olderAvgDuration) * 100
-    const edgeImprovement = ((recentAvgEdges - olderAvgEdges) / olderAvgEdges) * 100
-
-    // Return weighted average of improvements
-    return (durationImprovement + edgeImprovement) / 2
-  }
-
-  if (loading) return <div>Calculating analytics...</div>
+  if (!analytics) return <div className="mt-8 text-center text-muted-foreground">No analytics data available.</div>;
 
   return (
     <Card className="w-full max-w-4xl mx-auto mt-8">
@@ -193,30 +95,23 @@ export function Analytics({ data: externalData }: AnalyticsProps = {}) {
       <CardContent>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <div className="text-sm text-muted-foreground">Average Session Duration</div>
-            <div className="text-xl">{formatDuration(analytics?.averageSessionDuration ?? 0)}</div>
+            <div className="text-sm text-muted-foreground">Avg Session Duration</div>
+            <div className="text-xl">{formatDuration(analytics.averageSessionDuration)}</div>
           </div>
           <div>
-            <div className="text-sm text-muted-foreground">Average Edge Duration</div>
-            <div className="text-xl">{formatDuration(analytics?.averageEdgeDuration ?? 0)}</div>
+            <div className="text-sm text-muted-foreground">Avg Edge Duration</div>
+            <div className="text-xl">{formatDuration(analytics.averageEdgeDuration)}</div>
           </div>
           <div>
-            <div className="text-sm text-muted-foreground">Average Time Between Edges</div>
-            <div className="text-xl">{formatDuration(analytics?.averageTimeBetweenEdges ?? 0)}</div>
+            <div className="text-sm text-muted-foreground">Avg Time Between Edges</div>
+            <div className="text-xl">{formatDuration(analytics.averageTimeBetweenEdges)}</div>
           </div>
           <div>
             <div className="text-sm text-muted-foreground">Improvement Rate</div>
-            <div className="text-xl">{analytics?.improvementRate.toFixed(1)}%</div>
+            <div className={`text-xl ${analytics.improvementRate >= 0 ? 'text-green-500' : 'text-red-500'}`}>{analytics.improvementRate.toFixed(1)}%</div>
           </div>
         </div>
       </CardContent>
     </Card>
   )
 }
-
-function formatDuration(ms: number): string {
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
-} 
