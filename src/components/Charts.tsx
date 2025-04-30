@@ -6,14 +6,14 @@ import { useGlobal } from '@/contexts/GlobalContext'
 import type { DBSession } from '@/lib/types'
 import type { ChartOptions } from 'chart.js'
 import {
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip
 } from 'chart.js'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useState } from 'react'
@@ -80,12 +80,12 @@ export function Charts({ data: externalData }: ChartsProps = {}): JSX.Element {
   useEffect(() => {
     let sessionsToProcess: DBSession[] | undefined;
 
-    if (externalData) {
+        if (externalData) {
       sessionsToProcess = externalData
     } else if (!globalLoading && recentSessions) {
       sessionsToProcess = recentSessions
     } else {
-      setChartData(null)
+          setChartData(null)
       return;
     }
 

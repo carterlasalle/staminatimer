@@ -21,7 +21,7 @@ export function Achievements(): JSX.Element {
          setLoading(false);
          return; 
       }
-
+      
       const { data, error } = await supabase
         .from('user_achievements')
         .select(`
