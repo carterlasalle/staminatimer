@@ -29,11 +29,15 @@ export default function RootLayout({
         >
           <AuthProvider>
             <GlobalProvider>
-              {children}
-              <Toaster />
-              <SpeedInsights />
-              <Analytics />
-              <ServiceWorkerRegistrar />
+              <div className="relative min-h-screen bg-[url('/background.png')] bg-cover bg-center bg-no-repeat bg-fixed">
+                <div className="relative z-10">
+                  {children}
+                  <Toaster />
+                  <SpeedInsights />
+                  <Analytics />
+                  <ServiceWorkerRegistrar />
+                </div>
+              </div>
             </GlobalProvider>
           </AuthProvider>
         </ThemeProvider>

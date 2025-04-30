@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode-toggle'
-import Link from 'next/link';
-import { Timer as TimerIcon, LineChart, Share2, Shield } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
+import { Button } from '@/components/ui/button'
+import { supabase } from '@/lib/supabase/client'
+import { LineChart, Share2, Shield, Timer as TimerIcon } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function Home(): JSX.Element {
   const router = useRouter()
@@ -23,23 +23,29 @@ export default function Home(): JSX.Element {
   }, [router])
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      {/* Navigation */}
-      <nav className="border-b">
+    <div className="flex min-h-screen flex-col relative z-10">
+      <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between items-center">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center">
               <div className="flex items-center">
                 <TimerIcon className="h-8 w-8 text-primary shrink-0" />
                 <span className="ml-2 text-2xl font-bold">Stamina Timer</span>
               </div>
-              <Link 
-                href="/license" 
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
+            </div>
+
+            <div className="hidden md:flex gap-6">
+              <Link href="/license" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 License
               </Link>
+              <Link href="/privacy" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
             </div>
+
             <div className="flex items-center gap-4">
               <ModeToggle />
               <Link href="/login">
@@ -51,7 +57,7 @@ export default function Home(): JSX.Element {
       </nav>
 
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-16 sm:py-32 bg-gradient-to-b from-background to-muted/30">
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-16 sm:py-32">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
           Master Your <span className="text-primary">Stamina</span>
         </h1>
@@ -73,7 +79,7 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 sm:py-28 bg-background">
+      <section id="features" className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Why Choose Stamina Timer?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -102,7 +108,7 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 sm:py-28 bg-muted/30">
+      <section className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Join Thousands Training Smarter</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -114,7 +120,7 @@ export default function Home(): JSX.Element {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-10 bg-background">
+      <footer className="border-t py-10 bg-background/90">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-4 text-sm text-muted-foreground">
