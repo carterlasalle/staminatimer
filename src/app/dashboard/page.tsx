@@ -22,16 +22,16 @@ export default function Dashboard(): JSX.Element {
       </header>
 
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* Left Column (Timer & History) */}
+        {/* Main Column (Timer & Charts) */}
         <section className="lg:col-span-2 space-y-6 md:space-y-8">
           <ErrorBoundary><Timer /></ErrorBoundary>
-          <ErrorBoundary><SessionHistory /></ErrorBoundary>
+          <ErrorBoundary><Charts /></ErrorBoundary>
         </section>
 
-        {/* Right Column (Analytics, Charts, Achievements) */}
+        {/* Sidebar (History, Analytics, Achievements) */}
         <aside className="space-y-6 md:space-y-8">
+          <ErrorBoundary><SessionHistory /></ErrorBoundary>
           <ErrorBoundary><Analytics /></ErrorBoundary>
-          <ErrorBoundary><Charts /></ErrorBoundary>
           <ErrorBoundary><Achievements /></ErrorBoundary>
         </aside>
       </main>
