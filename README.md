@@ -1,6 +1,6 @@
 # Stamina Training Timer
 
-A Next.js application for tracking and improving personal endurance metrics through timed intervals and data analysis.
+A production-ready Next.js application for tracking and improving personal endurance metrics through timed intervals and data analysis.
 
 ## Features
 
@@ -49,12 +49,32 @@ Required environment variables:
 Run the SQL schema in your Supabase project:
 
   ```sql
-  -- Enable UUID extension
-  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-  -- Create required tables
-  -- See schema.sql for full database setup
+  -- Create required tables & RLS policies
+  -- See supabase/schema.sql for full database setup
   ```
+
+After running the schema, seed your achievements as needed and ensure RLS is enabled. The app relies on Supabase Realtime for some updates.
+
+Optional seed for achievements: run `supabase/seed_achievements.sql` in your Supabase SQL editor.
+
+## PWA
+
+- Offline support via service worker (`public/sw.js`)
+- Manifest at `public/manifest.json`
+- Robots and sitemap in `public/`
+
+## Scripts
+
+- `npm run dev` – Start dev server
+- `npm run build` – Production build
+- `npm start` – Start production server
+- `npm run lint` – ESLint checks
+- `npm run typecheck` – TypeScript type checks
+- `npm run format` / `format:check` – Prettier formatting
+
+## CI
+
+GitHub Actions workflow runs lint, typecheck, and build on PRs and pushes to `main`/`master`.
 
 ## Contributing
 

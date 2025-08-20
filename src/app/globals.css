@@ -70,3 +70,141 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Enhanced Auth UI Styles */
+@layer components {
+  .auth-container {
+    @apply space-y-4;
+  }
+  
+  .auth-container .supabase-auth-ui_ui-button {
+    @apply h-12 font-medium transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02];
+  }
+  
+  .auth-container .supabase-auth-ui_ui-input {
+    @apply h-12 transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary;
+  }
+  
+  .auth-container .supabase-auth-ui_ui-label {
+    @apply font-medium text-sm;
+  }
+  
+  .auth-container .supabase-auth-ui_ui-message {
+    @apply text-sm;
+  }
+  
+  .auth-container .supabase-auth-ui_ui-anchor {
+    @apply text-primary hover:underline transition-colors duration-200;
+  }
+  
+  /* Loading animation */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Smooth fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  /* Hover scale animation */
+  .hover-scale {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Enhanced accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-spin,
+    .animate-fade-in,
+    .hover-scale,
+    .auth-container .supabase-auth-ui_ui-button,
+    .auth-container .supabase-auth-ui_ui-input {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  
+  /* Focus indicators */
+  .focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-muted/20;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/60;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.125);
+  }
+  
+  .dark .glass {
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.125);
+  }
+  
+  /* Gradient animations */
+  @keyframes gradient-x {
+    0%, 100% {
+      transform: translateX(0%);
+    }
+    50% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-gradient-x {
+    animation: gradient-x 15s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  /* Pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(var(--primary), 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(var(--primary), 0.8);
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}

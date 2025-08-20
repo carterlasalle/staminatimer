@@ -5,8 +5,7 @@ const urlsToCache = [
   '/',
   OFFLINE_URL,
   '/favicon.ico',
-  '/manifest.json',
-  '/static/styles/globals.css',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {

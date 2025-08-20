@@ -66,7 +66,9 @@ export function calculateDetailedAnalytics(sessions: DBSession[]): DetailedAnaly
 
   return {
     averageSessionDuration: validSessions.reduce((acc, s) => acc + s.total_duration, 0) / validSessions.length,
-    averageEdgeDuration: validSessions.reduce((acc, s) => acc + s.edge_duration, 0) / totalEdges,
+    averageEdgeDuration: totalEdges > 0
+      ? validSessions.reduce((acc, s) => acc + (s.edge_duration ?? 0), 0) / totalEdges
+      : 0,
     averageTimeBetweenEdges: calculateAverageTimeBetweenEdges(validSessions),
     averageEdgesPerSession: totalEdges / validSessions.length,
     longestSession: Math.max(...validSessions.map(s => s.total_duration)),

@@ -1,7 +1,7 @@
 export type DBSession = {
   id: string
   start_time: string
-  end_time: string
+  end_time: string | null
   total_duration: number
   active_duration: number
   edge_duration: number
@@ -13,4 +13,4 @@ export type DBSession = {
     end_time: string | null
     duration: number | null
   }>
-} 
+}

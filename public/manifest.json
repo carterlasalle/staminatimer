@@ -1,0 +1,13 @@
+{
+  "name": "Stamina Timer",
+  "short_name": "Stamina",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0b",
+  "theme_color": "#0ea5e9",
+  "description": "Track, analyze, and improve your stamina with precision timers and analytics.",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64 32x32 16x16", "type": "image/x-icon" }
+  ]
+}
+

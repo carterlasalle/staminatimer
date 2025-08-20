@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -12,8 +12,17 @@ type GlobalStats = {
 export function useGlobalStats() {
   const [stats, setStats] = useState<GlobalStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [subscribeAllowed, setSubscribeAllowed] = useState(false)
+
+  const disabled = process.env.NEXT_PUBLIC_USE_GLOBAL_STATS === 'false'
 
   useEffect(() => {
+    if (disabled) {
+      setLoading(false)
+      setSubscribeAllowed(false)
+      return
+    }
+
     async function fetchStats() {
       try {
         const { data, error } = await supabase
@@ -23,8 +32,11 @@ export function useGlobalStats() {
 
         if (error) throw error
         setStats(data)
+        setSubscribeAllowed(true)
       } catch (error) {
-        console.error('Error fetching global stats:', error)
+        // Reduce console noise in local dev if Supabase is unreachable
+        console.warn('Global stats unavailable; hiding dynamic stats.')
+        setSubscribeAllowed(false)
       } finally {
         setLoading(false)
       }
@@ -32,7 +44,11 @@ export function useGlobalStats() {
 
     fetchStats()
 
-    // Subscribe to realtime updates
+  }, [disabled])
+
+  useEffect(() => {
+    if (disabled || !subscribeAllowed) return
+
     const channel = supabase
       .channel('global_stats_changes')
       .on(
@@ -40,7 +56,7 @@ export function useGlobalStats() {
         {
           event: '*',
           schema: 'public',
-          table: 'global_stats'
+          table: 'global_stats',
         },
         (payload) => {
           setStats(payload.new as GlobalStats)
@@ -51,7 +67,7 @@ export function useGlobalStats() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [disabled, subscribeAllowed])
 
   return { stats, loading }
 } 

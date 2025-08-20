@@ -3,7 +3,6 @@
 import { useAchievements } from '@/hooks/useAchievements'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
-import type { Achievement } from '@/lib/types/achievements'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -190,79 +189,6 @@ export function useTimer() {
     }
   }, [currentEdgeStart, sessionId, edgeTime])
 
-  const checkAndAwardAchievements = useCallback(async (userId: string, completedSession: Partial<DBSession> & { edge_events_count: number }) => {
-    try {
-      const { data: allAchievements, error: achievementsError } = await supabase
-        .from('achievements')
-        .select('*')
-      
-      if (achievementsError) throw achievementsError;
-      if (!allAchievements) return;
-
-      const { data: userAchievements, error: userAchievementsError } = await supabase
-        .from('user_achievements')
-        .select('achievement_id')
-        .eq('user_id', userId);
-
-      if (userAchievementsError) throw userAchievementsError;
-
-      const unlockedAchievementIds = new Set(userAchievements?.map(ua => ua.achievement_id) ?? []);
-
-      const achievementsToCheck = allAchievements.filter(ach => !unlockedAchievementIds.has(ach.id));
-
-      const newlyUnlocked: Achievement[] = [];
-      for (const achievement of achievementsToCheck) {
-        let conditionMet = false;
-        const value = completedSession[achievement.condition_type as keyof typeof completedSession] ?? 0;
-        const requiredValue = achievement.condition_value;
-
-        switch (achievement.condition_comparison) {
-          case 'greater':
-            conditionMet = value > requiredValue;
-            break;
-          case 'less':
-            conditionMet = value < requiredValue;
-            break;
-          case 'equal':
-             conditionMet = value === requiredValue;
-             break;
-          default:
-            conditionMet = value >= requiredValue; 
-        }
-
-        if (conditionMet) {
-          newlyUnlocked.push(achievement);
-        }
-      }
-
-      if (newlyUnlocked.length > 0) {
-        const achievementsToInsert = newlyUnlocked.map(ach => ({
-          user_id: userId,
-          achievement_id: ach.id,
-          unlocked_at: new Date().toISOString(),
-          progress: 100
-        }));
-
-        const { error: insertError } = await supabase
-          .from('user_achievements')
-          .insert(achievementsToInsert);
-
-        if (insertError) {
-          if (insertError.code !== '23505') {
-             console.error('Error awarding achievements:', insertError);
-             toast.error('Error saving achievement progress');
-          }
-        } else {
-          newlyUnlocked.forEach(ach => {
-            toast.success(`Achievement Unlocked: ${ach.name}!`);
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error checking/awarding achievements:", error);
-    }
-  }, []);
-
   const finishSession = useCallback(async () => {
     if (!sessionId) {
       toast.error('No active session to finish')
@@ -309,20 +235,25 @@ export function useTimer() {
       setState('finished')
       toast.success('Session finished and saved!')
 
-      const completedSessionData = {
-        total_duration: finalTotalDuration,
-        edge_duration: finalEdgeTime,
-        active_duration: finalActiveTime,
-        finished_during_edge: finalFinishedDuringEdge,
-        edge_events_count: edgeLaps.length
-      };
-      checkAndAwardAchievements(user.id, completedSessionData);
+      // Fetch full session with edge events and check achievements centrally
+      try {
+        const { data: sessionRow, error: fetchError } = await supabase
+          .from('sessions')
+          .select(`*, edge_events!fk_session (*)`)
+          .eq('id', sessionId)
+          .single()
+        if (!fetchError && sessionRow) {
+          await checkAchievements(sessionRow as DBSession)
+        }
+      } catch (achErr) {
+        console.error('Achievement check error:', achErr)
+      }
 
     } catch (err) {
       console.error('Error finishing session:', err)
       toast.error('Failed to finish session')
     }
-  }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime, edgeLaps.length, checkAndAwardAchievements])
+  }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime, checkAchievements])
 
   const resetTimer = useCallback(() => {
     setState('idle')

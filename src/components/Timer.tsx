@@ -1,10 +1,13 @@
 'use client'
 
+import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { useTimer } from '@/hooks/useTimer'
 import { formatDuration } from '@/lib/utils'
-import { Timer as TimerIcon } from 'lucide-react'
+import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function Timer(): JSX.Element {
   const {
@@ -19,74 +22,265 @@ export function Timer(): JSX.Element {
     resetTimer
   } = useTimer()
 
-  return (
-    <Card className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl">
-      <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
-        <CardTitle className="text-xl sm:text-2xl mb-4 sm:mb-0 flex items-center">
-          <TimerIcon className="mr-2 h-6 w-6 sm:h-8 sm:w-8" />
-          <span>
-            {state === 'idle' && 'Ready to Start'}
-            {state === 'active' && 'Active'}
-            {state === 'edging' && 'Edging'}
-            {state === 'finished' && 'Session Complete'}
-          </span>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="text-center p-4 bg-secondary/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Active Time</p>
-            <p className="text-2xl sm:text-3xl font-bold">
-              {formatDuration(activeTime)}
-            </p>
-          </div>
-          <div className="text-center p-4 bg-secondary/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Edge Time</p>
-            <p className="text-2xl sm:text-3xl font-bold">
-              {formatDuration(edgeTime)}
-            </p>
-          </div>
-        </div>
+  const [showKeyboardHints, setShowKeyboardHints] = useState(false)
+  const [pulseAnimation, setPulseAnimation] = useState(false)
 
-        {edgeLaps.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Edge Laps</h3>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {edgeLaps.map((lap, index) => (
-                <div key={index} className="flex justify-between items-center bg-secondary p-2 rounded">
-                  <span>Edge {index + 1}</span>
-                  <span>
-                    {lap.duration ? formatDuration(lap.duration) : 'In Progress'}
-                  </span>
+  // Pulse animation for state changes
+  useEffect(() => {
+    setPulseAnimation(true)
+    const timeout = setTimeout(() => setPulseAnimation(false), 600)
+    return () => clearTimeout(timeout)
+  }, [state])
+
+  // Keyboard shortcuts for flow control
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.target instanceof HTMLElement && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return
+      const key = e.key.toLowerCase()
+      if (key === 's' && state === 'idle') startSession()
+      if (key === 'e' && state === 'active') startEdge()
+      if (key === 'x' && state === 'edging') endEdge()
+      if (key === 'f' && (state === 'active' || state === 'edging')) finishSession()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [state, startSession, startEdge, endEdge, finishSession])
+
+  const getStateConfig = () => {
+    switch (state) {
+      case 'idle':
+        return {
+          title: 'Ready to Begin',
+          subtitle: 'Start your stamina training session',
+          icon: <Play className="h-6 w-6" />,
+          color: 'text-blue-500',
+          bgColor: 'bg-blue-500/10',
+          borderColor: 'border-blue-500/20'
+        }
+      case 'active':
+        return {
+          title: 'Session Active',
+          subtitle: 'Focus on control, edge when ready',
+          icon: <Zap className="h-6 w-6" />,
+          color: 'text-green-500',
+          bgColor: 'bg-green-500/10',
+          borderColor: 'border-green-500/20'
+        }
+      case 'edging':
+        return {
+          title: 'Edge Zone',
+          subtitle: 'Hold the line, master your control',
+          icon: <Square className="h-6 w-6" />,
+          color: 'text-orange-500',
+          bgColor: 'bg-orange-500/10',
+          borderColor: 'border-orange-500/20'
+        }
+      case 'finished':
+        return {
+          title: 'Session Complete!',
+          subtitle: 'Excellent work, review your performance',
+          icon: <CheckCircle className="h-6 w-6" />,
+          color: 'text-emerald-500',
+          bgColor: 'bg-emerald-500/10',
+          borderColor: 'border-emerald-500/20'
+        }
+    }
+  }
+
+  const stateConfig = getStateConfig()
+  const totalTime = activeTime + edgeTime
+  const edgePercentage = totalTime > 0 ? (edgeTime / totalTime) * 100 : 0
+
+  return (
+    <div className="space-y-6">
+      <Card className={cn(
+        "w-full transition-all duration-300 hover:shadow-lg",
+        stateConfig.borderColor,
+        pulseAnimation && "animate-pulse"
+      )}>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3">
+              <div className={cn(
+                "p-2 rounded-full transition-all duration-300",
+                stateConfig.bgColor
+              )}>
+                <div className={stateConfig.color}>
+                  {stateConfig.icon}
                 </div>
-              ))}
+              </div>
+              <div>
+                <div className="text-xl font-bold">{stateConfig.title}</div>
+                <div className="text-sm text-muted-foreground font-normal">
+                  {stateConfig.subtitle}
+                </div>
+              </div>
+            </CardTitle>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowKeyboardHints(!showKeyboardHints)}
+              className="text-muted-foreground hover:text-foreground"
+              title="Keyboard shortcuts"
+            >
+              <Keyboard className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Enhanced Time Display */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/10">
+              <p className="text-sm font-medium text-muted-foreground mb-1">Total Session</p>
+              <p className="text-3xl font-bold text-primary">
+                {formatDuration(totalTime)}
+              </p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-green-500/5 to-green-500/10 rounded-xl border border-green-500/10">
+              <p className="text-sm font-medium text-muted-foreground mb-1">Active Time</p>
+              <p className="text-3xl font-bold text-green-600">
+                {formatDuration(activeTime)}
+              </p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-orange-500/5 to-orange-500/10 rounded-xl border border-orange-500/10">
+              <p className="text-sm font-medium text-muted-foreground mb-1">Edge Time</p>
+              <p className="text-3xl font-bold text-orange-600">
+                {formatDuration(edgeTime)}
+              </p>
             </div>
           </div>
-        )}
 
-        <div className="flex gap-4 justify-center">
-          {state === 'idle' && (
-            <Button onClick={startSession}>Start</Button>
+          {/* Progress Visualization */}
+          {totalTime > 0 && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm font-medium">
+                <span>Edge Time Ratio</span>
+                <span>{edgePercentage.toFixed(1)}%</span>
+              </div>
+              <Progress 
+                value={edgePercentage} 
+                className="h-3"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Active: {((100 - edgePercentage)).toFixed(1)}%</span>
+                <span>Edge: {edgePercentage.toFixed(1)}%</span>
+              </div>
+            </div>
           )}
-          {state === 'active' && (
-            <Button onClick={startEdge}>Edge</Button>
+
+          {/* Edge Laps */}
+          {edgeLaps.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Square className="h-5 w-5 text-orange-500" />
+                Edge Laps ({edgeLaps.length})
+              </h3>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {edgeLaps.map((lap, index) => (
+                  <div 
+                    key={index} 
+                    className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10 hover:border-orange-500/20 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-orange-500" />
+                      <span className="font-medium">Edge {index + 1}</span>
+                    </div>
+                    <span className="font-mono text-sm">
+                      {lap.duration ? formatDuration(lap.duration) : (
+                        <span className="text-orange-500 animate-pulse">In Progress...</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-          {state === 'edging' && (
-            <Button onClick={endEdge}>End Edge</Button>
+
+          {/* Keyboard Shortcuts */}
+          {showKeyboardHints && (
+            <div className="p-4 bg-muted/50 rounded-lg border border-muted">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Keyboard className="h-4 w-4" />
+                Keyboard Shortcuts
+              </h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div><kbd className="px-2 py-1 bg-background rounded text-xs">S</kbd> Start Session</div>
+                <div><kbd className="px-2 py-1 bg-background rounded text-xs">E</kbd> Begin Edge</div>
+                <div><kbd className="px-2 py-1 bg-background rounded text-xs">X</kbd> End Edge</div>
+                <div><kbd className="px-2 py-1 bg-background rounded text-xs">F</kbd> Finish Session</div>
+              </div>
+            </div>
           )}
-          {(state === 'active' || state === 'edging') && (
-            <Button onClick={finishSession} variant="destructive">
-              Finish
-            </Button>
-          )}
-          {state === 'finished' && (
-            <Button onClick={resetTimer} variant="outline">
-              Start New Session
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-center pt-4">
+            {state === 'idle' && (
+              <Button 
+                onClick={startSession} 
+                size="lg" 
+                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+              >
+                <Play className="mr-2 h-5 w-5" />
+                Start Session
+              </Button>
+            )}
+            
+            {state === 'active' && (
+              <Button 
+                onClick={startEdge} 
+                size="lg"
+                variant="outline"
+                className="px-8 text-base font-semibold border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:scale-105 transition-all"
+                title="Shortcut: E"
+              >
+                <Square className="mr-2 h-5 w-5" />
+                Begin Edge
+              </Button>
+            )}
+            
+            {state === 'edging' && (
+              <Button 
+                onClick={endEdge} 
+                size="lg"
+                className="px-8 text-base font-semibold bg-orange-500 hover:bg-orange-600 hover:scale-105 transition-all"
+                title="Shortcut: X"
+              >
+                <Square className="mr-2 h-5 w-5" />
+                End Edge
+              </Button>
+            )}
+            
+            {(state === 'active' || state === 'edging') && (
+              <Button 
+                onClick={finishSession} 
+                variant="destructive" 
+                size="lg"
+                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+                title="Shortcut: F"
+              >
+                <CheckCircle className="mr-2 h-5 w-5" />
+                Finish Session
+              </Button>
+            )}
+            
+            {state === 'finished' && (
+              <Button 
+                onClick={resetTimer} 
+                variant="outline" 
+                size="lg"
+                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+              >
+                <RotateCcw className="mr-2 h-5 w-5" />
+                New Session
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
-} 
+}

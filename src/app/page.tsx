@@ -59,10 +59,10 @@ export default function Home(): JSX.Element {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 py-16 sm:py-32">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
-          Master Your <span className="text-primary">Stamina</span>
+          Build Better <span className="text-primary">Control</span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl">
-          Track, analyze, and improve your endurance with our advanced timing and analytics platform.
+          Develop stamina and control through structured practice sessions with detailed progress tracking.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center">
           <Link href="/login">
@@ -81,27 +81,27 @@ export default function Home(): JSX.Element {
       {/* Features Section */}
       <section id="features" className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Why Choose Stamina Timer?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Why Use Our Platform?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard 
               icon={<TimerIcon className="h-10 w-10" />}
-              title="Precision Timer"
-              description="Accurate timing with edge detection and detailed session tracking"
+              title="Precise Tracking"
+              description="Advanced timing with edge control and detailed session analysis"
             />
             <FeatureCard 
               icon={<LineChart className="h-10 w-10" />}
-              title="Analytics"
-              description="Comprehensive data analysis and progress tracking over time"
+              title="Progress Insights"
+              description="Track improvement patterns and build lasting control over time"
             />
             <FeatureCard 
               icon={<Share2 className="h-10 w-10" />}
-              title="Share Progress"
-              description="Export and share your training data with customizable privacy"
+              title="Export Data"
+              description="Review your progress with detailed analytics and export options"
             />
             <FeatureCard 
               icon={<Shield className="h-10 w-10" />}
-              title="Privacy First"
-              description="Your data is secure and private with end-to-end encryption"
+              title="Complete Privacy"
+              description="Your personal data stays private with secure authentication"
             />
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function Home(): JSX.Element {
       {/* Stats Section */}
       <section className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Join Thousands Training Smarter</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">Join Others Building Better Control</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <StatCard number="10k+" label="Active Users" />
             <StatCard number="1M+" label="Sessions Tracked" />

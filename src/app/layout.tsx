@@ -10,7 +10,11 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Stamina Timer",
-  description: "Track and improve your stamina"
+  description: "Track and improve your stamina",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico"
+  },
 }
 
 export default function RootLayout({
