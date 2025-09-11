@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 import { Analytics } from '@/components/Analytics'
 import { Charts } from '@/components/Charts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

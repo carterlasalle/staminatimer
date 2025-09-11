@@ -1,3 +1,6 @@
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 import { AppNavigation } from '@/components/AppNavigation'
 import { Timer } from '@/components/Timer'
 import { Charts } from '@/components/Charts'
