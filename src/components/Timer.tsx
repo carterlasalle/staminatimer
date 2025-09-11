@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useTimer } from '@/hooks/useTimer'
+import { TimingGuide } from '@/components/TimingGuide'
 import { formatDuration } from '@/lib/utils'
-import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard } from 'lucide-react'
+import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Timer(): JSX.Element {
@@ -23,6 +24,7 @@ export function Timer(): JSX.Element {
   } = useTimer()
 
   const [showKeyboardHints, setShowKeyboardHints] = useState(false)
+  const [showTimingGuide, setShowTimingGuide] = useState(false)
   const [pulseAnimation, setPulseAnimation] = useState(false)
 
   // Pulse animation for state changes
@@ -117,15 +119,29 @@ export function Timer(): JSX.Element {
               </div>
             </CardTitle>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowKeyboardHints(!showKeyboardHints)}
-              className="text-muted-foreground hover:text-foreground"
-              title="Keyboard shortcuts"
-            >
-              <Keyboard className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowTimingGuide(!showTimingGuide)}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground",
+                  showTimingGuide && "text-primary bg-primary/10"
+                )}
+                title="Timing guides"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowKeyboardHints(!showKeyboardHints)}
+                className="text-muted-foreground hover:text-foreground"
+                title="Keyboard shortcuts"
+              >
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         
@@ -281,6 +297,11 @@ export function Timer(): JSX.Element {
           </div>
         </CardContent>
       </Card>
+
+      {/* Timing Guide Panel */}
+      {showTimingGuide && (
+        <TimingGuide />
+      )}
     </div>
   )
 }
