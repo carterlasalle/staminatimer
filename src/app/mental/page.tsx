@@ -5,29 +5,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useGlobal } from '@/contexts/GlobalContext'
 import { 
+  Brain, 
   Play, 
   Pause, 
-  RotateCcw, 
-  Brain,
+  RotateCcw,
   Heart,
-  Wind,
   Focus,
-  Clock,
-  Target,
-  Sparkles
+  Wind,
+  Eye,
+  Timer,
+  CheckCircle
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 type MentalExercise = {
   id: string
   name: string
   description: string
-  duration: number
+  duration: number // minutes
   category: 'breathing' | 'mindfulness' | 'visualization' | 'focus'
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-  benefits: string[]
   instructions: string[]
 }
 
@@ -35,398 +34,309 @@ const mentalExercises: MentalExercise[] = [
   {
     id: 'box_breathing',
     name: 'Box Breathing',
-    description: 'Four-count breathing for calm control',
-    duration: 300, // 5 minutes
+    description: 'Calming 4-4-4-4 breathing pattern for focus and control',
+    duration: 5,
     category: 'breathing',
     difficulty: 'beginner',
-    benefits: ['Reduces anxiety', 'Improves focus', 'Enhances control'],
     instructions: [
-      'Inhale for 4 counts',
-      'Hold for 4 counts', 
-      'Exhale for 4 counts',
-      'Hold for 4 counts',
-      'Repeat the cycle'
+      'Sit comfortably with your back straight',
+      'Breathe in through your nose for 4 counts',
+      'Hold your breath for 4 counts',
+      'Exhale through your mouth for 4 counts',
+      'Hold empty for 4 counts',
+      'Repeat this cycle'
     ]
   },
   {
     id: 'body_scan',
     name: 'Body Awareness Scan',
-    description: 'Progressive body awareness meditation',
-    duration: 600, // 10 minutes
+    description: 'Develop awareness of physical sensations and tension',
+    duration: 10,
     category: 'mindfulness',
-    difficulty: 'intermediate',
-    benefits: ['Body awareness', 'Tension release', 'Present moment focus'],
-    instructions: [
-      'Start with your toes',
-      'Notice sensations without judgment',
-      'Move attention up your body',
-      'Include pelvic area mindfully',
-      'End with full body awareness'
-    ]
-  },
-  {
-    id: 'stamina_visualization',
-    name: 'Control Visualization',
-    description: 'Mental rehearsal for enhanced control',
-    duration: 480, // 8 minutes
-    category: 'visualization',
-    difficulty: 'advanced',
-    benefits: ['Mental preparation', 'Confidence building', 'Performance enhancement'],
-    instructions: [
-      'Visualize successful control',
-      'Imagine calm, confident responses',
-      'Picture ideal outcomes',
-      'Feel the sensations of mastery',
-      'Anchor positive feelings'
-    ]
-  },
-  {
-    id: 'present_moment',
-    name: 'Present Moment Anchor',
-    description: 'Grounding technique for staying present',
-    duration: 180, // 3 minutes
-    category: 'focus',
     difficulty: 'beginner',
-    benefits: ['Prevents overthinking', 'Reduces performance anxiety', 'Improves awareness'],
     instructions: [
-      'Notice 5 things you can see',
-      'Notice 4 things you can touch',
-      'Notice 3 things you can hear',
-      'Notice 2 things you can smell',
-      'Notice 1 thing you can taste'
+      'Lie down or sit comfortably',
+      'Close your eyes and breathe naturally',
+      'Start at the top of your head',
+      'Slowly scan down through your body',
+      'Notice any tension or sensations',
+      'Breathe into areas of tension'
+    ]
+  },
+  {
+    id: 'controlled_breathing',
+    name: 'Extended Exhale',
+    description: 'Longer exhales activate the parasympathetic nervous system',
+    duration: 8,
+    category: 'breathing',
+    difficulty: 'intermediate',
+    instructions: [
+      'Find a comfortable position',
+      'Breathe in naturally for 4 counts',
+      'Exhale slowly for 8 counts',
+      'Pause briefly before the next inhale',
+      'Focus on making the exhale smooth',
+      'Continue for the full duration'
+    ]
+  },
+  {
+    id: 'control_visualization',
+    name: 'Control Visualization',
+    description: 'Mental rehearsal for improved control and confidence',
+    duration: 12,
+    category: 'visualization',
+    difficulty: 'intermediate',
+    instructions: [
+      'Sit quietly and close your eyes',
+      'Visualize yourself in a challenging moment',
+      'See yourself remaining calm and in control',
+      'Feel the sensations of mastery',
+      'Practice pausing and breathing',
+      'Reinforce your mental strength'
+    ]
+  },
+  {
+    id: 'mindful_awareness',
+    name: 'Present Moment Awareness',
+    description: 'Develop mindful awareness of thoughts and sensations',
+    duration: 15,
+    category: 'mindfulness',
+    difficulty: 'advanced',
+    instructions: [
+      'Sit in meditation posture',
+      'Focus on your breath without controlling it',
+      'Notice thoughts and sensations as they arise',
+      'Observe without judgment',
+      'Return attention to breath when distracted',
+      'Cultivate accepting awareness'
     ]
   }
 ]
 
 type MentalSession = {
   exercise: MentalExercise
-  timeRemaining: number
   currentStep: number
+  timeRemaining: number
   isActive: boolean
-  totalDuration: number
+  totalSteps: number
 }
 
 export default function MentalPage(): JSX.Element {
-  const [selectedExercise, setSelectedExercise] = useState<MentalExercise | null>(null)
-  const [session, setSession] = useState<MentalSession | null>(null)
+  const { recentSessions } = useGlobal()
+  const [mentalSession, setMentalSession] = useState<MentalSession | null>(null)
   const [isRunning, setIsRunning] = useState(false)
 
-  // Timer logic
+  // Calculate today's mental practice time (we don't track mental exercises separately, 
+  // so we'll estimate based on training sessions)
+  const todayStats = useMemo(() => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    const todaysSessions = recentSessions.filter(s => {
+      const date = new Date(s.created_at)
+      return date >= today && date < tomorrow
+    })
+
+    // Estimate mental practice time (assume 20% of training time is mental preparation)
+    const todayTrainingTime = todaysSessions.reduce((acc, s) => acc + (s.total_duration || 0), 0)
+    const estimatedMentalTime = Math.floor(todayTrainingTime * 0.2 / 60000) // Convert to minutes
+    
+    const dailyGoalMinutes = 30 // Default mental training goal
+    const progressPct = Math.min(100, Math.round((estimatedMentalTime / dailyGoalMinutes) * 100))
+
+    return {
+      practiceMinutes: estimatedMentalTime,
+      goalMinutes: dailyGoalMinutes,
+      progressPct,
+      hasPracticed: todaysSessions.length > 0
+    }
+  }, [recentSessions])
+
+  // Timer logic for mental exercises
   useEffect(() => {
-    if (!session || !isRunning) return
+    if (!mentalSession || !isRunning) return
 
     const timer = setInterval(() => {
-      setSession(prev => {
+      setMentalSession(prev => {
         if (!prev) return null
-        
+
         if (prev.timeRemaining > 1) {
           return { ...prev, timeRemaining: prev.timeRemaining - 1 }
+        }
+
+        // Move to next step or complete
+        if (prev.currentStep < prev.totalSteps - 1) {
+          return {
+            ...prev,
+            currentStep: prev.currentStep + 1,
+            timeRemaining: Math.floor((prev.exercise.duration * 60) / prev.totalSteps)
+          }
         } else {
           // Session complete
           setIsRunning(false)
-          return prev
+          return null
         }
       })
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [session, isRunning])
+  }, [mentalSession, isRunning])
 
-  const startSession = (exercise: MentalExercise) => {
-    setSession({
+  const startMentalExercise = (exercise: MentalExercise) => {
+    const timePerStep = Math.floor((exercise.duration * 60) / exercise.instructions.length)
+    
+    setMentalSession({
       exercise,
-      timeRemaining: exercise.duration,
       currentStep: 0,
+      timeRemaining: timePerStep,
       isActive: true,
-      totalDuration: exercise.duration
+      totalSteps: exercise.instructions.length
     })
     setIsRunning(true)
   }
 
-  const pauseSession = () => {
+  const togglePause = () => {
     setIsRunning(!isRunning)
   }
 
   const resetSession = () => {
-    setSession(null)
+    setMentalSession(null)
     setIsRunning(false)
   }
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: MentalExercise['category']) => {
     switch (category) {
-      case 'breathing': return <Wind className="h-5 w-5" />
-      case 'mindfulness': return <Brain className="h-5 w-5" />
-      case 'visualization': return <Sparkles className="h-5 w-5" />
-      case 'focus': return <Target className="h-5 w-5" />
-      default: return <Heart className="h-5 w-5" />
+      case 'breathing': return <Wind className="h-4 w-4" />
+      case 'mindfulness': return <Heart className="h-4 w-4" />
+      case 'visualization': return <Eye className="h-4 w-4" />
+      case 'focus': return <Focus className="h-4 w-4" />
     }
   }
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'breathing': return 'text-blue-500'
-      case 'mindfulness': return 'text-purple-500'
-      case 'visualization': return 'text-pink-500'
-      case 'focus': return 'text-green-500'
-      default: return 'text-gray-500'
-    }
-  }
-
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty: MentalExercise['difficulty']) => {
     switch (difficulty) {
       case 'beginner': return 'bg-green-500/10 text-green-600 border-green-500/20'
       case 'intermediate': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
       case 'advanced': return 'bg-red-500/10 text-red-600 border-red-500/20'
-      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
     }
   }
 
-  const progress = session 
-    ? ((session.totalDuration - session.timeRemaining) / session.totalDuration) * 100
-    : 0
+  const formatTime = (seconds: number) => {
+    return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`
+  }
 
   return (
     <AppNavigation>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto p-8 space-y-8">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Mental Skills Training</h1>
-          <p className="text-muted-foreground">
-            Develop mental techniques and mindfulness practices for better control and confidence.
+        <div>
+          <h1 className="text-2xl font-medium">Mental Skills Training</h1>
+          <p className="text-muted-foreground mt-1">
+            Develop mindfulness, breathing techniques, and mental control
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Main Session Interface */}
-          <div className="xl:col-span-2 space-y-6">
-            {session ? (
-              <Card className="border-2 border-primary/20">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <div className={getCategoryColor(session.exercise.category)}>
-                        {getCategoryIcon(session.exercise.category)}
-                      </div>
-                      {session.exercise.name}
-                    </CardTitle>
-                    <Badge className={getDifficultyColor(session.exercise.difficulty)}>
-                      {session.exercise.difficulty}
-                    </Badge>
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Session Progress</span>
-                      <span>{Math.round(progress)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-3" />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Timer Display */}
-                  <div className="text-center">
-                    <div className="text-6xl font-bold mb-2 text-primary">
-                      {formatTime(session.timeRemaining)}
-                    </div>
-                    <div className="text-lg font-medium text-muted-foreground">
-                      {isRunning ? 'In Session' : 'Paused'}
-                    </div>
-                  </div>
-
-                  {/* Current Instructions */}
-                  <div className="p-6 bg-secondary/30 rounded-lg">
-                    <h4 className="font-semibold mb-4 text-center">Follow Along</h4>
-                    <div className="space-y-2">
-                      {session.exercise.instructions.map((instruction, index) => (
-                        <div 
-                          key={index}
-                          className="flex items-center gap-3 p-2 rounded"
-                        >
-                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium">
-                            {index + 1}
-                          </div>
-                          <span className="text-sm">{instruction}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Session Controls */}
-                  <div className="flex justify-center gap-4">
-                    <Button
-                      onClick={pauseSession}
-                      size="lg"
-                      variant={isRunning ? "secondary" : "default"}
-                    >
-                      {isRunning ? <Pause className="h-5 w-5 mr-2" /> : <Play className="h-5 w-5 mr-2" />}
-                      {isRunning ? 'Pause' : 'Resume'}
-                    </Button>
-                    <Button onClick={resetSession} size="lg" variant="outline">
-                      <RotateCcw className="h-5 w-5 mr-2" />
-                      End Session
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <Brain className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">Ready to Begin?</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Choose a mental training exercise to start developing your mental skills.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Mental Training Guide */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Mental Training Principles</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Focus className="h-5 w-5 text-blue-500" />
-                      Mindful Awareness
-                    </h4>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p>• Stay present and aware of sensations</p>
-                      <p>• Notice thoughts without judgment</p>
-                      <p>• Practice observing rather than reacting</p>
-                      <p>• Develop body-mind connection</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      Emotional Regulation
-                    </h4>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p>• Manage performance anxiety</p>
-                      <p>• Build confidence through practice</p>
-                      <p>• Use breathing to stay calm</p>
-                      <p>• Visualize successful outcomes</p>
-                    </div>
-                  </div>
+        {/* Active Mental Session */}
+        {mentalSession && (
+          <Card className="border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Active Session: {mentalSession.exercise.name}</span>
+                <div className="flex gap-2">
+                  <Button onClick={togglePause} variant="outline" size="sm">
+                    {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  </Button>
+                  <Button onClick={resetSession} variant="outline" size="sm">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
                 </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold mb-2">
+                    {formatTime(mentalSession.timeRemaining)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Step {mentalSession.currentStep + 1} of {mentalSession.totalSteps}
+                  </div>
+                  <Progress 
+                    value={((mentalSession.currentStep + 1) / mentalSession.totalSteps) * 100} 
+                    className="h-2 mt-2"
+                  />
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">Current Instruction:</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {mentalSession.exercise.instructions[mentalSession.currentStep]}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Exercise Library */}
+        <div>
+          <h2 className="text-lg font-medium mb-6">Exercise Library</h2>
+          
+          {!mentalSession ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mentalExercises.map((exercise) => (
+                <Card key={exercise.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(exercise.category)}
+                        <CardTitle className="text-lg">{exercise.name}</CardTitle>
+                      </div>
+                      <Badge className={getDifficultyColor(exercise.difficulty)}>
+                        {exercise.difficulty}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{exercise.description}</p>
+                    
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Duration:</span>
+                      <span className="font-medium">{exercise.duration} min</span>
+                    </div>
+
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Category:</span>
+                      <span className="font-medium capitalize">{exercise.category}</span>
+                    </div>
+
+                    <Button 
+                      className="w-full" 
+                      onClick={() => startMentalExercise(exercise)}
+                    >
+                      Start Exercise
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Brain className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Complete your current session to start a new exercise
+                </p>
               </CardContent>
             </Card>
-          </div>
+          )}
+        </div>
 
-          {/* Exercise Library Sidebar */}
+        {/* Progress Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="breathing">Breathing</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="all" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>All Exercises</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {mentalExercises.map((exercise) => (
-                      <div
-                        key={exercise.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all hover:bg-accent/50 ${
-                          selectedExercise?.id === exercise.id ? 'border-primary bg-primary/5' : ''
-                        }`}
-                        onClick={() => setSelectedExercise(exercise)}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={getCategoryColor(exercise.category)}>
-                              {getCategoryIcon(exercise.category)}
-                            </div>
-                            <h4 className="font-semibold">{exercise.name}</h4>
-                          </div>
-                          <Badge className={getDifficultyColor(exercise.difficulty)}>
-                            {exercise.difficulty}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {exercise.description}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                          <Clock className="h-3 w-3" />
-                          {Math.floor(exercise.duration / 60)} minutes
-                        </div>
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {exercise.benefits.slice(0, 2).map((benefit) => (
-                            <Badge key={benefit} variant="secondary" className="text-xs">
-                              {benefit}
-                            </Badge>
-                          ))}
-                        </div>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            startSession(exercise)
-                          }}
-                          className="w-full"
-                          size="sm"
-                          disabled={!!session}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Start Session
-                        </Button>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="breathing" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Breathing Exercises</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {mentalExercises
-                      .filter(ex => ex.category === 'breathing')
-                      .map((exercise) => (
-                        <div
-                          key={exercise.id}
-                          className="p-4 border rounded-lg cursor-pointer transition-all hover:bg-accent/50"
-                          onClick={() => setSelectedExercise(exercise)}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Wind className="h-5 w-5 text-blue-500" />
-                            <h4 className="font-semibold">{exercise.name}</h4>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-3">
-                            {exercise.description}
-                          </p>
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              startSession(exercise)
-                            }}
-                            className="w-full"
-                            size="sm"
-                            disabled={!!session}
-                          >
-                            <Play className="h-4 w-4 mr-2" />
-                            Start
-                          </Button>
-                        </div>
-                      ))}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-
-            {/* Daily Practice Tracker */}
             <Card>
               <CardHeader>
                 <CardTitle>Today's Practice</CardTitle>
@@ -434,12 +344,92 @@ export default function MentalPage(): JSX.Element {
               <CardContent>
                 <div className="space-y-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">12</div>
+                    <div className="text-2xl font-bold">{todayStats.practiceMinutes}</div>
                     <div className="text-sm text-muted-foreground">minutes practiced today</div>
                   </div>
-                  <Progress value={40} className="h-2" />
+                  <Progress value={todayStats.progressPct} className="h-2" />
                   <div className="text-xs text-muted-foreground text-center">
-                    Goal: 30 minutes daily
+                    Goal: {todayStats.goalMinutes} minutes daily
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Brain className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="text-lg font-semibold">{mentalExercises.length}</div>
+                  <div className="text-xs text-muted-foreground">Exercises</div>
+                </div>
+                <div>
+                  <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Timer className="h-6 w-6 text-green-500" />
+                  </div>
+                  <div className="text-lg font-semibold">{todayStats.practiceMinutes}</div>
+                  <div className="text-xs text-muted-foreground">Minutes Today</div>
+                </div>
+                <div>
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div className="text-lg font-semibold">
+                    {todayStats.progressPct}%
+                  </div>
+                  <div className="text-xs text-muted-foreground">Daily Goal</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Benefits of Mental Training</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Wind className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-sm">Breathing Control</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Regulated breathing activates the parasympathetic nervous system
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Heart className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-sm">Mindful Awareness</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Develop awareness of physical sensations and arousal levels
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Eye className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-sm">Mental Rehearsal</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Visualization builds confidence and mental control patterns
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Focus className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-medium text-sm">Focus Training</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Improved concentration and present-moment awareness
+                    </p>
                   </div>
                 </div>
               </CardContent>

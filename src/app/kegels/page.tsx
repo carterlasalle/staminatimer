@@ -5,22 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { useGlobal } from '@/contexts/GlobalContext'
 import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Calendar,
+  Calendar, 
   CheckCircle,
+  Play,
+  Pause,
+  RotateCcw,
   Dumbbell
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 type Exercise = {
   id: string
   name: string
   description: string
-  hold_time: number
-  rest_time: number
+  hold_time: number // seconds
+  rest_time: number // seconds  
   reps: number
   sets: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
@@ -86,9 +87,39 @@ type WorkoutSession = {
 }
 
 export default function KegelsPage(): JSX.Element {
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
+  const { recentSessions } = useGlobal()
   const [workoutSession, setWorkoutSession] = useState<WorkoutSession | null>(null)
   const [isRunning, setIsRunning] = useState(false)
+
+  // Calculate weekly progress from actual sessions
+  const weeklyProgress = useMemo(() => {
+    const today = new Date()
+    const oneWeekAgo = new Date(today)
+    oneWeekAgo.setDate(today.getDate() - 7)
+    
+    // Get sessions from the last 7 days
+    const weekSessions = recentSessions.filter(s => {
+      const sessionDate = new Date(s.created_at)
+      return sessionDate >= oneWeekAgo && sessionDate <= today
+    })
+    
+    // Group by day of week (0 = Sunday, 1 = Monday, etc.)
+    const sessionsByDay = new Map<number, boolean>()
+    weekSessions.forEach(session => {
+      const dayOfWeek = new Date(session.created_at).getDay()
+      sessionsByDay.set(dayOfWeek, true)
+    })
+    
+    // Map to week starting Monday (1,2,3,4,5,6,0)
+    const weekOrder = [1, 2, 3, 4, 5, 6, 0] // Mon-Sun
+    const completedDays = weekOrder.filter(day => sessionsByDay.has(day))
+    
+    return {
+      completedDays: completedDays.length,
+      totalDays: 7,
+      dayStatuses: weekOrder.map(day => sessionsByDay.has(day))
+    }
+  }, [recentSessions])
 
   // Timer logic
   useEffect(() => {
@@ -122,6 +153,7 @@ export default function KegelsPage(): JSX.Element {
               timeRemaining: prev.exercise.hold_time
             }
           } else if (prev.currentSet < prev.exercise.sets) {
+            // Move to next set
             return {
               ...prev,
               currentSet: prev.currentSet + 1,
@@ -133,7 +165,7 @@ export default function KegelsPage(): JSX.Element {
           } else {
             // Workout complete
             setIsRunning(false)
-            return prev
+            return null
           }
         }
       })
@@ -156,7 +188,7 @@ export default function KegelsPage(): JSX.Element {
     setIsRunning(true)
   }
 
-  const pauseWorkout = () => {
+  const togglePause = () => {
     setIsRunning(!isRunning)
   }
 
@@ -165,203 +197,191 @@ export default function KegelsPage(): JSX.Element {
     setIsRunning(false)
   }
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty: Exercise['difficulty']) => {
     switch (difficulty) {
       case 'beginner': return 'bg-green-500/10 text-green-600 border-green-500/20'
       case 'intermediate': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
       case 'advanced': return 'bg-red-500/10 text-red-600 border-red-500/20'
-      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
     }
   }
 
-  const workoutProgress = workoutSession 
-    ? ((workoutSession.currentSet - 1) * workoutSession.exercise.reps + workoutSession.currentRep) / 
-      (workoutSession.exercise.sets * workoutSession.exercise.reps) * 100
-    : 0
+  const formatTime = (seconds: number) => {
+    return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`
+  }
 
   return (
     <AppNavigation>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto p-8 space-y-8">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Kegel Exercises</h1>
-          <p className="text-muted-foreground">
-            Strengthen your pelvic floor muscles for better control and stamina.
+        <div>
+          <h1 className="text-2xl font-medium">Kegel Exercises</h1>
+          <p className="text-muted-foreground mt-1">
+            Strengthen your pelvic floor muscles for better control and endurance
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Workout Interface */}
-          <div className="xl:col-span-2 space-y-6">
-            {workoutSession ? (
-              <Card className="border-2 border-primary/20">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Dumbbell className="h-6 w-6 text-primary" />
-                      {workoutSession.exercise.name}
-                    </CardTitle>
-                    <Badge className={getDifficultyColor(workoutSession.exercise.difficulty)}>
-                      {workoutSession.exercise.difficulty}
-                    </Badge>
+        {/* Active Workout Session */}
+        {workoutSession && (
+          <Card className="border-primary">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Active Workout: {workoutSession.exercise.name}</span>
+                <div className="flex gap-2">
+                  <Button onClick={togglePause} variant="outline" size="sm">
+                    {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  </Button>
+                  <Button onClick={resetWorkout} variant="outline" size="sm">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold mb-2">
+                    {formatTime(workoutSession.timeRemaining)}
                   </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Overall Progress</span>
-                      <span>{Math.round(workoutProgress)}%</span>
-                    </div>
-                    <Progress value={workoutProgress} className="h-3" />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Current Phase */}
-                  <div className="text-center">
-                    <div className={`text-6xl font-bold mb-2 ${
-                      workoutSession.isActive ? 'text-green-500' : 'text-blue-500'
-                    }`}>
-                      {workoutSession.timeRemaining}
-                    </div>
-                    <div className="text-lg font-medium mb-1">
-                      {workoutSession.isActive ? 'SQUEEZE & HOLD' : 'REST & RELAX'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Set {workoutSession.currentSet} of {workoutSession.totalSets} • 
-                      Rep {workoutSession.currentRep} of {workoutSession.totalReps}
-                    </div>
-                  </div>
-
-                  {/* Instructions */}
-                  <div className="p-4 bg-secondary/30 rounded-lg">
-                    <h4 className="font-semibold mb-2">
-                      {workoutSession.isActive ? 'Contract Phase' : 'Relaxation Phase'}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      {workoutSession.isActive 
-                        ? 'Gently contract your pelvic floor muscles as if stopping urine flow. Breathe normally and maintain the contraction.'
-                        : 'Completely relax your pelvic floor muscles. Focus on releasing all tension and breathing deeply.'
-                      }
-                    </p>
-                  </div>
-
-                  {/* Controls */}
-                  <div className="flex justify-center gap-4">
-                    <Button
-                      onClick={pauseWorkout}
-                      size="lg"
-                      variant={isRunning ? "secondary" : "default"}
-                    >
-                      {isRunning ? <Pause className="h-5 w-5 mr-2" /> : <Play className="h-5 w-5 mr-2" />}
-                      {isRunning ? 'Pause' : 'Resume'}
-                    </Button>
-                    <Button onClick={resetWorkout} size="lg" variant="outline">
-                      <RotateCcw className="h-5 w-5 mr-2" />
-                      Reset
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">Ready to Start?</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Select an exercise from the sidebar to begin your kegel workout.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Exercise Guide */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Proper Technique Guide</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-4">
-                    <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">🎯</span>
-                    </div>
-                    <h4 className="font-semibold mb-2">Identify the Muscles</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Contract the muscles you would use to stop urination midstream or prevent passing gas.
-                    </p>
-                  </div>
-                  <div className="text-center p-4">
-                    <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">💨</span>
-                    </div>
-                    <h4 className="font-semibold mb-2">Breathe Normally</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Don't hold your breath. Continue breathing naturally throughout the exercise.
-                    </p>
-                  </div>
-                  <div className="text-center p-4">
-                    <div className="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">🧘</span>
-                    </div>
-                    <h4 className="font-semibold mb-2">Stay Relaxed</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Keep your buttocks, thighs, and abdominal muscles relaxed during the exercise.
-                    </p>
+                  <div className="text-sm text-muted-foreground">
+                    {workoutSession.isActive ? 'Hold' : 'Rest'}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                
+                <div className="text-center">
+                  <div className="text-lg font-semibold mb-2">
+                    Rep {workoutSession.currentRep} of {workoutSession.exercise.reps}
+                  </div>
+                  <Progress 
+                    value={(workoutSession.currentRep / workoutSession.exercise.reps) * 100} 
+                    className="h-2"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-lg font-semibold mb-2">
+                    Set {workoutSession.currentSet} of {workoutSession.exercise.sets}
+                  </div>
+                  <Progress 
+                    value={(workoutSession.currentSet / workoutSession.exercise.sets) * 100} 
+                    className="h-2"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {workoutSession.isActive ? 
+                    'Contract your pelvic floor muscles and hold' : 
+                    'Relax and breathe normally'
+                  }
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Exercise Selection Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Exercise Library</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {kegelExercises.map((exercise) => (
-                  <div
-                    key={exercise.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all hover:bg-accent/50 ${
-                      selectedExercise?.id === exercise.id ? 'border-primary bg-primary/5' : ''
-                    }`}
-                    onClick={() => setSelectedExercise(exercise)}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold">{exercise.name}</h4>
+        {/* Exercise Library */}
+        <div>
+          <h2 className="text-lg font-medium mb-6">Exercise Library</h2>
+          
+          {!workoutSession ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {kegelExercises.map((exercise) => (
+                <Card key={exercise.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg">{exercise.name}</CardTitle>
                       <Badge className={getDifficultyColor(exercise.difficulty)}>
                         {exercise.difficulty}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {exercise.description}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-3">
-                      <div>Hold: {exercise.hold_time}s</div>
-                      <div>Rest: {exercise.rest_time}s</div>
-                      <div>Reps: {exercise.reps}</div>
-                      <div>Sets: {exercise.sets}</div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{exercise.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Hold: </span>
+                        <span className="font-medium">{exercise.hold_time}s</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Rest: </span>
+                        <span className="font-medium">{exercise.rest_time}s</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Reps: </span>
+                        <span className="font-medium">{exercise.reps}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Sets: </span>
+                        <span className="font-medium">{exercise.sets}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {exercise.focus.map((focus) => (
-                        <Badge key={focus} variant="secondary" className="text-xs">
-                          {focus}
-                        </Badge>
-                      ))}
+
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium">Focus Areas</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {exercise.focus.map((focus) => (
+                          <Badge key={focus} variant="secondary" className="text-xs">
+                            {focus}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        startWorkout(exercise)
-                      }}
-                      className="w-full"
-                      size="sm"
-                      disabled={!!workoutSession}
+
+                    <Button 
+                      className="w-full" 
+                      onClick={() => startWorkout(exercise)}
                     >
-                      <Play className="h-4 w-4 mr-2" />
-                      Start Workout
+                      Start Exercise
                     </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Dumbbell className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Complete your current workout to start a new exercise
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Progress Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Dumbbell className="h-6 w-6 text-blue-500" />
                   </div>
-                ))}
+                  <div className="text-lg font-semibold">4</div>
+                  <div className="text-xs text-muted-foreground">Exercises</div>
+                </div>
+                <div>
+                  <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="h-6 w-6 text-green-500" />
+                  </div>
+                  <div className="text-lg font-semibold">{weeklyProgress.completedDays}</div>
+                  <div className="text-xs text-muted-foreground">Days This Week</div>
+                </div>
+                <div>
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Calendar className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div className="text-lg font-semibold">
+                    {Math.round((weeklyProgress.completedDays / weeklyProgress.totalDays) * 100)}%
+                  </div>
+                  <div className="text-xs text-muted-foreground">Weekly Goal</div>
+                </div>
               </CardContent>
             </Card>
 
@@ -379,20 +399,27 @@ export default function KegelsPage(): JSX.Element {
                     {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
                       <div key={i} className="text-xs text-muted-foreground mb-1">{day}</div>
                     ))}
-                    {Array.from({ length: 7 }, (_, i) => (
+                    {weeklyProgress.dayStatuses.map((completed, i) => (
                       <div
                         key={i}
                         className={`h-8 rounded ${
-                          i < 4 ? 'bg-green-500/20' : 'bg-secondary'
+                          completed ? 'bg-green-500/20' : 'bg-secondary'
                         } flex items-center justify-center`}
                       >
-                        {i < 4 && <CheckCircle className="h-4 w-4 text-green-600" />}
+                        {completed && <CheckCircle className="h-4 w-4 text-green-600" />}
                       </div>
                     ))}
                   </div>
                   <div className="text-center text-sm">
-                    <div className="font-semibold">4/7 days completed</div>
-                    <div className="text-muted-foreground">Keep up the great work!</div>
+                    <div className="font-semibold">
+                      {weeklyProgress.completedDays}/{weeklyProgress.totalDays} days completed
+                    </div>
+                    <div className="text-muted-foreground">
+                      {weeklyProgress.completedDays === 0 ? 'Start your weekly routine!' :
+                       weeklyProgress.completedDays >= 5 ? 'Excellent consistency!' :
+                       weeklyProgress.completedDays >= 3 ? 'Good progress, keep it up!' :
+                       'Building a habit takes time'}
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -49,12 +49,40 @@ export function useGamification() {
 }
 
 function computeStreak(sessions: DBSession[]): number {
-  // Assumes sessions are sorted newest first in state
-  let streak = 0
-  for (const s of sessions) {
-    if (!s.finished_during_edge) streak++
-    else break
+  if (!sessions.length) return 0
+  
+  // Group sessions by date and filter successful ones
+  const successfulSessionsByDate = new Map<string, boolean>()
+  
+  for (const session of sessions) {
+    if (!session.finished_during_edge) {
+      const dateKey = new Date(session.created_at).toDateString()
+      successfulSessionsByDate.set(dateKey, true)
+    }
   }
+  
+  if (successfulSessionsByDate.size === 0) return 0
+  
+  // Find the most recent session date
+  const sortedDates = Array.from(successfulSessionsByDate.keys())
+    .map(dateStr => new Date(dateStr))
+    .sort((a, b) => b.getTime() - a.getTime())
+  
+  let streak = 0
+  const startDate = new Date(sortedDates[0]) // Start from most recent successful session
+  
+  // Count consecutive days backwards from most recent session
+  for (let i = 0; i < successfulSessionsByDate.size; i++) {
+    const checkDate = new Date(startDate)
+    checkDate.setDate(startDate.getDate() - i)
+    
+    if (successfulSessionsByDate.has(checkDate.toDateString())) {
+      streak++
+    } else {
+      break // Streak is broken
+    }
+  }
+  
   return streak
 }
 
