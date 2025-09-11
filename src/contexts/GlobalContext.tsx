@@ -58,7 +58,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     const channel = supabase
       .channel('public:sessions')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
-        (payload) => {
+        (payload: any) => {
           console.log('Realtime session change received!', payload)
           fetchSessions()
         })

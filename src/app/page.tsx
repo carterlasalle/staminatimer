@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 import { ModeToggle } from '@/components/mode-toggle'
 import { StatCard } from '@/components/StatCard'
 import { Button } from '@/components/ui/button'

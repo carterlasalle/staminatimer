@@ -58,7 +58,7 @@ export function useGlobalStats() {
           schema: 'public',
           table: 'global_stats',
         },
-        (payload) => {
+        (payload: any) => {
           setStats(payload.new as GlobalStats)
         }
       )

@@ -23,7 +23,7 @@ export function useAchievements(): { checkAchievements: (session: DBSession) => 
       .select('*')
       .eq('user_id', user.id)
 
-    const unlockedIds = new Set(userAchievements?.map(ua => ua.achievement_id))
+    const unlockedIds = new Set(userAchievements?.map((ua: any) => ua.achievement_id))
 
     // Get historical sessions for progress calculations
     const { data: historicalSessions } = await supabase
@@ -102,7 +102,7 @@ export function useAchievements(): { checkAchievements: (session: DBSession) => 
 
             case 'getting_stronger':
               if (historicalSessions && historicalSessions.length > 1) {
-                const oldAvg = historicalSessions.slice(1).reduce((acc, s) => acc + s.active_duration, 0) / (historicalSessions.length - 1)
+                const oldAvg = historicalSessions.slice(1).reduce((acc: number, s: any) => acc + s.active_duration, 0) / (historicalSessions.length - 1)
                 const improvement = ((session.active_duration - oldAvg) / oldAvg) * 100
                 progress = Math.min(100, (improvement / 25) * 100)
                 unlocked = improvement >= 25
