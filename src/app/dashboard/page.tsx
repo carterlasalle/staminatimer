@@ -44,18 +44,18 @@ export default function Dashboard(): JSX.Element {
 
   return (
     <AppNavigation>
-      <div className="max-w-4xl mx-auto p-8 space-y-12">
+      <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8 md:space-y-12">
         {/* Welcome Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-light text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground">Ready to continue your progress?</p>
+        <div className="text-center space-y-1 md:space-y-2">
+          <h1 className="text-2xl md:text-3xl font-light text-foreground">Welcome back</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Ready to continue your progress?</p>
         </div>
 
         {/* Primary Action */}
         <div className="text-center">
           <Link href="/training">
-            <Button size="lg" className="px-8 py-6 text-lg font-medium rounded-full">
-              <Timer className="mr-3 h-5 w-5" />
+            <Button size="lg" className="px-6 py-5 md:px-8 md:py-6 text-base md:text-lg font-medium rounded-full w-full sm:w-auto">
+              <Timer className="mr-2 md:mr-3 h-5 w-5" />
               Start Training Session
             </Button>
           </Link>
@@ -75,32 +75,32 @@ export default function Dashboard(): JSX.Element {
         </div>
 
         {/* Key Stats - Minimal */}
-        <div className="grid grid-cols-3 gap-8 text-center">
-          <div className="space-y-1">
-            <div className="text-2xl font-light">{level.level}</div>
-            <div className="text-sm text-muted-foreground">Level</div>
+        <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
+          <div className="space-y-0.5 md:space-y-1">
+            <div className="text-xl md:text-2xl font-light">{level.level}</div>
+            <div className="text-xs md:text-sm text-muted-foreground">Level</div>
           </div>
-          <div className="space-y-1">
-            <div className="text-2xl font-light">{streakCount}</div>
-            <div className="text-sm text-muted-foreground">Day Streak</div>
+          <div className="space-y-0.5 md:space-y-1">
+            <div className="text-xl md:text-2xl font-light">{streakCount}</div>
+            <div className="text-xs md:text-sm text-muted-foreground">Day Streak</div>
           </div>
-          <div className="space-y-1">
-            <div className="text-2xl font-light">{recentSessions.length}</div>
-            <div className="text-sm text-muted-foreground">Total Sessions</div>
+          <div className="space-y-0.5 md:space-y-1">
+            <div className="text-xl md:text-2xl font-light">{recentSessions.length}</div>
+            <div className="text-xs md:text-sm text-muted-foreground">Total Sessions</div>
           </div>
         </div>
 
         {/* Last Session */}
         {lastSession && (
-          <div className="border-t pt-8">
-            <div className="flex items-center justify-between">
+          <div className="border-t pt-6 md:pt-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h3 className="text-lg font-medium">Last Session</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-base md:text-lg font-medium">Last Session</h3>
+                <p className="text-sm md:text-base text-muted-foreground">
                   {formatDuration(lastSession.total_duration)} • {lastSession.edge_events?.length || 0} edges
                 </p>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 {new Date(lastSession.created_at).toLocaleDateString()}
               </div>
             </div>
@@ -108,26 +108,26 @@ export default function Dashboard(): JSX.Element {
         )}
 
         {/* Secondary Actions */}
-        <div className="border-t pt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="border-t pt-6 md:pt-8">
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
             <Link href="/kegels" className="group">
-              <div className="p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <Activity className="h-6 w-6 mx-auto mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="font-medium group-hover:text-foreground">Kegel Exercises</div>
+              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
+                <Activity className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
+                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Kegels</div>
               </div>
             </Link>
-            
+
             <Link href="/mental" className="group">
-              <div className="p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <Target className="h-6 w-6 mx-auto mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="font-medium group-hover:text-foreground">Mental Training</div>
+              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
+                <Target className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
+                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Mental</div>
               </div>
             </Link>
-            
+
             <Link href="/analytics" className="group">
-              <div className="p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="font-medium group-hover:text-foreground">View Progress</div>
+              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
+                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
+                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Progress</div>
               </div>
             </Link>
           </div>

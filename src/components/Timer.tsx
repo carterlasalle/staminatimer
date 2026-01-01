@@ -100,32 +100,32 @@ export function Timer(): JSX.Element {
         stateConfig.borderColor,
         pulseAnimation && "animate-pulse"
       )}>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-3">
+        <CardHeader className="pb-3 md:pb-4 px-4 md:px-6">
+          <div className="flex items-start sm:items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2 md:gap-3">
               <div className={cn(
-                "p-2 rounded-full transition-all duration-300",
+                "p-1.5 md:p-2 rounded-full transition-all duration-300 shrink-0",
                 stateConfig.bgColor
               )}>
                 <div className={stateConfig.color}>
                   {stateConfig.icon}
                 </div>
               </div>
-              <div>
-                <div className="text-xl font-bold">{stateConfig.title}</div>
-                <div className="text-sm text-muted-foreground font-normal">
+              <div className="min-w-0">
+                <div className="text-base md:text-xl font-bold truncate">{stateConfig.title}</div>
+                <div className="text-xs md:text-sm text-muted-foreground font-normal line-clamp-1">
                   {stateConfig.subtitle}
                 </div>
               </div>
             </CardTitle>
-            
-            <div className="flex gap-2">
+
+            <div className="flex gap-1 md:gap-2 shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowTimingGuide(!showTimingGuide)}
                 className={cn(
-                  "text-muted-foreground hover:text-foreground",
+                  "h-8 w-8 md:h-9 md:w-9 text-muted-foreground hover:text-foreground",
                   showTimingGuide && "text-primary bg-primary/10"
                 )}
                 title="Timing guides"
@@ -136,7 +136,7 @@ export function Timer(): JSX.Element {
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowKeyboardHints(!showKeyboardHints)}
-                className="text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 md:h-9 md:w-9 text-muted-foreground hover:text-foreground hidden sm:flex"
                 title="Keyboard shortcuts"
               >
                 <Keyboard className="h-4 w-4" />
@@ -145,26 +145,26 @@ export function Timer(): JSX.Element {
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6">
           {/* Enhanced Time Display */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/10">
-              <p className="text-sm font-medium text-muted-foreground mb-1">Total Session</p>
-              <p className="text-3xl font-bold text-primary">
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
+            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg md:rounded-xl border border-primary/10">
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Total</p>
+              <p className="text-lg md:text-3xl font-bold text-primary">
                 {formatDuration(totalTime)}
               </p>
             </div>
-            
-            <div className="text-center p-6 bg-gradient-to-br from-green-500/5 to-green-500/10 rounded-xl border border-green-500/10">
-              <p className="text-sm font-medium text-muted-foreground mb-1">Active Time</p>
-              <p className="text-3xl font-bold text-green-600">
+
+            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-green-500/5 to-green-500/10 rounded-lg md:rounded-xl border border-green-500/10">
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Active</p>
+              <p className="text-lg md:text-3xl font-bold text-green-600">
                 {formatDuration(activeTime)}
               </p>
             </div>
-            
-            <div className="text-center p-6 bg-gradient-to-br from-orange-500/5 to-orange-500/10 rounded-xl border border-orange-500/10">
-              <p className="text-sm font-medium text-muted-foreground mb-1">Edge Time</p>
-              <p className="text-3xl font-bold text-orange-600">
+
+            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-orange-500/5 to-orange-500/10 rounded-lg md:rounded-xl border border-orange-500/10">
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Edge</p>
+              <p className="text-lg md:text-3xl font-bold text-orange-600">
                 {formatDuration(edgeTime)}
               </p>
             </div>
@@ -233,64 +233,64 @@ export function Timer(): JSX.Element {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 justify-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center pt-4">
             {state === 'idle' && (
-              <Button 
-                onClick={startSession} 
-                size="lg" 
-                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+              <Button
+                onClick={startSession}
+                size="lg"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold hover:scale-105 transition-transform"
               >
-                <Play className="mr-2 h-5 w-5" />
+                <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                 Start Session
               </Button>
             )}
-            
+
             {state === 'active' && (
-              <Button 
-                onClick={startEdge} 
+              <Button
+                onClick={startEdge}
                 size="lg"
                 variant="outline"
-                className="px-8 text-base font-semibold border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:scale-105 transition-all"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:scale-105 transition-all"
                 title="Shortcut: E"
               >
-                <Square className="mr-2 h-5 w-5" />
+                <Square className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                 Begin Edge
               </Button>
             )}
-            
+
             {state === 'edging' && (
-              <Button 
-                onClick={endEdge} 
+              <Button
+                onClick={endEdge}
                 size="lg"
-                className="px-8 text-base font-semibold bg-orange-500 hover:bg-orange-600 hover:scale-105 transition-all"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold bg-orange-500 hover:bg-orange-600 hover:scale-105 transition-all"
                 title="Shortcut: X"
               >
-                <Square className="mr-2 h-5 w-5" />
+                <Square className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                 End Edge
               </Button>
             )}
-            
+
             {(state === 'active' || state === 'edging') && (
-              <Button 
-                onClick={finishSession} 
-                variant="destructive" 
+              <Button
+                onClick={finishSession}
+                variant="destructive"
                 size="lg"
-                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold hover:scale-105 transition-transform"
                 title="Shortcut: F"
               >
-                <CheckCircle className="mr-2 h-5 w-5" />
-                Finish Session
+                <CheckCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+                Finish
               </Button>
             )}
-            
+
             {state === 'finished' && (
-              <Button 
-                onClick={resetTimer} 
-                variant="outline" 
+              <Button
+                onClick={resetTimer}
+                variant="outline"
                 size="lg"
-                className="px-8 text-base font-semibold hover:scale-105 transition-transform"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold hover:scale-105 transition-transform"
               >
-                <RotateCcw className="mr-2 h-5 w-5" />
+                <RotateCcw className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                 New Session
               </Button>
             )}

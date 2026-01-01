@@ -4,9 +4,17 @@ import { AuthProvider } from "@/contexts/AuthContext"
 import { GlobalProvider } from "@/contexts/GlobalContext"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Metadata } from "next"
+import { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
 import "./globals.css"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+}
 
 export const metadata: Metadata = {
   title: "Stamina Timer",
@@ -14,6 +22,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico"
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Stamina Timer",
   },
 }
 

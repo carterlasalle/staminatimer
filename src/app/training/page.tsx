@@ -14,19 +14,19 @@ import { Brain, Timer as TimerIcon, BarChart3, Lightbulb } from 'lucide-react'
 export default function TrainingPage(): JSX.Element {
   return (
     <AppNavigation>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 p-4 md:p-6">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Training Timer</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-1 md:space-y-2">
+          <h1 className="text-xl md:text-2xl font-bold">Training Timer</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Build your stamina with precision tracking and detailed analytics.
           </p>
         </div>
 
         {/* Main Training Interface */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
           {/* Timer Section */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-4 md:space-y-6">
             <ErrorBoundary>
               <Timer />
             </ErrorBoundary>
@@ -71,19 +71,19 @@ export default function TrainingPage(): JSX.Element {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <Tabs defaultValue="analytics" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="analytics" className="text-xs">
-                  <BarChart3 className="h-4 w-4 mr-1" />
+                <TabsTrigger value="analytics" className="text-[11px] md:text-xs px-2">
+                  <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                   Stats
                 </TabsTrigger>
-                <TabsTrigger value="charts" className="text-xs">
-                  <TimerIcon className="h-4 w-4 mr-1" />
+                <TabsTrigger value="charts" className="text-[11px] md:text-xs px-2">
+                  <TimerIcon className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                   Charts
                 </TabsTrigger>
-                <TabsTrigger value="tips" className="text-xs">
-                  <Lightbulb className="h-4 w-4 mr-1" />
+                <TabsTrigger value="tips" className="text-[11px] md:text-xs px-2">
+                  <Lightbulb className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1" />
                   Tips
                 </TabsTrigger>
               </TabsList>
