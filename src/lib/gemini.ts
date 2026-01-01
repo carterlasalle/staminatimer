@@ -1,43 +1,62 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai'
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+let genAI: GoogleGenerativeAI | null = null
+let geminiModelInstance: GenerativeModel | null = null
 
-if (!API_KEY) {
-  throw new Error('Missing NEXT_PUBLIC_GEMINI_API_KEY environment variable')
+function getGeminiModel(): GenerativeModel {
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+
+  if (!API_KEY) {
+    throw new Error('Missing NEXT_PUBLIC_GEMINI_API_KEY environment variable')
+  }
+
+  if (!genAI) {
+    genAI = new GoogleGenerativeAI(API_KEY)
+  }
+
+  if (!geminiModelInstance) {
+    geminiModelInstance = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  }
+
+  return geminiModelInstance
 }
-
-const genAI = new GoogleGenerativeAI(API_KEY)
-
-export const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
 
 export async function generateAIResponse(prompt: string): Promise<string> {
   try {
-    const result = await geminiModel.generateContent(prompt)
+    const model = getGeminiModel()
+    const result = await model.generateContent(prompt)
     const response = await result.response
     return response.text()
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating AI response:', error)
-    
+
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
     // Handle specific API errors
-    if (error?.message?.includes('429') || error?.message?.includes('quota')) {
+    if (errorMessage.includes('429') || errorMessage.includes('quota')) {
       throw new Error('API rate limit exceeded. Please try again in a few moments. The free tier has limited requests per minute.')
     }
-    
-    if (error?.message?.includes('401') || error?.message?.includes('API key')) {
+
+    if (errorMessage.includes('401') || errorMessage.includes('API key')) {
       throw new Error('API authentication failed. Please check your API key configuration.')
     }
-    
-    if (error?.message?.includes('403')) {
+
+    if (errorMessage.includes('403')) {
       throw new Error('API access denied. Please verify your API key has the necessary permissions.')
     }
-    
+
+    if (errorMessage.includes('Missing NEXT_PUBLIC_GEMINI_API_KEY')) {
+      throw error
+    }
+
     throw new Error('Unable to generate AI response. Please try again later.')
   }
 }
 
 export async function generateStreamResponse(prompt: string) {
   try {
-    const result = await geminiModel.generateContentStream(prompt)
+    const model = getGeminiModel()
+    const result = await model.generateContentStream(prompt)
     return result
   } catch (error) {
     console.error('Error generating AI stream response:', error)

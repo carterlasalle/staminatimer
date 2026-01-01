@@ -1,5 +1,6 @@
 import type { DBSession } from '@/lib/types'
 import { createServerClient } from '@supabase/ssr'
+import type { CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export async function getSessionData(): Promise<DBSession[] | null> {
@@ -13,7 +14,7 @@ export async function getSessionData(): Promise<DBSession[] | null> {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           // Server Components cannot set cookies. Middleware handles session refresh.
           // This empty catcher is needed as per @supabase/ssr docs for server components.
           try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) } catch {
