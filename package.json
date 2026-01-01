@@ -35,7 +35,7 @@
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.294.0",
-    "next": "^14.2.18",
+    "next": "14.2.35",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
