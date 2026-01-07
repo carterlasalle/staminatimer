@@ -44,7 +44,7 @@ type LineChartData = {
   }[]
 }
 
-export function Charts({ data: externalData }: ChartsProps = {}): JSX.Element {
+export function Charts({ data: externalData }: ChartsProps = {}) {
   const [chartData, setChartData] = useState<LineChartData | null>(null)
   const { theme } = useTheme()
   const { loading: globalLoading, recentSessions } = useGlobal()

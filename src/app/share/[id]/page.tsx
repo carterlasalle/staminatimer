@@ -1,17 +1,18 @@
 'use client'
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic'
-
 import { Analytics } from '@/components/Analytics'
 import { Charts } from '@/components/Charts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, use } from 'react'
 
-export default function SharePage({ params }: { params: { id: string } }): JSX.Element {
+// In Next.js 15 with React 19, params is now a Promise
+// Use React's use() hook to unwrap it in client components
+export default function SharePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+
   const [sharedData, setSharedData] = useState<DBSession[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,7 +22,7 @@ export default function SharePage({ params }: { params: { id: string } }): JSX.E
       const { data, error } = await supabase
         .from('shared_sessions')
         .select('sessions_data')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
       if (error || !data) {
@@ -36,7 +37,7 @@ export default function SharePage({ params }: { params: { id: string } }): JSX.E
     }
 
     fetchSharedData()
-  }, [params.id])
+  }, [id])
 
   if (loading) return <Loading text="Loading shared data..." fullScreen />
   if (error || !sharedData) return <div className="container mx-auto py-8 text-center text-destructive">{error || 'Share link not found or expired'}</div>

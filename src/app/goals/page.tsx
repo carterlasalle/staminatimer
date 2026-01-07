@@ -48,7 +48,7 @@ type Program = {
   progress: number
 }
 
-export default function GoalsPage(): JSX.Element {
+export default function GoalsPage() {
   const { analytics } = useAnalytics()
   const { streakCount, level } = useGamification()
   const { recentSessions } = useGlobal()

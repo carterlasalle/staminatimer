@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-export function UserMenu(): JSX.Element | null {
+export function UserMenu() {
   const [email, setEmail] = useState<string | null>(null)
   const router = useRouter()
 

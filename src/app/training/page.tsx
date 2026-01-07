@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tips } from '@/components/Tips'
 import { Brain, Timer as TimerIcon, BarChart3, Lightbulb } from 'lucide-react'
 
-export default function TrainingPage(): JSX.Element {
+export default function TrainingPage() {
   return (
     <AppNavigation>
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 p-4 md:p-6">

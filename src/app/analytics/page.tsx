@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { useMemo } from 'react'
 
-export default function AnalyticsPage(): JSX.Element {
+export default function AnalyticsPage() {
   const { analytics, loading: analyticsLoading } = useAnalytics()
   const { streakCount } = useGamification()
   const { recentSessions } = useGlobal()

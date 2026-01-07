@@ -11,7 +11,7 @@ import { formatDuration } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 
-export function GamifiedHud(): JSX.Element {
+export function GamifiedHud() {
   const { prefs, setDailyGoalMinutes } = usePreferences()
   const { recentSessions } = useGlobal()
   const { points, level, streakCount, userAchievements } = useGamification()

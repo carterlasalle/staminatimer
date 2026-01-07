@@ -124,7 +124,7 @@ type MentalSession = {
   totalSteps: number
 }
 
-export default function MentalPage(): JSX.Element {
+export default function MentalPage() {
   const { recentSessions } = useGlobal()
   const [mentalSession, setMentalSession] = useState<MentalSession | null>(null)
   const [isRunning, setIsRunning] = useState(false)

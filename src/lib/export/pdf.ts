@@ -1,19 +1,7 @@
-import type { DBSession } from '@/lib/types'; // Import the session type
-import { formatDuration } from '@/lib/utils';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import type { UserOptions } from 'jspdf-autotable'; // Import UserOptions
-
-// Extend jsPDF types to include autoTable and internal methods
-declare module 'jspdf' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface jsPDF { // Interface required for module augmentation
-    autoTable: (options: UserOptions) => jsPDF;
-    lastAutoTable: {
-      finalY: number;
-    };
-  }
-}
+import type { DBSession } from '@/lib/types'
+import { formatDuration } from '@/lib/utils'
+import { jsPDF } from 'jspdf'
+import { autoTable } from 'jspdf-autotable'
 
 // Create a custom type for internal to avoid conflicts
 type CustomJsPDF = jsPDF & {
@@ -26,7 +14,10 @@ type CustomJsPDF = jsPDF & {
   }
 }
 
-export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
+// Track last table position
+let lastTableFinalY = 0
+
+export async function generatePDF(sessions: DBSession[]) {
   const doc = new jsPDF() as CustomJsPDF
   
   // Set dark theme colors
@@ -80,7 +71,7 @@ export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
     ['Average Edge Duration', formatDuration(avgEdgeDuration)]
   ]
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 55,
     head: [],
     body: stats,
@@ -93,13 +84,16 @@ export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
     columnStyles: {
       0: { fontStyle: 'bold', textColor: colors.secondary },
       1: { halign: 'right' }
+    },
+    didDrawPage: (data) => {
+      lastTableFinalY = data.cursor?.y ?? 55
     }
   })
 
   // Add recent sessions
   doc.setFontSize(16)
   doc.setTextColor(colors.primary)
-  doc.text('Recent Sessions', 20, doc.lastAutoTable.finalY + 20)
+  doc.text('Recent Sessions', 20, lastTableFinalY + 20)
 
   const sessionData = sessions.map(session => [
     new Date(session.created_at).toLocaleDateString(),
@@ -111,8 +105,8 @@ export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
     session.finished_during_edge ? '❌' : '✅'
   ])
 
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 30,
+  autoTable(doc, {
+    startY: lastTableFinalY + 30,
     head: [['Date', 'Duration', 'Edge Time', 'Edges', 'Avg Edge', 'Success']],
     body: sessionData,
     theme: 'grid',
@@ -130,17 +124,20 @@ export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
     },
     alternateRowStyles: {
       fillColor: '#1f1f23'
+    },
+    didDrawPage: (data) => {
+      lastTableFinalY = data.cursor?.y ?? lastTableFinalY
     }
   })
 
   // Add edge analysis
-  if (doc.lastAutoTable.finalY > doc.internal.pageSize.height - 60) {
+  if (lastTableFinalY > doc.internal.pageSize.height - 60) {
     doc.addPage()
   }
 
   doc.setFontSize(16)
   doc.setTextColor(colors.primary)
-  doc.text('Edge Analysis', 20, doc.lastAutoTable.finalY + 20)
+  doc.text('Edge Analysis', 20, lastTableFinalY + 20)
 
   const edgeData = sessions.flatMap(session => 
     (session.edge_events ?? []).map((edge, index: number) => [ // Handle potentially null edge_events
@@ -154,8 +151,8 @@ export async function generatePDF(sessions: DBSession[]) { // Use DBSession type
     ])
   )
 
-  doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 30,
+  autoTable(doc, {
+    startY: lastTableFinalY + 30,
     head: [['Session Date', 'Edge #', 'Duration', 'Recovery Time']],
     body: edgeData,
     theme: 'grid',

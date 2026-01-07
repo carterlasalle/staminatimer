@@ -10,7 +10,7 @@ import { formatDuration } from '@/lib/utils'
 import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function Timer(): JSX.Element {
+export function Timer() {
   const {
     state,
     activeTime,

@@ -17,7 +17,7 @@ type SessionDetailsProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function SessionDetails({ session, open, onOpenChange }: SessionDetailsProps): JSX.Element | null {
+export function SessionDetails({ session, open, onOpenChange }: SessionDetailsProps) {
   if (!session) return null
 
   const edgeEvents = session.edge_events ?? []

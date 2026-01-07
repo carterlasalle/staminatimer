@@ -12,7 +12,7 @@ const TIPS = [
   'Use the Finish button honestly to keep analytics meaningful.',
 ]
 
-export function Tips(): JSX.Element {
+export function Tips() {
   const tip = useMemo(() => {
     const idx = new Date().getDay() % TIPS.length
     return TIPS[idx]

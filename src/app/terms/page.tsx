@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function TermsPage(): JSX.Element {
+export default function TermsPage() {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <Link href="/">

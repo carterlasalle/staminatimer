@@ -19,7 +19,7 @@ import { useGlobal } from '@/contexts/GlobalContext'
 import { usePreferences } from '@/hooks/usePreferences'
 import { formatDuration } from '@/lib/utils'
 
-export default function Dashboard(): JSX.Element {
+export default function Dashboard() {
   const { level, streakCount } = useGamification()
   const { recentSessions } = useGlobal()
   const { prefs } = usePreferences()
