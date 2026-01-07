@@ -26,14 +26,18 @@ export function ExportButton() {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
-      
+      if (!user?.id) {
+        toast.error('Please log in to export')
+        return
+      }
+
       const { data: sessions, error } = await supabase
         .from('sessions')
         .select(`
           *,
           edge_events (*)
         `)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -52,14 +56,18 @@ export function ExportButton() {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
-      
+      if (!user?.id) {
+        toast.error('Please log in to share')
+        return
+      }
+
       const { data: sessions, error } = await supabase
         .from('sessions')
         .select(`
           *,
           edge_events (*)
         `)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20)
 

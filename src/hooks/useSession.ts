@@ -13,6 +13,10 @@ export function useSession() {
     setError(null)
 
     try {
+      if (!sessionData.id) {
+        throw new Error('Session ID is required')
+      }
+
       // Validate session data
       Validator.validate(sessionData, {
         total_duration: { required: true, min: 0 },

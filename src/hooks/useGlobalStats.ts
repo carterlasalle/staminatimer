@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 type GlobalStats = {
   active_users_count: number
@@ -33,7 +34,7 @@ export function useGlobalStats() {
         if (error) throw error
         setStats(data)
         setSubscribeAllowed(true)
-      } catch (error) {
+      } catch {
         // Reduce console noise in local dev if Supabase is unreachable
         console.warn('Global stats unavailable; hiding dynamic stats.')
         setSubscribeAllowed(false)
@@ -58,8 +59,10 @@ export function useGlobalStats() {
           schema: 'public',
           table: 'global_stats',
         },
-        (payload: any) => {
-          setStats(payload.new as GlobalStats)
+        (payload: RealtimePostgresChangesPayload<GlobalStats>) => {
+          if (payload.new && 'active_users_count' in payload.new) {
+            setStats(payload.new as GlobalStats)
+          }
         }
       )
       .subscribe()

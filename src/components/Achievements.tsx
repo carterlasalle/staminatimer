@@ -38,7 +38,7 @@ export function Achievements() {
       if (error) {
         console.error('Error fetching achievements:', error)
       } else {
-        setAll(defs || [])
+        setAll((defs as Achievement[]) || [])
         setUser((mine as UserAchievement[]) || [])
       }
       setLoading(false)

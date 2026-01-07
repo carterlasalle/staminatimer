@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
@@ -58,7 +59,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     const channel = supabase
       .channel('public:sessions')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
-        (payload: any) => {
+        (payload: RealtimePostgresChangesPayload<DBSession>) => {
           console.log('Realtime session change received!', payload)
           fetchSessions()
         })

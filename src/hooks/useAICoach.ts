@@ -95,12 +95,13 @@ Keep language professional and coaching-focused. Avoid overly clinical or overly
       }
 
       setMessages(prev => [...prev, assistantMsg])
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorContent = 'I apologize, but I encountered an error while analyzing your data. Please try again.'
-      
-      if (error?.message?.includes('rate limit') || error?.message?.includes('quota')) {
+      const errorMessage = error instanceof Error ? error.message : ''
+
+      if (errorMessage.includes('rate limit') || errorMessage.includes('quota')) {
         errorContent = '⚠️ **API Rate Limit Exceeded**\n\nI\'ve hit the rate limit for requests. Please wait a moment and try again. The free tier has limited requests per minute.\n\n*Tip: Try asking simpler questions to use fewer tokens per request.*'
-      } else if (error?.message?.includes('authentication') || error?.message?.includes('API key')) {
+      } else if (errorMessage.includes('authentication') || errorMessage.includes('API key')) {
         errorContent = '🔑 **API Authentication Issue**\n\nThere seems to be an issue with the API configuration. Please contact support if this persists.'
       }
       
@@ -135,10 +136,11 @@ Keep language professional and coaching-focused. Avoid overly clinical or overly
       }
 
       setMessages([assistantMsg])
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorContent = 'I encountered an error while analyzing your training data. Please try again.'
-      
-      if (error?.message?.includes('rate limit') || error?.message?.includes('quota')) {
+      const errorMessage = error instanceof Error ? error.message : ''
+
+      if (errorMessage.includes('rate limit') || errorMessage.includes('quota')) {
         errorContent = '⚠️ **API Rate Limit Exceeded**\n\nI\'ve hit the rate limit for analyzing your complete training data. Please wait a moment and try again, or ask a more specific question to use fewer API tokens.'
       }
       
