@@ -46,13 +46,17 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           sessionsToAnalyze = externalData
         } else {
           const { data: { user } } = await supabase.auth.getUser()
+          if (!user?.id) {
+            setAnalytics(null)
+            return
+          }
           const { data: sessions, error } = await supabase
             .from('sessions')
             .select(`
               *,
               edge_events!fk_session (*)
             `)
-            .eq('user_id', user?.id)
+            .eq('user_id', user.id)
             .order('created_at', { ascending: false })
             .limit(20)
 
