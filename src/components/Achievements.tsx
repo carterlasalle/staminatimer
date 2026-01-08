@@ -9,7 +9,7 @@ import { Shield, Star, TrendingUp, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useGamification } from '@/hooks/useGamification'
 
-export function Achievements(): JSX.Element {
+export function Achievements() {
   const [all, setAll] = useState<Achievement[]>([])
   const [user, setUser] = useState<UserAchievement[]>([])
   const [loading, setLoading] = useState(true)
@@ -107,7 +107,7 @@ export function Achievements(): JSX.Element {
   )
 }
 
-function AchievementCard({ userAchievement }: { userAchievement: UserAchievement }): JSX.Element {
+function AchievementCard({ userAchievement }: { userAchievement: UserAchievement }) {
   const { achievement, progress, unlocked_at } = userAchievement
   const unlocked = progress === 100
 

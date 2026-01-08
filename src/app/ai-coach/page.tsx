@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { AppNavigation } from '@/components/AppNavigation'
 import { AICoachChat } from '@/components/AICoachChat'
 
-export default function AICoachPage(): JSX.Element {
+export default function AICoachPage() {
   return (
     <AppNavigation>
       <div className="max-w-6xl mx-auto p-4 md:p-6">

@@ -32,7 +32,7 @@ type AnalyticsProps = {
   externalData?: DBSession[]
 }
 
-export function Analytics({ externalData }: AnalyticsProps = {}): JSX.Element {
+export function Analytics({ externalData }: AnalyticsProps = {}) {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
 

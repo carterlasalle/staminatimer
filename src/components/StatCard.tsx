@@ -8,7 +8,7 @@ type StatCardProps = {
   label: string // Stat label
 }
 
-export function StatCard({ number, label }: StatCardProps): JSX.Element {
+export function StatCard({ number, label }: StatCardProps) {
   const { stats, loading } = useGlobalStats()
   
   const formatNumber = (n: number): string => {

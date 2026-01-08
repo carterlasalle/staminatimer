@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export default function Home(): JSX.Element {
+export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function Home(): JSX.Element {
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }): JSX.Element {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="flex flex-col items-center text-center p-6 rounded-lg bg-card border shadow-sm hover:shadow-md transition-shadow duration-300">
       <div className="text-primary mb-4">{icon}</div>

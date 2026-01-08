@@ -36,7 +36,7 @@ type DBSession = {
   }>
 }
 
-export function SessionHistory(): JSX.Element {
+export function SessionHistory() {
   const [sessions, setSessions] = useState<DBSession[]>([])
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('created_at')

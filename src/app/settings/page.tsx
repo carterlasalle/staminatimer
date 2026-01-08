@@ -13,7 +13,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ResponsiveContainer } from '@/components/ui/responsive-container'
 
-export default function SettingsPage(): JSX.Element {
+export default function SettingsPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)

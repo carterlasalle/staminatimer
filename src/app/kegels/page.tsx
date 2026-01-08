@@ -89,7 +89,7 @@ type WorkoutSession = {
   totalReps: number
 }
 
-export default function KegelsPage(): JSX.Element {
+export default function KegelsPage() {
   const { recentSessions } = useGlobal()
   const [workoutSession, setWorkoutSession] = useState<WorkoutSession | null>(null)
   const [isRunning, setIsRunning] = useState(false)

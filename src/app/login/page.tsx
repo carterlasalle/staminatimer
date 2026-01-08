@@ -15,7 +15,7 @@ import { Timer as TimerIcon, Zap, TrendingUp, Users, ArrowRight } from 'lucide-r
 import Link from 'next/link'
 import { Loading } from '@/components/ui/loading'
 
-export default function LoginPage(): JSX.Element {
+export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)

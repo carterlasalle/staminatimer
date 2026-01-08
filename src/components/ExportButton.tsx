@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 
 type ShareDuration = '1h' | '24h' | '7d' | '30d' | 'infinite'
 
-export function ExportButton(): JSX.Element {
+export function ExportButton() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleExportPDF = async (): Promise<void> => {
