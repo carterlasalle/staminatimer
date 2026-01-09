@@ -2,13 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import unique fonts - Bricolage Grotesque (editorial, distinctive) and Albert Sans */
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-
 :root {
-  /* Midnight Ember Theme - Bold, distinctive */
-  --font-display: 'Bricolage Grotesque', serif;
-  --font-body: 'Albert Sans', sans-serif;
+  /* Fonts loaded via <link> in layout.tsx */
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'Albert Sans', system-ui, -apple-system, sans-serif;
 
   /* Core palette */
   --midnight: 12 15 20;
