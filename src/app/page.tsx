@@ -3,6 +3,13 @@
 export const dynamic = 'force-dynamic'
 
 import { ModeToggle } from '@/components/mode-toggle'
+import {
+  FAQJsonLd,
+  HowToJsonLd,
+  OrganizationJsonLd,
+  SoftwareApplicationJsonLd,
+  WebSiteJsonLd
+} from '@/components/seo/JsonLd'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase/client'
@@ -42,9 +49,18 @@ export default function Home() {
   }, [router])
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <>
+      {/* JSON-LD Structured Data for SEO */}
+      <WebSiteJsonLd />
+      <OrganizationJsonLd />
+      <SoftwareApplicationJsonLd />
+      <FAQJsonLd />
+      <HowToJsonLd />
+
+      <div className="flex min-h-screen flex-col">
+        {/* Navigation */}
+        <header>
+          <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" aria-label="Main navigation">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between items-center">
             <div className="flex items-center">
@@ -78,10 +94,13 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </nav>
+          </nav>
+        </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
+        {/* Main Content */}
+        <main>
+          {/* Hero Section */}
+          <section className="relative overflow-hidden" aria-labelledby="hero-heading">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
 
@@ -93,7 +112,7 @@ export default function Home() {
               100% Private & Secure
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+            <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               Last Longer.{' '}
               <span className="text-primary">Feel Confident.</span>
             </h1>
@@ -452,33 +471,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-12 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <TimerIcon className="h-6 w-6 text-primary" />
-              <span className="font-semibold">Stamina Timer</span>
-            </div>
+        </main>
 
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <Link href="/privacy" className="hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="/license" className="hover:text-primary transition-colors">
-                License
-              </Link>
-            </div>
+        {/* Footer */}
+        <footer className="border-t py-12 bg-muted/30" role="contentinfo">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-2">
+                <TimerIcon className="h-6 w-6 text-primary" aria-hidden="true" />
+                <span className="font-semibold">Stamina Timer</span>
+              </div>
 
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Stamina Timer. All rights reserved.
-            </p>
+              <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+                <Link href="/privacy" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="hover:text-primary transition-colors">
+                  Terms of Service
+                </Link>
+                <Link href="/license" className="hover:text-primary transition-colors">
+                  License
+                </Link>
+              </nav>
+
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} Stamina Timer. All rights reserved.
+              </p>
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   )
 }
