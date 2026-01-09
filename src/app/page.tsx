@@ -3,42 +3,288 @@
 export const dynamic = 'force-dynamic'
 
 import { ModeToggle } from '@/components/mode-toggle'
-import {
-  FAQJsonLd,
-  HowToJsonLd,
-  OrganizationJsonLd,
-  SoftwareApplicationJsonLd,
-  WebSiteJsonLd
-} from '@/components/seo/JsonLd'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase/client'
+import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 import {
-  Timer as TimerIcon,
+  Timer,
   TrendingUp,
   Shield,
   Target,
-  BarChart3,
   Trophy,
   Clock,
-  CheckCircle2,
   Star,
   ArrowRight,
-  Play,
+  ArrowDown,
   Brain,
   Flame,
-  Lock
+  Lock,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Zap
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-export default function Home() {
-  const router = useRouter()
-  const [isVisible, setIsVisible] = useState(false)
+// ===== COMPONENTS =====
+
+// Border Beam Button
+function BeamButton({ children, className = '', ...props }: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      className={`border-beam relative bg-primary text-primary-foreground hover:bg-primary/90 ${className}`}
+      {...props}
+    >
+      {children}
+    </Button>
+  )
+}
+
+// Flashlight Card with mouse tracking
+function FlashlightCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    cardRef.current.style.setProperty('--mouse-x', `${x}px`)
+    cardRef.current.style.setProperty('--mouse-y', `${y}px`)
+  }, [])
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      className={`flashlight-card rounded-2xl p-6 ${className}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+// Animated text reveal
+function AnimatedText({ text, className = '', delay = 0 }: { text: string; className?: string; delay?: number }) {
+  const words = text.split(' ')
+  return (
+    <span className={className}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-[0.25em]"
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{
+            duration: 0.5,
+            delay: delay + i * 0.05,
+            ease: [0.16, 1, 0.3, 1]
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  )
+}
+
+// Scroll-triggered section
+function ScrollSection({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
+
+  return (
+    <motion.section
+      id={id}
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  )
+}
+
+// Feature Carousel
+function FeatureCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const features = [
+    {
+      icon: <Clock className="w-8 h-8" />,
+      title: 'Precision Timer',
+      description: 'Track active time, edge duration, and rest periods with millisecond accuracy. Our intelligent timer adapts to your rhythm.',
+      color: 'from-emerald-500/20 to-teal-500/20'
+    },
+    {
+      icon: <Brain className="w-8 h-8" />,
+      title: 'AI Coach',
+      description: 'Get personalized tips and recommendations powered by advanced AI that learns your patterns and optimizes your training.',
+      color: 'from-amber-500/20 to-orange-500/20'
+    },
+    {
+      icon: <Trophy className="w-8 h-8" />,
+      title: 'Achievements',
+      description: 'Stay motivated with gamified progress. Unlock badges, hit milestones, and watch your confidence grow with every session.',
+      color: 'from-violet-500/20 to-purple-500/20'
+    }
+  ]
 
   useEffect(() => {
-    setIsVisible(true)
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % features.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [features.length])
+
+  const nextSlide = () => setActiveIndex((prev) => (prev + 1) % features.length)
+  const prevSlide = () => setActiveIndex((prev) => (prev - 1 + features.length) % features.length)
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden rounded-3xl">
+        <motion.div
+          className="flex"
+          animate={{ x: `-${activeIndex * 100}%` }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {features.map((feature, i) => (
+            <div key={i} className="w-full flex-shrink-0 p-8 md:p-12">
+              <div className={`bg-gradient-to-br ${feature.color} rounded-2xl p-8 md:p-12 min-h-[300px] flex flex-col justify-center`}>
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">{feature.description}</p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-center gap-4 mt-6">
+        <button
+          onClick={prevSlide}
+          className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <div className="flex gap-2">
+          {features.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                i === activeIndex ? 'w-8 bg-primary' : 'bg-border'
+              }`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={nextSlide}
+          className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Testimonials Marquee
+function TestimonialsMarquee() {
+  const testimonials = [
+    { quote: "After 3 weeks, I noticed real improvement. The data tracking is incredible.", author: "Michael T.", rating: 5 },
+    { quote: "Finally, a scientific approach that actually works. Changed my life.", author: "James R.", rating: 5 },
+    { quote: "The AI coach gave me insights I never expected. Highly recommend.", author: "David K.", rating: 5 },
+    { quote: "Private, effective, and the progress charts keep me motivated.", author: "Chris M.", rating: 5 },
+    { quote: "Best investment in myself. Results speak for themselves.", author: "Alex P.", rating: 5 },
+    { quote: "The achievements system makes training actually fun.", author: "Ryan S.", rating: 5 },
+  ]
+
+  return (
+    <div className="marquee marquee-mask py-8">
+      <div className="marquee-content">
+        {testimonials.map((t, i) => (
+          <div key={i} className="flex-shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
+            <div className="flex gap-1 mb-4">
+              {[...Array(t.rating)].map((_, j) => (
+                <Star key={j} className="w-4 h-4 fill-amber-500 text-amber-500" />
+              ))}
+            </div>
+            <p className="text-foreground mb-4">&ldquo;{t.quote}&rdquo;</p>
+            <p className="text-sm text-muted-foreground">{t.author}</p>
+          </div>
+        ))}
+      </div>
+      <div className="marquee-content" aria-hidden>
+        {testimonials.map((t, i) => (
+          <div key={i} className="flex-shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
+            <div className="flex gap-1 mb-4">
+              {[...Array(t.rating)].map((_, j) => (
+                <Star key={j} className="w-4 h-4 fill-amber-500 text-amber-500" />
+              ))}
+            </div>
+            <p className="text-foreground mb-4">&ldquo;{t.quote}&rdquo;</p>
+            <p className="text-sm text-muted-foreground">{t.author}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Stats counter
+function StatCounter({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (isInView) {
+      const duration = 2000
+      const steps = 60
+      const increment = value / steps
+      let current = 0
+      const timer = setInterval(() => {
+        current += increment
+        if (current >= value) {
+          setCount(value)
+          clearInterval(timer)
+        } else {
+          setCount(Math.floor(current))
+        }
+      }, duration / steps)
+      return () => clearInterval(timer)
+    }
+  }, [isInView, value])
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-4xl md:text-5xl font-bold text-gradient mb-2">
+        {count.toLocaleString()}{suffix}
+      </div>
+      <div className="text-muted-foreground">{label}</div>
+    </div>
+  )
+}
+
+// ===== MAIN PAGE =====
+export default function Home() {
+  const router = useRouter()
+  const heroRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  })
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
+
+  useEffect(() => {
     async function checkSession(): Promise<void> {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
@@ -49,458 +295,282 @@ export default function Home() {
   }, [router])
 
   return (
-    <>
-      {/* JSON-LD Structured Data for SEO */}
-      <WebSiteJsonLd />
-      <OrganizationJsonLd />
-      <SoftwareApplicationJsonLd />
-      <FAQJsonLd />
-      <HowToJsonLd />
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-background" />
+        <div className="absolute inset-0 grid-pattern" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+        <motion.div
+          className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[128px]"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, 50, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[128px]"
+          animate={{
+            x: [0, -50, 0],
+            y: [0, -100, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+        />
+      </div>
 
-      <div className="flex min-h-screen flex-col">
-        {/* Navigation */}
-        <header>
-          <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" aria-label="Main navigation">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between items-center">
-            <div className="flex items-center">
-              <TimerIcon className="h-8 w-8 text-primary shrink-0" />
-              <span className="ml-2 text-xl font-bold">Stamina Timer</span>
-            </div>
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 glass">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <Timer className="w-5 h-5 text-primary" />
+              </div>
+              <span className="font-bold text-lg">Stamina Timer</span>
+            </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                How It Works
-              </a>
-              <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Features
-              </a>
-              <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Reviews
-              </a>
-              <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                FAQ
-              </a>
+              <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+              <a href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Reviews</a>
             </div>
 
             <div className="flex items-center gap-3">
               <ModeToggle />
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex">Log In</Button>
+                <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Log In</Button>
               </Link>
               <Link href="/login">
-                <Button>Start Free</Button>
+                <BeamButton size="sm">
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </BeamButton>
               </Link>
             </div>
           </div>
         </div>
-          </nav>
-        </header>
+      </nav>
 
-        {/* Main Content */}
-        <main>
-          {/* Hero Section */}
-          <section className="relative overflow-hidden" aria-labelledby="hero-heading">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
+      {/* Hero Section */}
+      <motion.section
+        ref={heroRef}
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative min-h-screen flex items-center justify-center pt-16"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8"
+          >
+            <Sparkles className="w-4 h-4" />
+            Science-backed stamina training
+          </motion.div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
-          <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {/* Trust badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-              <Shield className="h-4 w-4" />
-              100% Private & Secure
+          <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-8 overflow-hidden">
+            <AnimatedText text="Last Longer." className="block" delay={0.2} />
+            <span className="block overflow-hidden">
+              <motion.span
+                className="inline-block text-gradient"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                Feel Confident.
+              </motion.span>
+            </span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
+          >
+            The training app that helps you build lasting control.
+            Track progress, understand patterns, see real improvement in weeks.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Link href="/login">
+              <BeamButton size="lg" className="text-lg px-8 h-14 rounded-full glow-teal">
+                Start Training Free
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </BeamButton>
+            </Link>
+            <a href="#how-it-works">
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full">
+                See How It Works
+              </Button>
+            </a>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground"
+          >
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              100% Private
             </div>
-
-            <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              Last Longer.{' '}
-              <span className="text-primary">Feel Confident.</span>
-            </h1>
-
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              The science-backed training app that helps you build lasting stamina and control.
-              Track your progress, understand your patterns, and see real improvement in weeks.
-            </p>
-
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/login">
-                <Button size="lg" className="text-lg px-8 h-14 gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
-                  Start Training Free
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <a href="#how-it-works">
-                <Button size="lg" variant="outline" className="text-lg px-8 h-14 gap-2">
-                  <Play className="h-5 w-5" />
-                  See How It Works
-                </Button>
-              </a>
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-500" />
+              Free Forever
             </div>
-
-            {/* Social proof */}
-            <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/60 to-primary border-2 border-background" />
-                  ))}
-                </div>
-                <span><strong className="text-foreground">10,000+</strong> men training</span>
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                ))}
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                  ))}
-                </div>
-                <span><strong className="text-foreground">4.9/5</strong> average rating</span>
-              </div>
+              4.9/5 Rating
             </div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 scroll-indicator"
+          >
+            <ArrowDown className="w-6 h-6 text-muted-foreground" />
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Stats Section */}
+      <ScrollSection className="py-24 border-y border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <StatCounter value={10000} suffix="+" label="Active Users" />
+            <StatCounter value={500000} suffix="+" label="Sessions Tracked" />
+            <StatCounter value={89} suffix="%" label="Report Improvement" />
+            <StatCounter value={4.9} suffix="★" label="Average Rating" />
           </div>
         </div>
-      </section>
-
-      {/* Problem/Solution Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-              You&apos;re Not Alone. This Is More Common Than You Think.
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Studies show that 30-40% of men experience premature concerns at some point.
-              The good news? It&apos;s trainable—just like building any other skill.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="border-destructive/20 bg-destructive/5">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-4 text-destructive">Without Training</h3>
-                <ul className="space-y-3">
-                  {[
-                    'Unpredictable performance anxiety',
-                    'No way to track what works',
-                    'Frustration and embarrassment',
-                    'Guessing at solutions that don\'t help'
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-muted-foreground">
-                      <span className="text-destructive mt-1">✕</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-4 text-primary">With Stamina Timer</h3>
-                <ul className="space-y-3">
-                  {[
-                    'Data-driven training that works',
-                    'See measurable progress weekly',
-                    'Build lasting confidence',
-                    'Understand your body\'s patterns'
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Simple. Private. Effective.
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Start seeing results in just 3 easy steps
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                step: '1',
-                icon: <Play className="h-8 w-8" />,
-                title: 'Start a Session',
-                description: 'Begin your training session with our intuitive timer. The app guides you through edge control exercises.'
-              },
-              {
-                step: '2',
-                icon: <BarChart3 className="h-8 w-8" />,
-                title: 'Track Your Progress',
-                description: 'Every session is logged automatically. Watch your stamina improve with detailed analytics and insights.'
-              },
-              {
-                step: '3',
-                icon: <Trophy className="h-8 w-8" />,
-                title: 'See Real Results',
-                description: 'Most users report noticeable improvement within 2-3 weeks of consistent training. Unlock achievements as you progress.'
-              }
-            ].map((item, i) => (
-              <div key={i} className="relative">
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-primary/50 to-transparent" />
-                )}
-                <div className="text-center">
-                  <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 text-primary mb-6">
-                    {item.icon}
-                    <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
-                      {item.step}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      </ScrollSection>
 
       {/* Features Section */}
-      <section id="features" className="py-20 sm:py-28 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <ScrollSection id="features" className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Everything You Need to Succeed
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              Everything You Need
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Built by experts, designed for real results
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Built with precision, designed for results
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {
-                icon: <Clock className="h-6 w-6" />,
-                title: 'Precision Timer',
-                description: 'Track active time, edge duration, and rest periods with millisecond accuracy.'
-              },
-              {
-                icon: <TrendingUp className="h-6 w-6" />,
-                title: 'Progress Analytics',
-                description: 'Visualize your improvement over time with charts, trends, and performance insights.'
-              },
-              {
-                icon: <Target className="h-6 w-6" />,
-                title: 'Smart Goals',
-                description: 'Set personalized targets and get notified when you hit new milestones.'
-              },
-              {
-                icon: <Brain className="h-6 w-6" />,
-                title: 'AI Coach',
-                description: 'Get personalized tips and recommendations based on your training patterns.'
-              },
-              {
-                icon: <Trophy className="h-6 w-6" />,
-                title: 'Achievements',
-                description: 'Stay motivated with gamified progress tracking and unlockable badges.'
-              },
-              {
-                icon: <Lock className="h-6 w-6" />,
-                title: 'Complete Privacy',
-                description: 'Your data is encrypted and never shared. Only you can see your progress.'
-              }
+              { icon: <Clock className="w-6 h-6" />, title: 'Precision Timer', description: 'Track every second with accuracy' },
+              { icon: <TrendingUp className="w-6 h-6" />, title: 'Analytics', description: 'Visualize your improvement' },
+              { icon: <Target className="w-6 h-6" />, title: 'Goals', description: 'Set and crush milestones' },
+              { icon: <Brain className="w-6 h-6" />, title: 'AI Coach', description: 'Personalized recommendations' },
+              { icon: <Trophy className="w-6 h-6" />, title: 'Achievements', description: 'Gamified motivation' },
+              { icon: <Lock className="w-6 h-6" />, title: 'Privacy First', description: 'Your data stays yours' },
             ].map((feature, i) => (
-              <Card key={i} className="group hover:shadow-lg hover:border-primary/50 transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <FlashlightCard key={i} className="group">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm">{feature.description}</p>
+              </FlashlightCard>
             ))}
           </div>
         </div>
-      </section>
+      </ScrollSection>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Real Results from Real Users
+      {/* Feature Carousel Section */}
+      <ScrollSection id="how-it-works" className="py-24 bg-card/50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              How It Works
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands who&apos;ve transformed their confidence
+            <p className="text-xl text-muted-foreground">
+              Three steps to lasting improvement
             </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                quote: "After just 3 weeks, I noticed a real difference. The data tracking helped me understand what actually works for my body.",
-                author: "Michael T.",
-                detail: "Improved 40% in 4 weeks",
-                rating: 5
-              },
-              {
-                quote: "Finally, a scientific approach that isn't embarrassing to use. The privacy features gave me peace of mind to actually commit to it.",
-                author: "James R.",
-                detail: "Using for 2 months",
-                rating: 5
-              },
-              {
-                quote: "The AI coach suggestions were surprisingly helpful. It's like having a personal trainer for something you can't exactly talk about openly.",
-                author: "David K.",
-                detail: "Hit 15-minute milestone",
-                rating: 5
-              }
-            ].map((testimonial, i) => (
-              <Card key={i} className="bg-card">
-                <CardContent className="p-6">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, j) => (
-                      <Star key={j} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                    ))}
-                  </div>
-                  <blockquote className="text-foreground mb-4">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </blockquote>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/60 to-primary" />
-                    <div>
-                      <div className="font-medium">{testimonial.author}</div>
-                      <div className="text-sm text-muted-foreground">{testimonial.detail}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <FeatureCarousel />
         </div>
-      </section>
+      </ScrollSection>
 
-      {/* Stats Banner */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '10,000+', label: 'Active Users' },
-              { value: '500,000+', label: 'Sessions Tracked' },
-              { value: '89%', label: 'Report Improvement' },
-              { value: '4.9★', label: 'User Rating' }
-            ].map((stat, i) => (
-              <div key={i}>
-                <div className="text-3xl sm:text-4xl font-bold mb-1">{stat.value}</div>
-                <div className="text-primary-foreground/80 text-sm">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      {/* Testimonials Section */}
+      <ScrollSection id="testimonials" className="py-24">
+        <div className="text-center mb-12 px-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Real Results
+          </h2>
+          <p className="text-xl text-muted-foreground">
+            Join thousands who transformed their confidence
+          </p>
         </div>
-      </section>
+        <TestimonialsMarquee />
+      </ScrollSection>
 
-      {/* FAQ Section */}
-      <section id="faq" className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="max-w-3xl mx-auto space-y-4">
-            {[
-              {
-                q: 'Is this actually backed by science?',
-                a: 'Yes. The techniques used in Stamina Timer are based on established methods like the start-stop technique and edging, which have been studied and recommended by sexual health professionals for decades.'
-              },
-              {
-                q: 'Is my data really private?',
-                a: 'Absolutely. Your data is encrypted, stored securely, and never shared with anyone. We don\'t sell data or show ads. You can delete all your data at any time.'
-              },
-              {
-                q: 'How long until I see results?',
-                a: 'Most users report noticeable improvement within 2-4 weeks of consistent training (3-4 sessions per week). Everyone\'s different, but the key is consistency.'
-              },
-              {
-                q: 'Is it really free?',
-                a: 'Yes, Stamina Timer is completely free to use with all core features. We may add premium features in the future, but the essential training tools will always be free.'
-              },
-              {
-                q: 'Can anyone see that I\'m using this app?',
-                a: 'No. The app doesn\'t appear in any shared subscriptions or purchase history. On your device, you can rename the app icon if you want extra privacy.'
-              }
-            ].map((faq, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-2">{faq.q}</h3>
-                  <p className="text-muted-foreground text-sm">{faq.a}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20 sm:py-28 bg-gradient-to-br from-primary/10 via-background to-primary/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <Flame className="h-12 w-12 text-primary mx-auto mb-6" />
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Ready to Take Control?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of men who are building lasting confidence.
-              It&apos;s free, private, and takes just 10 minutes a day.
-            </p>
-            <Link href="/login">
-              <Button size="lg" className="text-lg px-10 h-14 gap-2 shadow-lg shadow-primary/25">
-                Start Your Free Training
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required • 100% private • Cancel anytime
-            </p>
-          </div>
-        </div>
-      </section>
-
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t py-12 bg-muted/30" role="contentinfo">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex items-center gap-2">
-                <TimerIcon className="h-6 w-6 text-primary" aria-hidden="true" />
-                <span className="font-semibold">Stamina Timer</span>
-              </div>
-
-              <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-                <Link href="/privacy" className="hover:text-primary transition-colors">
-                  Privacy Policy
-                </Link>
-                <Link href="/terms" className="hover:text-primary transition-colors">
-                  Terms of Service
-                </Link>
-                <Link href="/license" className="hover:text-primary transition-colors">
-                  License
-                </Link>
-              </nav>
-
-              <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} Stamina Timer. All rights reserved.
+      {/* CTA Section */}
+      <ScrollSection className="py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            whileInView={{ scale: [0.9, 1] }}
+            className="relative p-12 md:p-16 rounded-3xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-card to-accent/20 rounded-3xl" />
+            <div className="absolute inset-0 grid-pattern opacity-50" />
+            <div className="relative z-10">
+              <Flame className="w-16 h-16 text-primary mx-auto mb-8" />
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                Ready to Take Control?
+              </h2>
+              <p className="text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
+                Join thousands building lasting confidence. Free, private, 10 minutes a day.
+              </p>
+              <Link href="/login">
+                <BeamButton size="lg" className="text-lg px-10 h-14 rounded-full">
+                  Start Your Free Training
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </BeamButton>
+              </Link>
+              <p className="mt-6 text-sm text-muted-foreground">
+                No credit card • 100% private • Cancel anytime
               </p>
             </div>
+          </motion.div>
+        </div>
+      </ScrollSection>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Timer className="w-5 h-5 text-primary" />
+              <span className="font-semibold">Stamina Timer</span>
+            </div>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/license" className="hover:text-foreground transition-colors">License</Link>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Stamina Timer
+            </p>
           </div>
-        </footer>
-      </div>
-    </>
+        </div>
+      </footer>
+    </div>
   )
 }
