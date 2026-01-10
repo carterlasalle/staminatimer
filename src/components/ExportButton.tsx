@@ -5,19 +5,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSub,
-    DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { generatePDF } from '@/lib/export/pdf'
-import { generateShareableLink } from '@/lib/export/share'
 import { supabase } from '@/lib/supabase/client'
-import { Clock, Copy, FileDown, Share2 } from 'lucide-react'
+import { FileDown, Share2, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-
-type ShareDuration = '1h' | '24h' | '7d' | '30d' | 'infinite'
 
 export function ExportButton() {
   const [isLoading, setIsLoading] = useState(false)
@@ -39,8 +33,14 @@ export function ExportButton() {
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
+        .limit(100)
 
       if (error) throw error
+
+      if (!sessions || sessions.length === 0) {
+        toast.error('No sessions to export. Start training to generate data!')
+        return
+      }
 
       await generatePDF(sessions)
       toast.success('PDF exported successfully')
@@ -52,33 +52,53 @@ export function ExportButton() {
     }
   }
 
-  const handleShare = async (duration: ShareDuration): Promise<void> => {
+  const handleCopyStats = async (): Promise<void> => {
     try {
       setIsLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
       if (!user?.id) {
-        toast.error('Please log in to share')
+        toast.error('Please log in to copy stats')
         return
       }
 
       const { data: sessions, error } = await supabase
         .from('sessions')
-        .select(`
-          *,
-          edge_events (*)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(20)
 
       if (error) throw error
 
-      const shareableLink = await generateShareableLink(sessions, duration)
-      await navigator.clipboard.writeText(shareableLink)
-      toast.success('Share link copied to clipboard')
+      if (!sessions || sessions.length === 0) {
+        toast.error('No sessions to share. Start training first!')
+        return
+      }
+
+      const totalSessions = sessions.length
+      const totalDuration = sessions.reduce((acc, s) => acc + (s.total_duration || 0), 0)
+      const avgDuration = totalDuration / totalSessions
+      const successRate = (sessions.filter(s => !s.finished_during_edge).length / totalSessions) * 100
+
+      const formatDuration = (ms: number) => {
+        const minutes = Math.floor(ms / 60000)
+        const seconds = Math.floor((ms % 60000) / 1000)
+        return `${minutes}m ${seconds}s`
+      }
+
+      const statsText = `📊 Stamina Timer Stats
+━━━━━━━━━━━━━━━━
+🏋️ Total Sessions: ${totalSessions}
+⏱️ Total Time: ${formatDuration(totalDuration)}
+📈 Avg Duration: ${formatDuration(avgDuration)}
+✅ Success Rate: ${successRate.toFixed(1)}%
+━━━━━━━━━━━━━━━━
+Track your progress at staminatimer.com`
+
+      await navigator.clipboard.writeText(statsText)
+      toast.success('Stats copied to clipboard!')
     } catch (error) {
-      toast.error('Failed to generate share link')
-      console.error('Share error:', error)
+      toast.error('Failed to copy stats')
+      console.error('Copy stats error:', error)
     } finally {
       setIsLoading(false)
     }
@@ -87,35 +107,15 @@ export function ExportButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" disabled={isLoading}>
           <Share2 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <Copy className="mr-2 h-4 w-4" />
-            Share Link
-            <Clock className="ml-2 h-4 w-4" />
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => handleShare('1h')}>
-              1 Hour
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('24h')}>
-              24 Hours
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('7d')}>
-              7 Days
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('30d')}>
-              30 Days
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('infinite')}>
-              Never Expires
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        <DropdownMenuItem onClick={handleCopyStats} disabled={isLoading}>
+          <Copy className="mr-2 h-4 w-4" />
+          Copy Stats
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleExportPDF} disabled={isLoading}>
           <FileDown className="mr-2 h-4 w-4" />
           Export as PDF

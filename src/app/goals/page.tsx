@@ -9,20 +9,39 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useGamification } from '@/hooks/useGamification'
 import { useGlobal } from '@/contexts/GlobalContext'
 import { usePreferences } from '@/hooks/usePreferences'
 import { formatDuration } from '@/lib/utils'
-import { 
-  Target, 
+import {
+  Target,
   CheckCircle,
   Plus,
   Zap,
   Brain,
-  Dumbbell
+  Dumbbell,
+  Trash2
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 
 type Goal = {
   id: string
@@ -35,6 +54,7 @@ type Goal = {
   deadline: Date
   priority: 'low' | 'medium' | 'high'
   category: 'stamina' | 'mental' | 'kegels' | 'overall'
+  isCustom?: boolean
 }
 
 type Program = {
@@ -48,12 +68,107 @@ type Program = {
   progress: number
 }
 
+const CUSTOM_GOALS_KEY = 'stamina-timer-custom-goals'
+
 export default function GoalsPage() {
   const { analytics } = useAnalytics()
   const { streakCount, level } = useGamification()
   const { recentSessions } = useGlobal()
   const { prefs } = usePreferences()
+
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [newGoalTitle, setNewGoalTitle] = useState('')
+  const [newGoalDescription, setNewGoalDescription] = useState('')
+  const [newGoalType, setNewGoalType] = useState<'duration' | 'frequency' | 'streak' | 'skill'>('duration')
+  const [newGoalTarget, setNewGoalTarget] = useState('')
+  const [newGoalPriority, setNewGoalPriority] = useState<'low' | 'medium' | 'high'>('medium')
+  const [newGoalCategory, setNewGoalCategory] = useState<'stamina' | 'mental' | 'kegels' | 'overall'>('stamina')
+  const [newGoalDays, setNewGoalDays] = useState('30')
+
+  // Custom goals from localStorage
+  const [customGoals, setCustomGoals] = useState<Goal[]>([])
+
+  // Load custom goals from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CUSTOM_GOALS_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        // Convert deadline strings back to Date objects
+        const goalsWithDates = parsed.map((g: Goal) => ({
+          ...g,
+          deadline: new Date(g.deadline)
+        }))
+        setCustomGoals(goalsWithDates)
+      }
+    } catch {
+      console.error('Failed to load custom goals')
+    }
+  }, [])
+
+  // Save custom goals to localStorage
+  const saveCustomGoals = useCallback((goals: Goal[]) => {
+    try {
+      localStorage.setItem(CUSTOM_GOALS_KEY, JSON.stringify(goals))
+      setCustomGoals(goals)
+    } catch {
+      console.error('Failed to save custom goals')
+    }
+  }, [])
+
+  const getUnitForType = (type: string) => {
+    switch (type) {
+      case 'duration': return 'minutes'
+      case 'frequency': return 'sessions'
+      case 'streak': return 'days'
+      case 'skill': return 'points'
+      default: return 'units'
+    }
+  }
+
+  const handleCreateGoal = () => {
+    if (!newGoalTitle.trim() || !newGoalTarget) {
+      toast.error('Please fill in title and target')
+      return
+    }
+
+    const deadline = new Date()
+    deadline.setDate(deadline.getDate() + parseInt(newGoalDays))
+
+    const newGoal: Goal = {
+      id: `custom_${Date.now()}`,
+      title: newGoalTitle.trim(),
+      description: newGoalDescription.trim() || `Custom ${newGoalType} goal`,
+      type: newGoalType,
+      target: parseFloat(newGoalTarget),
+      current: 0,
+      unit: getUnitForType(newGoalType),
+      deadline,
+      priority: newGoalPriority,
+      category: newGoalCategory,
+      isCustom: true
+    }
+
+    saveCustomGoals([...customGoals, newGoal])
+    toast.success('Goal created successfully!')
+
+    // Reset form
+    setNewGoalTitle('')
+    setNewGoalDescription('')
+    setNewGoalTarget('')
+    setNewGoalType('duration')
+    setNewGoalPriority('medium')
+    setNewGoalCategory('stamina')
+    setNewGoalDays('30')
+    setDialogOpen(false)
+  }
+
+  const handleDeleteGoal = (goalId: string) => {
+    const updated = customGoals.filter(g => g.id !== goalId)
+    saveCustomGoals(updated)
+    toast.success('Goal deleted')
+  }
 
   // Generate dynamic goals based on user's actual data
   const dynamicGoals = useMemo((): Goal[] => {
@@ -128,6 +243,9 @@ export default function GoalsPage() {
 
     return goals
   }, [analytics, recentSessions, streakCount, level])
+
+  // Combine dynamic and custom goals
+  const allGoals = useMemo(() => [...dynamicGoals, ...customGoals], [dynamicGoals, customGoals])
 
   // Generate training programs based on user level and experience
   const trainingPrograms = useMemo((): Program[] => {
@@ -239,7 +357,7 @@ export default function GoalsPage() {
 
   return (
     <AppNavigation>
-      <div className="max-w-6xl mx-auto p-8 space-y-8">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-8">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-medium">Goals & Planning</h1>
@@ -252,39 +370,157 @@ export default function GoalsPage() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-medium">Your Goals</h2>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Goal
-            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Goal
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Goal</DialogTitle>
+                  <DialogDescription>
+                    Set a custom goal to track your progress
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Goal Title</Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g., Reach 20 minute sessions"
+                      value={newGoalTitle}
+                      onChange={(e) => setNewGoalTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Description (optional)</Label>
+                    <Input
+                      id="description"
+                      placeholder="Describe your goal..."
+                      value={newGoalDescription}
+                      onChange={(e) => setNewGoalDescription(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label>Type</Label>
+                      <Select value={newGoalType} onValueChange={(v) => setNewGoalType(v as typeof newGoalType)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="duration">Duration</SelectItem>
+                          <SelectItem value="frequency">Frequency</SelectItem>
+                          <SelectItem value="streak">Streak</SelectItem>
+                          <SelectItem value="skill">Skill</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="target">Target ({getUnitForType(newGoalType)})</Label>
+                      <Input
+                        id="target"
+                        type="number"
+                        placeholder="e.g., 20"
+                        value={newGoalTarget}
+                        onChange={(e) => setNewGoalTarget(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label>Priority</Label>
+                      <Select value={newGoalPriority} onValueChange={(v) => setNewGoalPriority(v as typeof newGoalPriority)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Category</Label>
+                      <Select value={newGoalCategory} onValueChange={(v) => setNewGoalCategory(v as typeof newGoalCategory)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="stamina">Stamina</SelectItem>
+                          <SelectItem value="mental">Mental</SelectItem>
+                          <SelectItem value="kegels">Kegels</SelectItem>
+                          <SelectItem value="overall">Overall</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="days">Deadline (days from now)</Label>
+                    <Input
+                      id="days"
+                      type="number"
+                      placeholder="30"
+                      value={newGoalDays}
+                      onChange={(e) => setNewGoalDays(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateGoal}>Create Goal</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {dynamicGoals.map((goal) => (
+            {allGoals.map((goal) => (
               <Card key={goal.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {getCategoryIcon(goal.category)}
                       <h4 className="font-medium">{goal.title}</h4>
+                      {goal.isCustom && (
+                        <Badge variant="outline" className="text-xs">Custom</Badge>
+                      )}
                     </div>
-                    <Badge className={getPriorityColor(goal.priority)}>
-                      {goal.priority}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getPriorityColor(goal.priority)}>
+                        {goal.priority}
+                      </Badge>
+                      {goal.isCustom && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeleteGoal(goal.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  
+
                   <p className="text-sm text-muted-foreground mb-4">{goal.description}</p>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Progress</span>
                       <span>
-                        {goal.unit === 'minutes' ? formatDuration(goal.current * 60000) : goal.current.toFixed(goal.unit === 'minutes' ? 1 : 0)} / 
+                        {goal.unit === 'minutes' ? formatDuration(goal.current * 60000) : goal.current.toFixed(goal.unit === 'minutes' ? 1 : 0)} /
                         {goal.unit === 'minutes' ? formatDuration(goal.target * 60000) : goal.target} {goal.unit}
                       </span>
                     </div>
                     <Progress value={Math.min(100, (goal.current / goal.target) * 100)} className="h-2" />
                   </div>
-                  
+
                   <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
                     <span>{formatDeadline(goal.deadline)}</span>
                     <span>{Math.min(100, Math.round((goal.current / goal.target) * 100))}% complete</span>
@@ -300,8 +536,8 @@ export default function GoalsPage() {
           <h2 className="text-lg font-medium mb-6">Training Programs</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trainingPrograms.map((program) => (
-              <Card 
-                key={program.id} 
+              <Card
+                key={program.id}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   selectedProgram?.id === program.id ? 'border-primary bg-primary/5' : ''
                 }`}
@@ -317,12 +553,12 @@ export default function GoalsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground">{program.description}</p>
-                  
+
                   <div className="flex justify-between text-sm">
                     <span>Duration</span>
                     <span className="font-medium">{program.duration}</span>
                   </div>
-                  
+
                   {program.progress > 0 && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs">
@@ -353,32 +589,11 @@ export default function GoalsPage() {
           </div>
         </div>
 
-        {/* Quick Add Goal */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Add Goal</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input 
-              placeholder="Goal title"
-              value={newGoalTitle}
-              onChange={(e) => setNewGoalTitle(e.target.value)}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline">Duration</Button>
-              <Button size="sm" variant="outline">Frequency</Button>
-              <Button size="sm" variant="outline">Streak</Button>
-              <Button size="sm" variant="outline">Skill</Button>
-            </div>
-            <Button className="w-full">Create Goal</Button>
-          </CardContent>
-        </Card>
-
         {/* Daily Habits */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Today's Habits</CardTitle>
+              <CardTitle>Today&apos;s Habits</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {todaysHabits.map((habit, index) => (
@@ -411,7 +626,7 @@ export default function GoalsPage() {
                   {level.currentLevelXp} / 100 XP
                 </p>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="font-medium">Current Streak</span>
