@@ -1,3 +1,4 @@
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
@@ -32,8 +33,8 @@ const siteConfig = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
@@ -60,12 +61,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: [
+      { url: "/icons/icon-192x192.png" },
     ],
   },
   appleWebApp: {
@@ -126,12 +130,34 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Font preconnects */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
           rel="stylesheet"
         />
+
+        {/* PWA - iOS specific */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Stamina Timer" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+        {/* PWA - Android/Chrome specific */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Stamina Timer" />
+
+        {/* PWA - Microsoft specific */}
+        <meta name="msapplication-TileColor" content="#0a0a0a" />
+        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        <meta name="msapplication-config" content="none" />
+
+        {/* Prevent phone number detection */}
+        <meta name="format-detection" content="telephone=no" />
+
+        {/* Disable tap highlight on iOS */}
+        <style>{`* { -webkit-tap-highlight-color: transparent; }`}</style>
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider
@@ -149,6 +175,7 @@ export default function RootLayout({
                   <SpeedInsights />
                   <Analytics />
                   <ServiceWorkerRegistrar />
+                  <PWAInstallPrompt />
                 </div>
               </div>
             </GlobalProvider>

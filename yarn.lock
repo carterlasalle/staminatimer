@@ -6070,7 +6070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.34.3":
+"sharp@npm:^0.34.3, sharp@npm:^0.34.5":
   version: 0.34.5
   resolution: "sharp@npm:0.34.5"
   dependencies:
@@ -6334,6 +6334,7 @@ __metadata:
     react-dom: "npm:^19.0.0"
     react-markdown: "npm:^10.1.0"
     remark-gfm: "npm:^4.0.1"
+    sharp: "npm:^0.34.5"
     sonner: "npm:^2.0.7"
     tailwind-merge: "npm:^2.6.0"
     tailwindcss: "npm:^3.4.17"
