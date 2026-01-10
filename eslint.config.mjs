@@ -15,6 +15,7 @@ const eslintConfig = [
       ".next/**",
       "node_modules/**",
       "public/**",
+      "scripts/**",
       "*.config.js",
       "*.config.ts",
       "next-env.d.ts",
@@ -26,6 +27,7 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "react/no-unescaped-entities": "off",
+      "@next/next/no-page-custom-font": "off", // We use App Router with fonts in layout.tsx
     },
   },
 ];

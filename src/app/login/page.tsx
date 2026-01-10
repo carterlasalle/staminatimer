@@ -65,7 +65,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen safe-area-top safe-area-bottom">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-12 xl:px-16 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />
@@ -122,14 +122,16 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 lg:flex-none lg:w-96 xl:w-[480px]">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8 lg:py-0 lg:flex-none lg:w-96 xl:w-[480px] overflow-y-auto">
+        <div className="w-full max-w-md space-y-6">
           {/* Mobile Logo */}
-          <div className="lg:hidden text-center">
-            <div className="flex items-center justify-center mb-4">
-              <TimerIcon className="h-10 w-10 text-primary" />
-              <span className="ml-2 text-2xl font-bold">Stamina Timer</span>
-            </div>
+          <div className="lg:hidden text-center pt-4">
+            <Link href="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center mr-2">
+                <TimerIcon className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-bold">Stamina Timer</span>
+            </Link>
           </div>
 
           <Card className="border-none shadow-2xl">

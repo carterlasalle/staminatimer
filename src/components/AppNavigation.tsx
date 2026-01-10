@@ -11,7 +11,6 @@ import {
   Timer,
   Settings,
   Target,
-  Activity,
   Bot,
   Menu,
   X
@@ -88,14 +87,14 @@ export function AppNavigation({ children }: AppNavigationProps) {
       )}>
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="p-4 lg:p-6 border-b border-border/50">
+          <div className="p-4 lg:p-6 border-b border-border/50 safe-area-top">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded bg-foreground flex items-center justify-center">
-                  <Activity className="h-4 w-4 text-background" />
+              <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Timer className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <h1 className="font-semibold">Stamina Hub</h1>
-              </div>
+                <h1 className="font-semibold text-lg">Stamina Timer</h1>
+              </Link>
               {/* Close button for mobile */}
               <Button
                 variant="ghost"
@@ -115,17 +114,19 @@ export function AppNavigation({ children }: AppNavigationProps) {
               const Icon = item.icon
 
               return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant="ghost"
+                <Link key={item.href} href={item.href} className="block">
+                  <div
                     className={cn(
-                      "w-full justify-start h-11 lg:h-10 px-3 font-normal text-base lg:text-sm",
-                      isActive && "bg-accent text-accent-foreground"
+                      "flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors",
+                      "hover:bg-accent/50 hover:text-accent-foreground",
+                      isActive
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground"
                     )}
                   >
-                    <Icon className="h-5 w-5 lg:h-4 lg:w-4 mr-3" />
+                    <Icon className="h-5 w-5 lg:h-4 lg:w-4 mr-3 shrink-0" />
                     {item.title}
-                  </Button>
+                  </div>
                 </Link>
               )
             })}
@@ -133,11 +134,19 @@ export function AppNavigation({ children }: AppNavigationProps) {
 
           {/* Footer */}
           <div className="p-3 lg:p-4 border-t border-border/50">
-            <Link href="/settings">
-              <Button variant="ghost" className="w-full justify-start h-11 lg:h-10 px-3 font-normal text-base lg:text-sm">
-                <Settings className="h-5 w-5 lg:h-4 lg:w-4 mr-3" />
+            <Link href="/settings" className="block">
+              <div
+                className={cn(
+                  "flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors",
+                  "hover:bg-accent/50 hover:text-accent-foreground",
+                  pathname === '/settings'
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                <Settings className="h-5 w-5 lg:h-4 lg:w-4 mr-3 shrink-0" />
                 Settings
-              </Button>
+              </div>
             </Link>
           </div>
         </div>
@@ -146,7 +155,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="h-14 border-b border-border/50 bg-background shrink-0">
+        <header className="h-14 border-b border-border/50 bg-background shrink-0 safe-area-top">
           <div className="flex h-full items-center justify-between px-4 lg:px-6">
             <div className="flex items-center gap-3">
               {/* Mobile menu button */}

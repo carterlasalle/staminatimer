@@ -97,17 +97,17 @@ export function AICoachChat() {
                 Analyze My Performance
               </Button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-2xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl w-full px-4">
                 {suggestedQuestions.map((suggestion, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="text-left h-auto p-3"
+                    className="text-left h-auto p-3 justify-start whitespace-normal"
                     onClick={() => setInputValue(suggestion.text)}
                   >
                     <suggestion.icon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-sm">{suggestion.text}</span>
+                    <span className="text-xs sm:text-sm leading-tight">{suggestion.text}</span>
                   </Button>
                 ))}
               </div>
