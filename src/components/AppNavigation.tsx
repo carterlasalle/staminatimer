@@ -4,14 +4,11 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
-  BarChart3,
-  Brain,
-  Dumbbell,
   Home,
   Timer,
-  Settings,
-  Target,
+  TrendingUp,
   Bot,
+  Settings,
   Menu,
   X
 } from 'lucide-react'
@@ -21,22 +18,10 @@ import { UserMenu } from './UserMenu'
 import { ModeToggle } from './mode-toggle'
 
 const navigationItems = [
-  { title: 'Overview', href: '/dashboard', icon: Home },
-  { title: 'Training', href: '/training', icon: Timer },
-  { title: 'Kegels', href: '/kegels', icon: Dumbbell },
-  { title: 'Mental', href: '/mental', icon: Brain },
-  { title: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { title: 'Goals', href: '/goals', icon: Target },
-  { title: 'AI Coach', href: '/ai-coach', icon: Bot }
-]
-
-// Bottom nav items - subset of most important navigation items
-const bottomNavItems = [
   { title: 'Home', href: '/dashboard', icon: Home },
   { title: 'Train', href: '/training', icon: Timer },
-  { title: 'Stats', href: '/analytics', icon: BarChart3 },
-  { title: 'Goals', href: '/goals', icon: Target },
-  { title: 'More', href: '#more', icon: Menu }
+  { title: 'Progress', href: '/progress', icon: TrendingUp },
+  { title: 'AI Coach', href: '/ai-coach', icon: Bot }
 ]
 
 type AppNavigationProps = {
@@ -63,12 +48,6 @@ export function AppNavigation({ children }: AppNavigationProps) {
       document.body.style.overflow = ''
     }
   }, [sidebarOpen])
-
-  const handleBottomNavClick = (href: string) => {
-    if (href === '#more') {
-      setSidebarOpen(true)
-    }
-  }
 
   return (
     <div className="flex h-screen bg-background">
@@ -168,7 +147,8 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 <Menu className="h-5 w-5" />
               </Button>
               <h2 className="font-medium text-sm lg:text-base truncate">
-                {navigationItems.find(item => item.href === pathname)?.title || 'Overview'}
+                {navigationItems.find(item => item.href === pathname)?.title ||
+                 (pathname === '/settings' ? 'Settings' : 'Home')}
               </h2>
             </div>
             <div className="flex items-center gap-2 lg:gap-3">
@@ -187,25 +167,9 @@ export function AppNavigation({ children }: AppNavigationProps) {
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t border-border/50 lg:hidden z-30 safe-area-bottom">
         <div className="flex h-full items-center justify-around px-2">
-          {bottomNavItems.map((item) => {
+          {navigationItems.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
-
-            if (item.href === '#more') {
-              return (
-                <button
-                  key={item.href}
-                  onClick={() => handleBottomNavClick(item.href)}
-                  className={cn(
-                    "flex flex-col items-center justify-center flex-1 h-full gap-1 text-muted-foreground transition-colors",
-                    "active:bg-accent/50"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">{item.title}</span>
-                </button>
-              )
-            }
 
             return (
               <Link
