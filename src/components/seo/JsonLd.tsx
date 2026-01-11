@@ -2,11 +2,42 @@ type JsonLdProps = {
   data: Record<string, unknown>
 }
 
+/**
+ * Safely serialize JSON-LD data, ensuring no malicious content is injected.
+ * JSON.stringify escapes special characters, but we add an extra check
+ * for script tags that could potentially break out of the JSON context.
+ */
+function safeJsonLdStringify(data: Record<string, unknown>): string | null {
+  try {
+    const jsonString = JSON.stringify(data)
+
+    // Safety check: ensure no script tags could break out of the JSON context
+    // This is defense-in-depth since JSON.stringify escapes quotes
+    if (/<\/script/i.test(jsonString) || /<script/i.test(jsonString)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('JsonLd: Potentially malicious content detected in data')
+      }
+      return null
+    }
+
+    return jsonString
+  } catch {
+    return null
+  }
+}
+
 export function JsonLd({ data }: JsonLdProps) {
+  const safeJson = safeJsonLdStringify(data)
+
+  // Don't render anything if data is invalid or potentially malicious
+  if (!safeJson) {
+    return null
+  }
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJson }}
     />
   )
 }

@@ -10,14 +10,16 @@ import { useEffect } from 'react';
  * It should be included in the root layout to ensure the service worker is registered on application load.
  * Update this file if the service worker path ('/sw.js') changes or if registration logic needs modification.
  */
-export function ServiceWorkerRegistrar(): null { // Returns null as it renders nothing visible
+export function ServiceWorkerRegistrar(): null {
   useEffect(() => {
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') { // Only register in production
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/sw.js')
-        .then(registration => console.log('Service Worker registered with scope:', registration.scope))
-        .catch(error => console.error('Service Worker registration failed:', error));
+        .catch(() => {
+          // Service worker registration failed silently in production
+          // Errors are expected when offline or in certain browser configurations
+        });
     }
   }, []);
 
-  return null; // This component doesn't render anything itself
-} 
+  return null;
+}
