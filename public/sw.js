@@ -26,31 +26,22 @@ const NETWORK_FIRST_ROUTES = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
+      .then((cache) => cache.addAll(STATIC_ASSETS))
       .then(() => self.skipWaiting())
-      .catch((err) => console.error('[SW] Install failed:', err))
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
             .filter((name) => name.startsWith('stamina-') && name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
-            .map((name) => {
-              console.log('[SW] Deleting old cache:', name);
-              return caches.delete(name);
-            })
+            .map((name) => caches.delete(name))
         );
       })
       .then(() => self.clients.claim())
@@ -97,7 +88,6 @@ async function handleNavigationRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Navigation failed, trying cache...');
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
@@ -213,7 +203,6 @@ self.addEventListener('sync', (event) => {
 
 async function syncSessions() {
   // Placeholder for syncing offline session data
-  console.log('[SW] Background sync: sync-sessions');
 }
 
 // Periodic background sync (for future use)
@@ -225,5 +214,4 @@ self.addEventListener('periodicsync', (event) => {
 
 async function updateContent() {
   // Placeholder for periodic content updates
-  console.log('[SW] Periodic sync: update-content');
 }

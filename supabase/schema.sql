@@ -145,13 +145,62 @@ CREATE POLICY "Anyone can view global stats"
     FOR SELECT
     USING (true);
 
--- Policy for updating global stats (Restrict as needed, e.g., to a specific role or function)
+-- SECURITY FIX: Remove direct update policy for global stats
+-- Global stats should only be updated via triggers with SECURITY DEFINER
+-- This prevents any user from manipulating global statistics
 DROP POLICY IF EXISTS "update_global_stats_policy" ON public.global_stats;
-CREATE POLICY "Authenticated users can update global stats" -- Example: Allow any auth user
-    ON public.global_stats
-    FOR UPDATE
-    USING (auth.role() = 'authenticated') -- Or check for a specific admin role if needed
-    WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Authenticated users can update global stats" ON public.global_stats;
+-- No UPDATE policy = no direct updates allowed from client
+
+-- Trigger function to auto-increment session count (SECURITY DEFINER bypasses RLS)
+CREATE OR REPLACE FUNCTION increment_global_sessions()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.global_stats
+    SET total_sessions_count = total_sessions_count + 1,
+        last_updated = NOW()
+    WHERE id = (SELECT id FROM public.global_stats LIMIT 1);
+    RETURN NEW;
+END;
+$$;
+
+-- Trigger to increment session count when a new session is created
+DROP TRIGGER IF EXISTS on_session_created ON public.sessions;
+CREATE TRIGGER on_session_created
+    AFTER INSERT ON public.sessions
+    FOR EACH ROW
+    EXECUTE FUNCTION increment_global_sessions();
+
+-- Trigger function to update active users count (based on users with sessions in last 30 days)
+CREATE OR REPLACE FUNCTION update_active_users_count()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.global_stats
+    SET active_users_count = (
+        SELECT COUNT(DISTINCT user_id)
+        FROM public.sessions
+        WHERE created_at > NOW() - INTERVAL '30 days'
+    ),
+    last_updated = NOW()
+    WHERE id = (SELECT id FROM public.global_stats LIMIT 1);
+    RETURN NEW;
+END;
+$$;
+
+-- Trigger to update active users on session insert
+DROP TRIGGER IF EXISTS on_session_update_active_users ON public.sessions;
+CREATE TRIGGER on_session_update_active_users
+    AFTER INSERT ON public.sessions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_active_users_count();
 
 -- Rate Limits (if using)
 -- DROP POLICY IF EXISTS "Enable read for authenticated users" ON public.rate_limits;

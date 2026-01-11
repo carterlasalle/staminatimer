@@ -1,10 +1,13 @@
 export async function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js')
-      console.log('SW registered:', registration)
+      await navigator.serviceWorker.register('/sw.js')
+      // Service worker registered successfully
     } catch (error) {
-      console.error('SW registration failed:', error)
+      // Service worker registration failed - only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('SW registration failed:', error)
+      }
     }
   }
-} 
+}
