@@ -6,12 +6,10 @@ export const dynamic = 'force-dynamic'
 import { AppNavigation } from '@/components/AppNavigation'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { 
-  Timer, 
-  TrendingUp, 
-  Target,
-  ArrowRight,
-  Activity
+import { OnboardingTutorial, useOnboarding } from '@/components/OnboardingTutorial'
+import {
+  Timer,
+  ArrowRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { useGamification } from '@/hooks/useGamification'
@@ -23,6 +21,7 @@ export default function Dashboard() {
   const { level, streakCount } = useGamification()
   const { recentSessions } = useGlobal()
   const { prefs } = usePreferences()
+  const { showOnboarding, completeOnboarding } = useOnboarding()
 
   // Today's stats
   const today = new Date()
@@ -44,6 +43,9 @@ export default function Dashboard() {
 
   return (
     <AppNavigation>
+      {/* Onboarding Tutorial for First-Time Users */}
+      <OnboardingTutorial isOpen={showOnboarding} onComplete={completeOnboarding} />
+
       <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8 md:space-y-12">
         {/* Welcome Header */}
         <div className="text-center space-y-1 md:space-y-2">
@@ -107,37 +109,11 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Secondary Actions */}
-        <div className="border-t pt-6 md:pt-8">
-          <div className="grid grid-cols-3 gap-2 md:gap-4">
-            <Link href="/kegels" className="group">
-              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <Activity className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Kegels</div>
-              </div>
-            </Link>
-
-            <Link href="/mental" className="group">
-              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <Target className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Mental</div>
-              </div>
-            </Link>
-
-            <Link href="/analytics" className="group">
-              <div className="p-3 md:p-6 text-center hover:bg-accent/50 rounded-lg transition-colors">
-                <TrendingUp className="h-5 w-5 md:h-6 md:w-6 mx-auto mb-1 md:mb-2 text-muted-foreground group-hover:text-foreground" />
-                <div className="text-xs md:text-base font-medium group-hover:text-foreground">Progress</div>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* View All Sessions Link */}
-        <div className="text-center pt-4">
-          <Link href="/analytics">
+        {/* View Progress Link */}
+        <div className="text-center pt-4 border-t">
+          <Link href="/progress">
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              View all sessions
+              View your progress
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

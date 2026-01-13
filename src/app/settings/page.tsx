@@ -22,8 +22,11 @@ import {
   Target,
   RefreshCw,
   Vibrate,
-  Volume2
+  Volume2,
+  HelpCircle,
+  Sparkles
 } from 'lucide-react'
+import { useOnboarding } from '@/components/OnboardingTutorial'
 import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
 
@@ -62,6 +65,7 @@ export default function SettingsPage() {
   const [isClearingData, setIsClearingData] = useState(false)
 
   const { prefs: trainingPrefs, setDailyGoalMinutes } = usePreferences()
+  const { resetOnboarding } = useOnboarding()
 
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>(defaultNotificationPrefs)
   const [appPrefs, setAppPrefs] = useState<AppPrefs>(defaultAppPrefs)
@@ -406,6 +410,26 @@ export default function SettingsPage() {
             </Button>
             <p className="text-xs text-muted-foreground">
               Clear cached data and preferences stored in your browser
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Help & Support */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              Help & Support
+            </CardTitle>
+            <CardDescription>Get help and learn how to use the app</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button variant="outline" onClick={resetOnboarding}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Replay Tutorial
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Watch the app introduction again to learn about all features
             </p>
           </CardContent>
         </Card>
