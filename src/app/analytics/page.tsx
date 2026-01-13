@@ -142,26 +142,26 @@ export default function AnalyticsPage() {
 
   return (
     <AppNavigation>
-      <div className="max-w-6xl mx-auto p-8 space-y-8">
+      <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-medium">Progress & Analytics</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-2xl font-medium">Progress & Analytics</h1>
+            <p className="text-sm md:text-base text-muted-foreground mt-1">
               Track your training progress and performance trends
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ExportButton />
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
 
         {/* Key Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <Card>
             <CardContent className="p-6 text-center">
               <Activity className="h-8 w-8 mx-auto mb-3 text-blue-500" />
@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Main Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <div>
             <h2 className="text-lg font-medium mb-4">Performance Overview</h2>
             <ErrorBoundary>
@@ -217,7 +217,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Weekly Summary */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <Card>
             <CardHeader>
               <CardTitle>This Week</CardTitle>

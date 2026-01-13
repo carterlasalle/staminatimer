@@ -232,11 +232,11 @@ export default function MentalPage() {
 
   return (
     <AppNavigation>
-      <div className="max-w-6xl mx-auto p-8 space-y-8">
+      <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-medium">Mental Skills Training</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-xl md:text-2xl font-medium">Mental Skills Training</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
             Develop mindfulness, breathing techniques, and mental control
           </p>
         </div>
@@ -244,9 +244,9 @@ export default function MentalPage() {
         {/* Active Mental Session */}
         {mentalSession && (
           <Card className="border-primary">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Active Session: {mentalSession.exercise.name}</span>
+            <CardHeader className="pb-2 md:pb-4">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-base md:text-lg">Active: {mentalSession.exercise.name}</span>
                 <div className="flex gap-2">
                   <Button onClick={togglePause} variant="outline" size="sm">
                     {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -257,24 +257,24 @@ export default function MentalPage() {
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="pt-2 md:pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold mb-2">
+                  <div className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
                     {formatTime(mentalSession.timeRemaining)}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs md:text-sm text-muted-foreground">
                     Step {mentalSession.currentStep + 1} of {mentalSession.totalSteps}
                   </div>
-                  <Progress 
-                    value={((mentalSession.currentStep + 1) / mentalSession.totalSteps) * 100} 
-                    className="h-2 mt-2"
+                  <Progress
+                    value={((mentalSession.currentStep + 1) / mentalSession.totalSteps) * 100}
+                    className="h-1.5 md:h-2 mt-2"
                   />
                 </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">Current Instruction:</h4>
-                  <p className="text-sm text-muted-foreground">
+
+                <div className="text-center md:text-left">
+                  <h4 className="font-semibold mb-2 text-sm md:text-base">Current Instruction:</h4>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     {mentalSession.exercise.instructions[mentalSession.currentStep]}
                   </p>
                 </div>
@@ -338,7 +338,7 @@ export default function MentalPage() {
         </div>
 
         {/* Progress Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <div className="space-y-6">
             <Card>
               <CardHeader>

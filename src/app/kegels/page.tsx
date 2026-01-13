@@ -214,11 +214,11 @@ export default function KegelsPage() {
 
   return (
     <AppNavigation>
-      <div className="max-w-6xl mx-auto p-8 space-y-8">
+      <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-medium">Kegel Exercises</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-xl md:text-2xl font-medium">Kegel Exercises</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
             Strengthen your pelvic floor muscles for better control and endurance
           </p>
         </div>
@@ -226,9 +226,9 @@ export default function KegelsPage() {
         {/* Active Workout Session */}
         {workoutSession && (
           <Card className="border-primary">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Active Workout: {workoutSession.exercise.name}</span>
+            <CardHeader className="pb-2 md:pb-4">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-base md:text-lg">Active: {workoutSession.exercise.name}</span>
                 <div className="flex gap-2">
                   <Button onClick={togglePause} variant="outline" size="sm">
                     {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -239,42 +239,42 @@ export default function KegelsPage() {
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CardContent className="pt-2 md:pt-4">
+              <div className="grid grid-cols-3 gap-2 md:gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold mb-2">
+                  <div className="text-xl md:text-3xl font-bold mb-1 md:mb-2">
                     {formatTime(workoutSession.timeRemaining)}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs md:text-sm text-muted-foreground">
                     {workoutSession.isActive ? 'Hold' : 'Rest'}
                   </div>
                 </div>
-                
+
                 <div className="text-center">
-                  <div className="text-lg font-semibold mb-2">
-                    Rep {workoutSession.currentRep} of {workoutSession.exercise.reps}
+                  <div className="text-sm md:text-lg font-semibold mb-1 md:mb-2">
+                    Rep {workoutSession.currentRep}/{workoutSession.exercise.reps}
                   </div>
-                  <Progress 
-                    value={(workoutSession.currentRep / workoutSession.exercise.reps) * 100} 
-                    className="h-2"
+                  <Progress
+                    value={(workoutSession.currentRep / workoutSession.exercise.reps) * 100}
+                    className="h-1.5 md:h-2"
                   />
                 </div>
-                
+
                 <div className="text-center">
-                  <div className="text-lg font-semibold mb-2">
-                    Set {workoutSession.currentSet} of {workoutSession.exercise.sets}
+                  <div className="text-sm md:text-lg font-semibold mb-1 md:mb-2">
+                    Set {workoutSession.currentSet}/{workoutSession.exercise.sets}
                   </div>
-                  <Progress 
-                    value={(workoutSession.currentSet / workoutSession.exercise.sets) * 100} 
-                    className="h-2"
+                  <Progress
+                    value={(workoutSession.currentSet / workoutSession.exercise.sets) * 100}
+                    className="h-1.5 md:h-2"
                   />
                 </div>
               </div>
-              
-              <div className="mt-6 text-center">
-                <p className="text-sm text-muted-foreground">
-                  {workoutSession.isActive ? 
-                    'Contract your pelvic floor muscles and hold' : 
+
+              <div className="mt-4 md:mt-6 text-center">
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  {workoutSession.isActive ?
+                    'Contract your pelvic floor muscles and hold' :
                     'Relax and breathe normally'
                   }
                 </p>
@@ -355,7 +355,7 @@ export default function KegelsPage() {
         </div>
 
         {/* Progress Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <div className="space-y-6">
             <Card>
               <CardHeader>

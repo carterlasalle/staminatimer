@@ -74,16 +74,16 @@ export function AICoachChat() {
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Chat Messages */}
-      <Card className="h-[600px] flex flex-col">
-        <div className="flex-1 p-6 overflow-y-auto">
+      <Card className="h-[calc(100vh-12rem)] md:h-[600px] flex flex-col">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center space-y-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
-                <Brain className="h-8 w-8 text-white" />
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+                <Brain className="h-6 w-6 md:h-8 md:w-8 text-white" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-medium">AI Performance Coach</h3>
-                <p className="text-muted-foreground text-sm max-w-md">
+                <h3 className="text-lg md:text-xl font-medium">AI Performance Coach</h3>
+                <p className="text-muted-foreground text-xs md:text-sm max-w-md">
                   Get personalized training insights based on your complete session history
                 </p>
               </div>
@@ -97,17 +97,17 @@ export function AICoachChat() {
                 Analyze My Performance
               </Button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl w-full px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl w-full px-2 md:px-4">
                 {suggestedQuestions.map((suggestion, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="text-left h-auto p-3 justify-start whitespace-normal"
+                    className="text-left h-auto p-2 md:p-3 justify-start whitespace-normal"
                     onClick={() => setInputValue(suggestion.text)}
                   >
-                    <suggestion.icon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm leading-tight">{suggestion.text}</span>
+                    <suggestion.icon className="h-3.5 w-3.5 md:h-4 md:w-4 mr-2 flex-shrink-0" />
+                    <span className="text-[11px] sm:text-xs md:text-sm leading-tight">{suggestion.text}</span>
                   </Button>
                 ))}
               </div>
@@ -122,12 +122,12 @@ export function AICoachChat() {
               }`}
             >
               {message.role === 'assistant' && (
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="hidden sm:flex w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full items-center justify-center flex-shrink-0">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
               )}
               
-              <div className={`max-w-[85%] ${message.role === 'user' ? 'order-1' : ''}`}>
+              <div className={`max-w-[90%] md:max-w-[85%] ${message.role === 'user' ? 'order-1' : ''}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium">
                     {message.role === 'assistant' ? 'Performance Coach' : 'You'}
@@ -172,7 +172,7 @@ export function AICoachChat() {
               </div>
 
               {message.role === 'user' && (
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="hidden sm:flex w-10 h-10 bg-primary rounded-full items-center justify-center flex-shrink-0">
                   <User className="h-5 w-5 text-primary-foreground" />
                 </div>
               )}
@@ -180,11 +180,11 @@ export function AICoachChat() {
           ))}
 
           {isLoading && (
-            <div className="flex gap-4 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+            <div className="flex gap-2 md:gap-4 mb-8">
+              <div className="hidden sm:flex w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full items-center justify-center">
                 <Bot className="h-5 w-5 text-white" />
               </div>
-              <div className="max-w-[85%]">
+              <div className="max-w-full sm:max-w-[85%]">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium">Performance Coach</span>
                   <Badge variant="secondary" className="text-xs">
@@ -210,15 +210,15 @@ export function AICoachChat() {
         </div>
 
         {/* Input Area */}
-        <div className="border-t p-4">
+        <div className="border-t p-3 md:p-4">
           <div className="flex gap-2">
             <Input
               ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about your training progress, get recommendations, or request specific analysis..."
-              className="flex-1"
+              placeholder="Ask about your training..."
+              className="flex-1 text-sm md:text-base"
               disabled={isLoading}
             />
             <Button 
