@@ -1,30 +1,64 @@
-import { createHmac, randomBytes } from 'crypto'
-
 // CSRF secret must be set as environment variable for production
 // In development, use a fallback but log a warning
 const CSRF_SECRET = process.env.CSRF_SECRET
 
-if (!CSRF_SECRET) {
+if (!CSRF_SECRET && typeof window === 'undefined') {
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('CSRF_SECRET environment variable must be set in production')
+    console.error('CSRF_SECRET environment variable must be set in production')
+  } else {
+    console.warn('WARNING: CSRF_SECRET not set. Using insecure fallback for development only.')
   }
-  console.warn('WARNING: CSRF_SECRET not set. Using insecure fallback for development only.')
 }
 
 // Use the secret or fallback to a development-only value
 const SECRET = CSRF_SECRET || 'development-csrf-secret-do-not-use-in-production'
 const TOKEN_MAX_AGE_MS = 15 * 60 * 1000 // 15 minutes
 
+// Text encoder for Web Crypto API
+const encoder = new TextEncoder()
+
+/**
+ * Generate random bytes using Web Crypto API (Edge compatible)
+ */
+function getRandomBytes(length: number): string {
+  const bytes = new Uint8Array(length)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+/**
+ * Create HMAC signature using Web Crypto API (Edge compatible)
+ */
+async function createHmacSignature(message: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  )
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(message)
+  )
+
+  return Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 /**
  * Generate a CSRF token
  * Format: token:timestamp:signature
  */
-export function generateCSRFToken(): string {
-  const token = randomBytes(32).toString('hex')
+export async function generateCSRFToken(): Promise<string> {
+  const token = getRandomBytes(32)
   const timestamp = Date.now().toString()
-  const signature = createHmac('sha256', SECRET)
-    .update(`${token}:${timestamp}`)
-    .digest('hex')
+  const signature = await createHmacSignature(`${token}:${timestamp}`, SECRET)
 
   return `${token}:${timestamp}:${signature}`
 }
@@ -33,7 +67,7 @@ export function generateCSRFToken(): string {
  * Validate a CSRF token
  * Returns true if valid, false otherwise
  */
-export function validateCSRFToken(tokenString: string): boolean {
+export async function validateCSRFToken(tokenString: string): Promise<boolean> {
   if (!tokenString || typeof tokenString !== 'string') {
     return false
   }
@@ -52,9 +86,7 @@ export function validateCSRFToken(tokenString: string): boolean {
   }
 
   // Verify signature
-  const expectedSignature = createHmac('sha256', SECRET)
-    .update(`${token}:${timestamp}`)
-    .digest('hex')
+  const expectedSignature = await createHmacSignature(`${token}:${timestamp}`, SECRET)
 
   // Use timing-safe comparison to prevent timing attacks
   return timingSafeEqual(signature, expectedSignature)
