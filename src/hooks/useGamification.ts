@@ -82,7 +82,7 @@ function computeStreak(sessions: DBSession[]): number {
 
   // Count consecutive days starting from the most recent session
   let streak = 0
-  let expectedDate = new Date(mostRecent + 'T00:00:00Z')
+  const expectedDate = new Date(mostRecent + 'T00:00:00Z')
 
   for (const dateStr of sortedDates) {
     const expectedDateStr = getUTCDateString(expectedDate)
