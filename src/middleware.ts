@@ -2,7 +2,6 @@ import { createServerClient } from '@supabase/ssr'
 import type { CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { createHash } from 'crypto'
 import { API_CONSTANTS } from '@/lib/constants'
 
 // Rate limiting is handled by Redis when available (see lib/security/ratelimit.ts)
@@ -41,9 +40,13 @@ function checkRateLimitCookie(
   }
 }
 
-function hashClientIdentifier(ip: string): string {
-  // Hash the full IP to avoid collisions while maintaining consistency
-  return createHash('sha256').update(ip).digest('hex').slice(0, 16)
+// Hash using Web Crypto API (Edge compatible)
+async function hashClientIdentifier(ip: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(ip)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16)
 }
 
 export async function middleware(req: NextRequest) {
@@ -60,7 +63,7 @@ export async function middleware(req: NextRequest) {
 
   // Create rate limit cookie name based on route type and hashed IP
   // Using hash of full IP to avoid collisions while maintaining consistency
-  const ipHash = hashClientIdentifier(clientIp)
+  const ipHash = await hashClientIdentifier(clientIp)
   const rateLimitCookieName = isAuthRoute ? `rl_auth_${ipHash}` : `rl_gen_${ipHash}`
   const maxRequests = isAuthRoute ? AUTH_RATE_LIMIT_MAX : RATE_LIMIT_MAX_REQUESTS
 
