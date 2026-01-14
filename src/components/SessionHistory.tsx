@@ -13,8 +13,10 @@ import {
 import { supabase } from '@/lib/supabase/client'
 import { formatDuration } from '@/lib/utils'
 import { RefreshCw, Trash2 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'sonner'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { UI_CONSTANTS } from '@/lib/constants'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
 type SortOrder = 'desc' | 'asc'
@@ -42,6 +44,15 @@ export function SessionHistory() {
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [selectedSession, setSelectedSession] = useState<DBSession | null>(null)
+
+  // Virtual list setup for performance with long session lists
+  const parentRef = useRef<HTMLDivElement>(null)
+  const rowVirtualizer = useVirtualizer({
+    count: sessions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 130, // Estimated row height in pixels
+    overscan: UI_CONSTANTS.VIRTUAL_LIST_OVERSCAN,
+  })
 
   const fetchSessions = useCallback(async (): Promise<void> => {
     setLoading(true)
@@ -126,55 +137,82 @@ export function SessionHistory() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-2 max-h-80 overflow-y-auto custom-scrollbar">
-        {sessions.map((session) => (
-          <div 
-            key={session.id} 
-            className="relative bg-secondary/30 border rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
-            onClick={() => setSelectedSession(session)}
+      <CardContent className="pt-0">
+        <div
+          ref={parentRef}
+          className="h-80 overflow-y-auto custom-scrollbar"
+        >
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative',
+            }}
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-1 right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-              onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }}
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <div className="text-muted-foreground">Total Time</div>
-                  <div className="font-medium">{formatDuration(session.total_duration)}</div>
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              const session = sessions[virtualItem.index]
+              return (
+                <div
+                  key={session.id}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                  className="pb-2"
+                >
+                  <div
+                    className="relative bg-secondary/30 border rounded-lg p-3 cursor-pointer hover:bg-secondary/50 transition-colors"
+                    onClick={() => setSelectedSession(session)}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                      onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <div className="text-muted-foreground">Total Time</div>
+                          <div className="font-medium">{formatDuration(session.total_duration)}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Active Time</div>
+                          <div className="font-medium">{formatDuration(session.active_duration)}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Edge Time</div>
+                          <div className="font-medium">{formatDuration(session.edge_duration)}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Edge Count</div>
+                          <div className="font-medium">{session.edge_events?.length ?? 0}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="text-muted-foreground">
+                          {new Date(session.created_at).toLocaleDateString()}
+                        </div>
+                        <div className={`px-2 py-0.5 rounded text-xs ${
+                          session.finished_during_edge
+                            ? 'bg-orange-500/20 text-orange-400'
+                            : 'bg-green-500/20 text-green-400'
+                        }`}>
+                          {session.finished_during_edge ? 'Edge Finish' : 'Complete'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-muted-foreground">Active Time</div>
-                  <div className="font-medium">{formatDuration(session.active_duration)}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Edge Time</div>
-                  <div className="font-medium">{formatDuration(session.edge_duration)}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Edge Count</div>
-                  <div className="font-medium">{session.edge_events?.length ?? 0}</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <div className="text-muted-foreground">
-                  {new Date(session.created_at).toLocaleDateString()}
-                </div>
-                <div className={`px-2 py-0.5 rounded text-xs ${
-                  session.finished_during_edge 
-                    ? 'bg-orange-500/20 text-orange-400' 
-                    : 'bg-green-500/20 text-green-400'
-                }`}>
-                  {session.finished_during_edge ? 'Edge Finish' : 'Complete'}
-                </div>
-              </div>
-            </div>
+              )
+            })}
           </div>
-        ))}
+        </div>
       </CardContent>
 
       <SessionDetails

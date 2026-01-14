@@ -207,3 +207,39 @@ CREATE TRIGGER on_session_update_active_users
 -- CREATE POLICY "Enable read for authenticated users" ON public.rate_limits FOR SELECT USING (auth.role() = 'authenticated');
 -- DROP POLICY IF EXISTS "Enable insert for authenticated users" ON public.rate_limits;
 -- CREATE POLICY "Enable insert for authenticated users" ON public.rate_limits FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+
+-- =====================================================
+-- PERFORMANCE INDEXES
+-- =====================================================
+-- These indexes optimize common query patterns
+
+-- Sessions: Most queries filter by user_id
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
+
+-- Sessions: Sorting by created_at is common (recent sessions, charts)
+CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON public.sessions(created_at DESC);
+
+-- Sessions: Composite index for user's recent sessions (streak calculation, dashboard)
+-- This is the most used query pattern: WHERE user_id = ? ORDER BY created_at DESC
+CREATE INDEX IF NOT EXISTS idx_sessions_user_created ON public.sessions(user_id, created_at DESC);
+
+-- Sessions: Index on total_duration for sorting by duration
+CREATE INDEX IF NOT EXISTS idx_sessions_total_duration ON public.sessions(total_duration DESC);
+
+-- Edge events: Foreign key lookups and joins
+CREATE INDEX IF NOT EXISTS idx_edge_events_session_id ON public.edge_events(session_id);
+
+-- User achievements: User lookups for dashboard
+CREATE INDEX IF NOT EXISTS idx_user_achievements_user_id ON public.user_achievements(user_id);
+
+-- User achievements: Finding users with specific achievements
+CREATE INDEX IF NOT EXISTS idx_user_achievements_achievement_id ON public.user_achievements(achievement_id);
+
+-- Shared sessions: Cleanup of expired sessions and validity checks
+CREATE INDEX IF NOT EXISTS idx_shared_sessions_expires_at ON public.shared_sessions(expires_at)
+    WHERE expires_at IS NOT NULL;
+
+-- Shared sessions: Find sessions created by a user
+CREATE INDEX IF NOT EXISTS idx_shared_sessions_created_by ON public.shared_sessions(created_by)
+    WHERE created_by IS NOT NULL;

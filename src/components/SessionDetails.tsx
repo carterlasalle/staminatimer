@@ -7,9 +7,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { LineChart } from '@/components/LazyChart'
 import type { DBSession } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
-import { Line } from 'react-chartjs-2'
 
 type SessionDetailsProps = {
   session: DBSession | null
@@ -83,7 +83,7 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
             </CardHeader>
             <CardContent>
               <div className="w-full aspect-[2/1]">
-                <Line
+                <LineChart
                   data={chartData}
                   options={{
                     responsive: true,

@@ -1,14 +1,23 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { useTimer } from '@/hooks/useTimer'
 import { TimingGuide } from '@/components/TimingGuide'
 import { formatDuration } from '@/lib/utils'
-import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard, Settings } from 'lucide-react'
+import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard, Settings, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TIMER_CONSTANTS } from '@/lib/constants'
 
 export function Timer() {
   const {
@@ -26,6 +35,24 @@ export function Timer() {
   const [showKeyboardHints, setShowKeyboardHints] = useState(false)
   const [showTimingGuide, setShowTimingGuide] = useState(false)
   const [pulseAnimation, setPulseAnimation] = useState(false)
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+
+  // Handler for finish button - shows confirmation for longer sessions
+  const handleFinishClick = useCallback(() => {
+    const totalTime = activeTime + edgeTime
+    if (totalTime >= TIMER_CONSTANTS.CONFIRMATION_THRESHOLD_MS) {
+      setShowFinishConfirm(true)
+    } else {
+      // Short session - finish immediately without confirmation
+      finishSession()
+    }
+  }, [activeTime, edgeTime, finishSession])
+
+  // Confirm finish and close dialog
+  const confirmFinish = useCallback(() => {
+    setShowFinishConfirm(false)
+    finishSession()
+  }, [finishSession])
 
   // Pulse animation for state changes
   useEffect(() => {
@@ -53,11 +80,11 @@ export function Timer() {
       if (key === 's' && state === 'idle') startSession()
       if (key === 'e' && state === 'active') startEdge()
       if (key === 'x' && state === 'edging') endEdge()
-      if (key === 'f' && (state === 'active' || state === 'edging')) finishSession()
+      if (key === 'f' && (state === 'active' || state === 'edging')) handleFinishClick()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [state, startSession, startEdge, endEdge, finishSession])
+  }, [state, startSession, startEdge, endEdge, handleFinishClick])
 
   const getStateConfig = () => {
     switch (state) {
@@ -283,7 +310,7 @@ export function Timer() {
 
             {(state === 'active' || state === 'edging') && (
               <Button
-                onClick={finishSession}
+                onClick={handleFinishClick}
                 variant="destructive"
                 size="lg"
                 className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold hover:scale-105 transition-transform"
@@ -313,6 +340,55 @@ export function Timer() {
       {showTimingGuide && (
         <TimingGuide />
       )}
+
+      {/* Finish Session Confirmation Dialog */}
+      <Dialog open={showFinishConfirm} onOpenChange={setShowFinishConfirm}>
+        <DialogContent className="sm:max-w-md" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Finish Session?
+            </DialogTitle>
+            <DialogDescription>
+              You have been training for <span className="font-semibold text-foreground">{formatDuration(totalTime)}</span>.
+              Are you sure you want to end your session now? Your progress will be saved.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <div className="grid grid-cols-3 gap-3 text-center text-sm">
+              <div className="p-2 bg-muted rounded-lg">
+                <div className="font-medium">{formatDuration(totalTime)}</div>
+                <div className="text-xs text-muted-foreground">Total</div>
+              </div>
+              <div className="p-2 bg-muted rounded-lg">
+                <div className="font-medium text-green-600">{formatDuration(activeTime)}</div>
+                <div className="text-xs text-muted-foreground">Active</div>
+              </div>
+              <div className="p-2 bg-muted rounded-lg">
+                <div className="font-medium text-orange-600">{formatDuration(edgeTime)}</div>
+                <div className="text-xs text-muted-foreground">Edge</div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFinishConfirm(false)}
+              className="w-full sm:w-auto"
+            >
+              Continue Training
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmFinish}
+              className="w-full sm:w-auto"
+            >
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Finish Session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
