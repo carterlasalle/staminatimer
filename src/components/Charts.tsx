@@ -2,32 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
+import { LineChart } from '@/components/LazyChart'
 import { useGlobal } from '@/contexts/GlobalContext'
 import type { DBSession } from '@/lib/types'
 import type { ChartOptions } from 'chart.js'
-import {
-    CategoryScale,
-    Chart as ChartJS,
-    Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Title,
-    Tooltip
-} from 'chart.js'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useState } from 'react'
-import { Line } from 'react-chartjs-2'
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-)
 
 type ChartsProps = {
   data?: DBSession[]
@@ -180,7 +160,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
       </CardHeader>
       <CardContent>
         <div className="w-full aspect-[2/1] relative">
-          <Line data={chartData} options={chartOptions} />
+          <LineChart data={chartData} options={chartOptions} />
         </div>
       </CardContent>
     </Card>

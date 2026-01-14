@@ -3,39 +3,8 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
-
-// Simple in-memory rate limiter for serverless
-// In production, consider using Upstash Redis or Vercel KV
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10 // 10 requests per minute
-
-function checkRateLimit(identifier: string): { allowed: boolean; remaining: number } {
-  const now = Date.now()
-  const record = rateLimitMap.get(identifier)
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 }
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return { allowed: false, remaining: 0 }
-  }
-
-  record.count++
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count }
-}
-
-// Clean up old entries periodically
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, value] of rateLimitMap.entries()) {
-    if (now > value.resetTime) {
-      rateLimitMap.delete(key)
-    }
-  }
-}, 60 * 1000)
+import { checkRateLimit } from '@/lib/security/ratelimit'
+import { VALIDATION_CONSTANTS } from '@/lib/constants'
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,17 +47,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Rate limiting by user ID
-    const { allowed, remaining } = checkRateLimit(user.id)
+    // Rate limiting by user ID using Redis (or fallback)
+    const { success, limit, remaining, reset } = await checkRateLimit(user.id, 'ai')
 
-    if (!allowed) {
+    if (!success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please wait a moment before trying again.' },
         {
           status: 429,
           headers: {
-            'X-RateLimit-Limit': String(RATE_LIMIT_MAX_REQUESTS),
+            'X-RateLimit-Limit': String(limit),
             'X-RateLimit-Remaining': String(remaining),
+            'X-RateLimit-Reset': String(reset),
             'Retry-After': '60',
           }
         }
@@ -107,9 +77,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Limit prompt length to prevent abuse
-    if (prompt.length > 10000) {
+    if (prompt.length > VALIDATION_CONSTANTS.MAX_AI_PROMPT_LENGTH) {
       return NextResponse.json(
-        { error: 'Prompt too long. Maximum 10000 characters allowed.' },
+        { error: `Prompt too long. Maximum ${VALIDATION_CONSTANTS.MAX_AI_PROMPT_LENGTH} characters allowed.` },
         { status: 400 }
       )
     }
@@ -126,7 +96,7 @@ export async function POST(request: NextRequest) {
       { response: text },
       {
         headers: {
-          'X-RateLimit-Limit': String(RATE_LIMIT_MAX_REQUESTS),
+          'X-RateLimit-Limit': String(limit),
           'X-RateLimit-Remaining': String(remaining),
         }
       }

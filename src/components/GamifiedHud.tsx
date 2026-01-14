@@ -9,13 +9,18 @@ import { useGlobal } from '@/contexts/GlobalContext'
 import { useGamification } from '@/hooks/useGamification'
 import { formatDuration } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { UI_CONSTANTS } from '@/lib/constants'
 
 export function GamifiedHud() {
   const { prefs, setDailyGoalMinutes } = usePreferences()
   const { recentSessions } = useGlobal()
   const { points, level, streakCount, userAchievements } = useGamification()
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false)
+
+  // Track previous level to detect actual level-ups (not just page loads)
+  const prevLevelRef = useRef(level.level)
+  const hasInitializedRef = useRef(false)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -34,14 +39,25 @@ export function GamifiedHud() {
   const unlockedAchievements = userAchievements.filter((a) => a.progress === 100).length
   const totalAchievements = userAchievements.length
 
-  // Level up animation trigger
+  // Level up animation trigger - only fires when level actually increases
   useEffect(() => {
-    if (level.progressPct === 0 && level.level > 1) {
+    // Skip initial render to prevent false triggers on page load
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true
+      prevLevelRef.current = level.level
+      return
+    }
+
+    // Only show animation when level actually increases from previous value
+    if (level.level > prevLevelRef.current) {
       setShowLevelUpAnimation(true)
-      const timeout = setTimeout(() => setShowLevelUpAnimation(false), 3000)
+      const timeout = setTimeout(() => {
+        setShowLevelUpAnimation(false)
+      }, UI_CONSTANTS.LEVEL_UP_ANIMATION_DURATION_MS)
+      prevLevelRef.current = level.level
       return () => clearTimeout(timeout)
     }
-  }, [level.level, level.progressPct])
+  }, [level.level])
 
   const getLevelIcon = () => {
     if (level.level >= 20) return <Crown className="h-6 w-6 text-purple-400" />

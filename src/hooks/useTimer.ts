@@ -3,7 +3,7 @@
 import { useAchievements } from '@/hooks/useAchievements'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'sonner'
 
 type TimerState = 'idle' | 'active' | 'edging' | 'finished'
@@ -25,6 +25,9 @@ export function useTimer() {
   const [displayActiveTime, setDisplayActiveTime] = useState(0)
   const [displayEdgeTime, setDisplayEdgeTime] = useState(0)
   const { checkAchievements } = useAchievements()
+
+  // Operation lock to prevent race conditions from rapid button clicks
+  const operationLockRef = useRef(false)
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null
@@ -56,16 +59,22 @@ export function useTimer() {
   }, [state, activeTime, edgeTime, lastActiveStart, currentEdgeStart])
 
   const startSession = useCallback(async () => {
+    // Prevent concurrent operations
+    if (operationLockRef.current) {
+      return
+    }
+    operationLockRef.current = true
+
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (!user) {
         toast.error('User not authenticated')
         return
       }
 
       const now = new Date()
-      
+
       const { data, error } = await supabase
         .from('sessions')
         .insert({
@@ -98,6 +107,8 @@ export function useTimer() {
     } catch (err) {
       console.error('Session start error:', err)
       toast.error('Failed to start session')
+    } finally {
+      operationLockRef.current = false
     }
   }, [])
 
@@ -106,6 +117,12 @@ export function useTimer() {
       toast.error('No active session')
       return
     }
+
+    // Prevent concurrent operations
+    if (operationLockRef.current) {
+      return
+    }
+    operationLockRef.current = true
 
     const now = new Date()
 
@@ -142,6 +159,8 @@ export function useTimer() {
     } catch (err) {
       console.error('Error recording edge:', err)
       toast.error('Failed to record edge event')
+    } finally {
+      operationLockRef.current = false
     }
   }, [sessionId, lastActiveStart, activeTime])
 
@@ -149,6 +168,12 @@ export function useTimer() {
     if (!sessionId || !currentEdgeStart) {
       return
     }
+
+    // Prevent concurrent operations
+    if (operationLockRef.current) {
+      return
+    }
+    operationLockRef.current = true
 
     const now = new Date()
 
@@ -186,6 +211,8 @@ export function useTimer() {
     } catch (err) {
       console.error('Error ending edge:', err)
       toast.error('Failed to update edge event')
+    } finally {
+      operationLockRef.current = false
     }
   }, [currentEdgeStart, sessionId, edgeTime])
 
@@ -195,18 +222,24 @@ export function useTimer() {
       return
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error('User not found, cannot save session.');
-      return;
+    // Prevent concurrent operations
+    if (operationLockRef.current) {
+      return
     }
-
-    const now = new Date()
-    let finalActiveTime = activeTime
-    let finalEdgeTime = edgeTime
-    let finalFinishedDuringEdge = false;
+    operationLockRef.current = true
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('User not found, cannot save session.');
+        return;
+      }
+
+      const now = new Date()
+      let finalActiveTime = activeTime
+      let finalEdgeTime = edgeTime
+      let finalFinishedDuringEdge = false;
+
       if (state === 'active' && lastActiveStart) {
         finalActiveTime += (now.getTime() - lastActiveStart.getTime())
       } else if (state === 'edging' && currentEdgeStart) {
@@ -252,6 +285,8 @@ export function useTimer() {
     } catch (err) {
       console.error('Error finishing session:', err)
       toast.error('Failed to finish session')
+    } finally {
+      operationLockRef.current = false
     }
   }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime, checkAchievements])
 

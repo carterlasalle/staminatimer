@@ -2,12 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import type { CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { createHash } from 'crypto'
+import { API_CONSTANTS } from '@/lib/constants'
 
-// Simple sliding window rate limiter using request timestamps
-// For production with high traffic, consider Upstash Redis (@upstash/ratelimit)
-const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute window
-const RATE_LIMIT_MAX_REQUESTS = 60 // 60 requests per minute for general routes
-const AUTH_RATE_LIMIT_MAX = 10 // 10 auth attempts per minute
+// Rate limiting is handled by Redis when available (see lib/security/ratelimit.ts)
+// This middleware provides fallback cookie-based rate limiting and authentication
+
+const { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS, AUTH_RATE_LIMIT_MAX } = API_CONSTANTS
 
 function parseRateLimitCookie(cookie: string | undefined): number[] {
   if (!cookie) return []
@@ -21,7 +22,7 @@ function parseRateLimitCookie(cookie: string | undefined): number[] {
   }
 }
 
-function checkRateLimit(
+function checkRateLimitCookie(
   timestamps: number[],
   maxRequests: number
 ): { allowed: boolean; remaining: number; timestamps: number[] } {
@@ -40,6 +41,11 @@ function checkRateLimit(
   }
 }
 
+function hashClientIdentifier(ip: string): string {
+  // Hash the full IP to avoid collisions while maintaining consistency
+  return createHash('sha256').update(ip).digest('hex').slice(0, 16)
+}
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
 
@@ -50,18 +56,20 @@ export async function middleware(req: NextRequest) {
   // Get client identifier (IP or fallback)
   const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
                    req.headers.get('x-real-ip') ||
-                   'unknown'
+                   'anonymous'
 
-  // Create rate limit cookie name based on route type
-  const rateLimitCookieName = isAuthRoute ? 'rl_auth' : 'rl_gen'
+  // Create rate limit cookie name based on route type and hashed IP
+  // Using hash of full IP to avoid collisions while maintaining consistency
+  const ipHash = hashClientIdentifier(clientIp)
+  const rateLimitCookieName = isAuthRoute ? `rl_auth_${ipHash}` : `rl_gen_${ipHash}`
   const maxRequests = isAuthRoute ? AUTH_RATE_LIMIT_MAX : RATE_LIMIT_MAX_REQUESTS
 
   // Parse existing rate limit data
   const existingCookie = req.cookies.get(rateLimitCookieName)?.value
   const timestamps = parseRateLimitCookie(existingCookie)
 
-  // Check rate limit
-  const { allowed, remaining, timestamps: newTimestamps } = checkRateLimit(timestamps, maxRequests)
+  // Check rate limit using cookie-based fallback
+  const { allowed, remaining, timestamps: newTimestamps } = checkRateLimitCookie(timestamps, maxRequests)
 
   if (!allowed) {
     const response = new NextResponse(

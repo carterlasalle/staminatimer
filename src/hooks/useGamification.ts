@@ -50,39 +50,58 @@ export function useGamification() {
 
 function computeStreak(sessions: DBSession[]): number {
   if (!sessions.length) return 0
-  
-  // Group sessions by date and filter successful ones
-  const successfulSessionsByDate = new Map<string, boolean>()
-  
+
+  // Use UTC dates to avoid timezone issues
+  const getUTCDateString = (date: Date): string => {
+    return date.toISOString().split('T')[0]
+  }
+
+  // Get unique dates with successful sessions (not finished during edge)
+  const successfulDates = new Set<string>()
   for (const session of sessions) {
     if (!session.finished_during_edge) {
-      const dateKey = new Date(session.created_at).toDateString()
-      successfulSessionsByDate.set(dateKey, true)
+      const dateStr = getUTCDateString(new Date(session.created_at))
+      successfulDates.add(dateStr)
     }
   }
-  
-  if (successfulSessionsByDate.size === 0) return 0
-  
-  // Find the most recent session date
-  const sortedDates = Array.from(successfulSessionsByDate.keys())
-    .map(dateStr => new Date(dateStr))
-    .sort((a, b) => b.getTime() - a.getTime())
-  
+
+  if (successfulDates.size === 0) return 0
+
+  // Sort dates in descending order (most recent first)
+  const sortedDates = Array.from(successfulDates).sort().reverse()
+
+  // Check if the most recent successful session is today or yesterday
+  // to allow a grace period for maintaining the streak
+  const today = getUTCDateString(new Date())
+  const yesterday = getUTCDateString(new Date(Date.now() - 86400000))
+
+  const mostRecent = sortedDates[0]
+  if (mostRecent !== today && mostRecent !== yesterday) {
+    return 0 // Streak is broken - no activity in the grace period
+  }
+
+  // Count consecutive days starting from the most recent session
   let streak = 0
-  const startDate = new Date(sortedDates[0]) // Start from most recent successful session
-  
-  // Count consecutive days backwards from most recent session
-  for (let i = 0; i < successfulSessionsByDate.size; i++) {
-    const checkDate = new Date(startDate)
-    checkDate.setDate(startDate.getDate() - i)
-    
-    if (successfulSessionsByDate.has(checkDate.toDateString())) {
+  const expectedDate = new Date(mostRecent + 'T00:00:00Z')
+
+  for (const dateStr of sortedDates) {
+    const expectedDateStr = getUTCDateString(expectedDate)
+
+    if (dateStr === expectedDateStr) {
       streak++
+      // Move to previous day
+      expectedDate.setUTCDate(expectedDate.getUTCDate() - 1)
+    } else if (dateStr < expectedDateStr) {
+      // Gap in dates - streak is broken
+      break
     } else {
-      break // Streak is broken
+      // dateStr > expectedDateStr: date is newer than expected
+      // This indicates data inconsistency or sorting issue
+      console.error(`Unexpected date order in streak calculation: ${dateStr} > ${expectedDateStr}`)
+      break
     }
   }
-  
+
   return streak
 }
 
