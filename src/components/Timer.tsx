@@ -37,7 +37,18 @@ export function Timer() {
   // Keyboard shortcuts for flow control
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.target instanceof HTMLElement && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return
+      // Don't trigger shortcuts when user is interacting with form elements or dialogs
+      if (
+        e.target instanceof HTMLElement &&
+        (e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA' ||
+          e.target.isContentEditable ||
+          e.target.closest('[role="dialog"]') ||
+          e.target.closest('[role="alertdialog"]') ||
+          e.target.getAttribute('role') === 'textbox')
+      ) {
+        return
+      }
       const key = e.key.toLowerCase()
       if (key === 's' && state === 'idle') startSession()
       if (key === 'e' && state === 'active') startEdge()

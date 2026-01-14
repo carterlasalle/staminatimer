@@ -236,7 +236,43 @@ export default function ProgressPage() {
     return goals
   }, [analytics, recentSessions, streakCount, level])
 
-  const allGoals = useMemo(() => [...dynamicGoals, ...customGoals], [dynamicGoals, customGoals])
+  // Calculate current progress for custom goals based on their type
+  const calculateGoalProgress = useCallback((goal: Goal): number => {
+    switch (goal.type) {
+      case 'duration':
+        // Total minutes trained (all sessions)
+        const totalMinutes = recentSessions.reduce(
+          (acc, s) => acc + (s.total_duration || 0) / 60000,
+          0
+        )
+        return Math.round(totalMinutes * 10) / 10
+
+      case 'frequency':
+        // Number of sessions
+        return recentSessions.length
+
+      case 'streak':
+        // Current streak (reuse existing logic from gamification)
+        return streakCount
+
+      case 'skill':
+        // XP/points earned
+        return level.currentLevelXp + (level.level - 1) * 100
+
+      default:
+        return 0
+    }
+  }, [recentSessions, streakCount, level])
+
+  // Update custom goals with calculated progress
+  const customGoalsWithProgress = useMemo(() => {
+    return customGoals.map(goal => ({
+      ...goal,
+      current: calculateGoalProgress(goal)
+    }))
+  }, [customGoals, calculateGoalProgress])
+
+  const allGoals = useMemo(() => [...dynamicGoals, ...customGoalsWithProgress], [dynamicGoals, customGoalsWithProgress])
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
