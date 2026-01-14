@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
 import { checkRateLimit } from '@/lib/security/ratelimit'
-import { API_CONSTANTS, VALIDATION_CONSTANTS } from '@/lib/constants'
+import { VALIDATION_CONSTANTS } from '@/lib/constants'
 
 export async function POST(request: NextRequest) {
   try {

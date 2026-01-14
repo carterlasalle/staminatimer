@@ -61,7 +61,7 @@ export function useAICoach() {
     const sessionStats = calculateAdvancedStats(recentSessions)
 
     // Sanitize user input using comprehensive security library
-    const { sanitized: sanitizedMessage, flagged, reason } = sanitizeAIInput(userMessage)
+    const { sanitized: sanitizedMessage, flagged } = sanitizeAIInput(userMessage)
 
     // If input was flagged as potentially malicious, use a safe fallback
     const safeMessage = flagged

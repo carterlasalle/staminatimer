@@ -214,14 +214,12 @@ CREATE TRIGGER on_session_update_active_users
 -- =====================================================
 -- These indexes optimize common query patterns
 
--- Sessions: Most queries filter by user_id
-CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
-
 -- Sessions: Sorting by created_at is common (recent sessions, charts)
 CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON public.sessions(created_at DESC);
 
 -- Sessions: Composite index for user's recent sessions (streak calculation, dashboard)
 -- This is the most used query pattern: WHERE user_id = ? ORDER BY created_at DESC
+-- Note: This composite index also serves queries filtering only on user_id
 CREATE INDEX IF NOT EXISTS idx_sessions_user_created ON public.sessions(user_id, created_at DESC);
 
 -- Sessions: Index on total_duration for sorting by duration

@@ -45,13 +45,6 @@ function TimerDemo() {
   const [edges, setEdges] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Reset state when component mounts (prevents stale state)
-  useEffect(() => {
-    setTime(0)
-    setRunning(false)
-    setEdges(0)
-  }, [])
-
   useEffect(() => {
     if (running) {
       intervalRef.current = setInterval(() => {

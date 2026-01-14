@@ -94,8 +94,12 @@ function computeStreak(sessions: DBSession[]): number {
     } else if (dateStr < expectedDateStr) {
       // Gap in dates - streak is broken
       break
+    } else {
+      // dateStr > expectedDateStr: date is newer than expected
+      // This indicates data inconsistency or sorting issue
+      console.error(`Unexpected date order in streak calculation: ${dateStr} > ${expectedDateStr}`)
+      break
     }
-    // If dateStr > expectedDateStr, skip (shouldn't happen with sorted desc)
   }
 
   return streak

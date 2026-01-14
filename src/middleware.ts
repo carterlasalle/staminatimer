@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import type { CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { createHash } from 'crypto'
 import { API_CONSTANTS } from '@/lib/constants'
 
 // Rate limiting is handled by Redis when available (see lib/security/ratelimit.ts)
@@ -40,6 +41,11 @@ function checkRateLimitCookie(
   }
 }
 
+function hashClientIdentifier(ip: string): string {
+  // Hash the full IP to avoid collisions while maintaining consistency
+  return createHash('sha256').update(ip).digest('hex').slice(0, 16)
+}
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
 
@@ -52,9 +58,10 @@ export async function middleware(req: NextRequest) {
                    req.headers.get('x-real-ip') ||
                    'anonymous'
 
-  // Create rate limit cookie name based on route type and IP
-  // Using IP hash in cookie name for basic tracking (not bypassing protection)
-  const rateLimitCookieName = isAuthRoute ? `rl_auth_${clientIp.slice(0, 8)}` : `rl_gen_${clientIp.slice(0, 8)}`
+  // Create rate limit cookie name based on route type and hashed IP
+  // Using hash of full IP to avoid collisions while maintaining consistency
+  const ipHash = hashClientIdentifier(clientIp)
+  const rateLimitCookieName = isAuthRoute ? `rl_auth_${ipHash}` : `rl_gen_${ipHash}`
   const maxRequests = isAuthRoute ? AUTH_RATE_LIMIT_MAX : RATE_LIMIT_MAX_REQUESTS
 
   // Parse existing rate limit data
