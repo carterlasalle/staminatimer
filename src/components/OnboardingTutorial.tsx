@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -43,14 +43,38 @@ function TimerDemo() {
   const [time, setTime] = useState(0)
   const [running, setRunning] = useState(false)
   const [edges, setEdges] = useState(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Reset state when component mounts (prevents stale state)
+  useEffect(() => {
+    setTime(0)
+    setRunning(false)
+    setEdges(0)
+  }, [])
 
   useEffect(() => {
-    if (!running) return
-    const interval = setInterval(() => {
-      setTime((t) => t + 100)
-    }, 100)
-    return () => clearInterval(interval)
+    if (running) {
+      intervalRef.current = setInterval(() => {
+        setTime((t) => t + 100)
+      }, 100)
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
   }, [running])
+
+  // Cleanup on unmount regardless of running state
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
 
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000)
@@ -165,26 +189,39 @@ function StatsDemo() {
 function AIChatDemo() {
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([])
   const [typing, setTyping] = useState(false)
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([])
 
   useEffect(() => {
+    // Reset state on mount
+    setMessages([])
+    setTyping(false)
+
     const sequence = [
       { delay: 500, role: 'user' as const, text: 'How can I improve my stamina?' },
       { delay: 1500, role: 'ai' as const, text: 'Great question! Based on your training data, I recommend focusing on breathing techniques and gradually increasing session duration...' },
     ]
 
     sequence.forEach(({ delay, role, text }) => {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         if (role === 'ai') {
           setTyping(true)
-          setTimeout(() => {
+          const typingTimeout = setTimeout(() => {
             setTyping(false)
             setMessages((m) => [...m, { role, text }])
           }, 800)
+          timeoutsRef.current.push(typingTimeout)
         } else {
           setMessages((m) => [...m, { role, text }])
         }
       }, delay)
+      timeoutsRef.current.push(timeout)
     })
+
+    // Cleanup all timeouts on unmount
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout)
+      timeoutsRef.current = []
+    }
   }, [])
 
   return (

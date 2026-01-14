@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { generateAIResponse } from '@/lib/gemini'
 import { useGlobal } from '@/contexts/GlobalContext'
 import { useGamification } from '@/hooks/useGamification'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { sanitizeAIInput } from '@/lib/security/ai-sanitization'
 import type { DBSession } from '@/lib/types'
 
 export type ChatMessage = {
@@ -14,50 +15,9 @@ export type ChatMessage = {
   timestamp: Date
 }
 
-// Maximum allowed input length to prevent abuse
-const MAX_INPUT_LENGTH = 1000
-
-/**
- * Sanitize user input to prevent prompt injection attacks.
- * Removes or neutralizes common injection patterns.
- */
-function sanitizeUserInput(input: string): string {
-  if (!input || typeof input !== 'string') {
-    return ''
-  }
-
-  // Trim and limit length
-  let sanitized = input.trim().substring(0, MAX_INPUT_LENGTH)
-
-  // Remove common prompt injection patterns (case-insensitive)
-  const injectionPatterns = [
-    /ignore\s*(all\s*)?(previous\s*)?(instructions?|prompts?|rules?)/gi,
-    /disregard\s*(all\s*)?(previous\s*)?(instructions?|prompts?|rules?)/gi,
-    /forget\s*(all\s*)?(previous\s*)?(instructions?|prompts?|rules?)/gi,
-    /override\s*(all\s*)?(previous\s*)?(instructions?|prompts?|rules?)/gi,
-    /new\s*instructions?:/gi,
-    /system\s*prompt/gi,
-    /you\s*are\s*now/gi,
-    /act\s*as\s*(if\s*you\s*are|a)/gi,
-    /pretend\s*(to\s*be|you\s*are)/gi,
-    /jailbreak/gi,
-    /DAN\s*mode/gi,
-    /<\/?system>/gi,
-    /\[\[.*?\]\]/g, // Double bracket commands
-    /{{.*?}}/g, // Double curly brace commands
-  ]
-
-  for (const pattern of injectionPatterns) {
-    sanitized = sanitized.replace(pattern, '[filtered]')
-  }
-
-  // Escape potential markdown/formatting exploits
-  sanitized = sanitized
-    .replace(/```/g, "'''") // Prevent code block manipulation
-    .replace(/#+\s/g, '') // Remove markdown headers that could confuse structure
-
-  return sanitized
-}
+// Local storage key for chat persistence
+const CHAT_STORAGE_KEY = 'stamina-timer-ai-chat'
+const MAX_STORED_MESSAGES = 50 // Limit stored messages to prevent localStorage overflow
 
 export function useAICoach() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -66,12 +26,47 @@ export function useAICoach() {
   const { userAchievements, points, level, streakCount } = useGamification()
   const { analytics } = useAnalytics()
 
+  // Load chat history from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const messagesWithDates = parsed.map((msg: ChatMessage) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }))
+        setMessages(messagesWithDates)
+      }
+    } catch {
+      // Ignore errors - start with empty chat
+    }
+  }, [])
+
+  // Persist chat history to localStorage when messages change
+  useEffect(() => {
+    try {
+      if (messages.length > 0) {
+        // Only store the most recent messages to prevent overflow
+        const toStore = messages.slice(-MAX_STORED_MESSAGES)
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toStore))
+      }
+    } catch {
+      // Ignore errors - localStorage might be full or disabled
+    }
+  }, [messages])
+
   const generateComprehensivePrompt = useCallback((userMessage: string) => {
     // Calculate advanced analytics from sessions
     const sessionStats = calculateAdvancedStats(recentSessions)
 
-    // Sanitize user input to prevent prompt injection
-    const sanitizedMessage = sanitizeUserInput(userMessage)
+    // Sanitize user input using comprehensive security library
+    const { sanitized: sanitizedMessage, flagged, reason } = sanitizeAIInput(userMessage)
+
+    // If input was flagged as potentially malicious, use a safe fallback
+    const safeMessage = flagged
+      ? 'Please provide general training advice.'
+      : sanitizedMessage
 
     return `[SYSTEM INSTRUCTIONS - IMMUTABLE]
 You are a performance coach specializing in sexual stamina training. Your ONLY purpose is to analyze training data and provide coaching advice.
@@ -109,7 +104,7 @@ Provide analysis that is direct, actionable, data-driven, and measurable.
 Structure: Current Status > Key Findings > Action Plan > Training Protocol > Goals
 
 [USER QUESTION - RESPOND TO THIS]
-${sanitizedMessage}
+${safeMessage}
 
 [YOUR COACHING RESPONSE]`
   }, [recentSessions, analytics, userAchievements, points, level, streakCount])
@@ -161,6 +156,11 @@ ${sanitizedMessage}
 
   const clearChat = useCallback(() => {
     setMessages([])
+    try {
+      localStorage.removeItem(CHAT_STORAGE_KEY)
+    } catch {
+      // Ignore errors
+    }
   }, [])
 
   const generateInitialInsights = useCallback(async () => {

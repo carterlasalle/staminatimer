@@ -1,4 +1,34 @@
 /** @type {import('next').NextConfig} */
+
+const isDev = process.env.NODE_ENV !== 'production'
+
+// Content Security Policy configuration
+// In production, we remove 'unsafe-eval' for better XSS protection
+// In development, Next.js requires 'unsafe-eval' for Fast Refresh
+const cspDirectives = [
+  "default-src 'self'",
+  // Script-src: Required 'unsafe-inline' for Next.js, 'unsafe-eval' only in dev
+  isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
+  // Style-src: Required for Tailwind and inline styles
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  // Font-src: Self and Google Fonts
+  "font-src 'self' data: https://fonts.gstatic.com",
+  // Img-src: Allow self, data URLs, blobs, and HTTPS images
+  "img-src 'self' data: blob: https:",
+  // Connect-src: API endpoints and WebSocket connections
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com",
+  // Frame ancestors: Prevent clickjacking
+  "frame-ancestors 'none'",
+  // Base URI: Prevent base tag hijacking
+  "base-uri 'self'",
+  // Form action: Restrict form submissions
+  "form-action 'self'",
+  // Upgrade insecure requests in production
+  !isDev ? "upgrade-insecure-requests" : "",
+].filter(Boolean).join('; ')
+
 const nextConfig = {
   reactStrictMode: true,
 
@@ -38,20 +68,8 @@ const nextConfig = {
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
           {
-            // Content Security Policy - adjust as needed for your app
             key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Required for Next.js
-              "style-src 'self' 'unsafe-inline'", // Required for Tailwind and inline styles
-              "img-src 'self' data: blob: https:",
-              "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "upgrade-insecure-requests",
-            ].join('; '),
+            value: cspDirectives,
           },
         ],
       },
