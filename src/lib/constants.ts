@@ -2,7 +2,7 @@
 export const TIMER_CONSTANTS = {
   TICK_INTERVAL_MS: 1000,
   MIN_SESSION_DURATION_MS: 30000, // 30 seconds
-  CONFIRMATION_THRESHOLD_MS: 30000,
+  CONFIRMATION_THRESHOLD_MS: 60000, // 1 minute
 } as const
 
 // Gamification Constants

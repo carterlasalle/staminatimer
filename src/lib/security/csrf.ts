@@ -1,7 +1,18 @@
 import { createHmac, randomBytes } from 'crypto'
 
-// Use environment variable or fallback for CSRF secret
-const CSRF_SECRET = process.env.CSRF_SECRET || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'default-dev-secret'
+// CSRF secret must be set as environment variable for production
+// In development, use a fallback but log a warning
+const CSRF_SECRET = process.env.CSRF_SECRET
+
+if (!CSRF_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CSRF_SECRET environment variable must be set in production')
+  }
+  console.warn('WARNING: CSRF_SECRET not set. Using insecure fallback for development only.')
+}
+
+// Use the secret or fallback to a development-only value
+const SECRET = CSRF_SECRET || 'development-csrf-secret-do-not-use-in-production'
 const TOKEN_MAX_AGE_MS = 15 * 60 * 1000 // 15 minutes
 
 /**
@@ -11,7 +22,7 @@ const TOKEN_MAX_AGE_MS = 15 * 60 * 1000 // 15 minutes
 export function generateCSRFToken(): string {
   const token = randomBytes(32).toString('hex')
   const timestamp = Date.now().toString()
-  const signature = createHmac('sha256', CSRF_SECRET)
+  const signature = createHmac('sha256', SECRET)
     .update(`${token}:${timestamp}`)
     .digest('hex')
 
@@ -41,7 +52,7 @@ export function validateCSRFToken(tokenString: string): boolean {
   }
 
   // Verify signature
-  const expectedSignature = createHmac('sha256', CSRF_SECRET)
+  const expectedSignature = createHmac('sha256', SECRET)
     .update(`${token}:${timestamp}`)
     .digest('hex')
 
