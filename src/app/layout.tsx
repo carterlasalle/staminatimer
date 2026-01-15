@@ -1,3 +1,4 @@
+import { ClarityAnalytics } from "@/components/ClarityAnalytics"
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -174,6 +175,7 @@ export default function RootLayout({
                   <Toaster />
                   <SpeedInsights />
                   <Analytics />
+                  <ClarityAnalytics />
                   <ServiceWorkerRegistrar />
                   <PWAInstallPrompt />
                 </div>

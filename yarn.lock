@@ -1012,6 +1012,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/clarity@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@microsoft/clarity@npm:1.0.2"
+  checksum: 10c0/43986711a39115097348b38f8203f02e86ebc251d79a1673f05b0e1b562513e21045892e889551d271d6c2186cd6bd84f69a968fd46c3e563ebed5153c262a4e
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:^0.2.11":
   version: 0.2.12
   resolution: "@napi-rs/wasm-runtime@npm:0.2.12"
@@ -7880,6 +7887,7 @@ __metadata:
   resolution: "staminatimer@workspace:."
   dependencies:
     "@google/generative-ai": "npm:^0.24.1"
+    "@microsoft/clarity": "npm:^1.0.2"
     "@radix-ui/react-dialog": "npm:^1.1.15"
     "@radix-ui/react-dropdown-menu": "npm:^2.1.16"
     "@radix-ui/react-icons": "npm:^1.3.2"
