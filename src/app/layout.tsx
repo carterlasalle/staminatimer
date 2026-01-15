@@ -1,6 +1,11 @@
 import { ClarityAnalytics } from "@/components/ClarityAnalytics"
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
+import {
+  OrganizationJsonLd,
+  SoftwareApplicationJsonLd,
+  WebSiteJsonLd,
+} from "@/components/seo/JsonLd"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
 import { GlobalProvider } from "@/contexts/GlobalContext"
@@ -159,6 +164,11 @@ export default function RootLayout({
 
         {/* Disable tap highlight on iOS */}
         <style>{`* { -webkit-tap-highlight-color: transparent; }`}</style>
+
+        {/* Global JSON-LD Structured Data */}
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
+        <SoftwareApplicationJsonLd />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider
