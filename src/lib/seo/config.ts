@@ -9,6 +9,7 @@ export const SITE_CONFIG = {
 } as const
 
 // Programmatic SEO - Guide Topics
+// Full guide definitions with metadata for scalable pSEO
 export const GUIDE_TOPICS = [
   {
     slug: 'stamina-training-basics',
@@ -16,6 +17,10 @@ export const GUIDE_TOPICS = [
     description: 'Learn the fundamentals of stamina training with science-backed techniques for lasting improvement.',
     keywords: ['stamina training', 'stamina basics', 'how to last longer', 'stamina exercises'],
     category: 'fundamentals',
+    priority: 0.9,
+    publishedAt: '2024-01-15T00:00:00Z',
+    updatedAt: '2024-12-01T00:00:00Z',
+    featured: true,
   },
   {
     slug: 'edging-techniques',
@@ -23,6 +28,10 @@ export const GUIDE_TOPICS = [
     description: 'Master the art of edging with step-by-step techniques that help build control and extend duration.',
     keywords: ['edging techniques', 'edging for beginners', 'edge control', 'stamina edging'],
     category: 'techniques',
+    priority: 0.8,
+    publishedAt: '2024-01-20T00:00:00Z',
+    updatedAt: '2024-11-15T00:00:00Z',
+    featured: true,
   },
   {
     slug: 'kegel-exercises-men',
@@ -30,6 +39,10 @@ export const GUIDE_TOPICS = [
     description: 'Strengthen your pelvic floor muscles with targeted kegel exercises designed specifically for men.',
     keywords: ['kegel exercises men', 'male kegel', 'pelvic floor exercises', 'PC muscle training'],
     category: 'exercises',
+    priority: 0.8,
+    publishedAt: '2024-02-01T00:00:00Z',
+    updatedAt: '2024-11-20T00:00:00Z',
+    featured: true,
   },
   {
     slug: 'breathing-techniques-stamina',
@@ -37,6 +50,9 @@ export const GUIDE_TOPICS = [
     description: 'Control your arousal and extend your sessions with proven breathing techniques and mindfulness practices.',
     keywords: ['breathing techniques', 'stamina breathing', 'arousal control', 'mindfulness stamina'],
     category: 'techniques',
+    priority: 0.7,
+    publishedAt: '2024-02-15T00:00:00Z',
+    updatedAt: '2024-10-30T00:00:00Z',
   },
   {
     slug: 'performance-anxiety-tips',
@@ -44,6 +60,9 @@ export const GUIDE_TOPICS = [
     description: 'Practical strategies to overcome performance anxiety and build lasting confidence in the bedroom.',
     keywords: ['performance anxiety', 'sexual confidence', 'anxiety tips', 'bedroom confidence'],
     category: 'mental',
+    priority: 0.7,
+    publishedAt: '2024-03-01T00:00:00Z',
+    updatedAt: '2024-11-01T00:00:00Z',
   },
   {
     slug: 'start-stop-method',
@@ -51,6 +70,10 @@ export const GUIDE_TOPICS = [
     description: 'A comprehensive guide to the start-stop technique - one of the most effective methods for building stamina.',
     keywords: ['start stop method', 'start stop technique', 'stamina method', 'lasting longer technique'],
     category: 'techniques',
+    priority: 0.8,
+    publishedAt: '2024-03-15T00:00:00Z',
+    updatedAt: '2024-11-10T00:00:00Z',
+    featured: true,
   },
   {
     slug: 'tracking-progress-stamina',
@@ -58,6 +81,9 @@ export const GUIDE_TOPICS = [
     description: 'Learn how to effectively track and measure your stamina improvement over time with data-driven methods.',
     keywords: ['track stamina progress', 'stamina improvement', 'progress tracking', 'stamina metrics'],
     category: 'fundamentals',
+    priority: 0.7,
+    publishedAt: '2024-04-01T00:00:00Z',
+    updatedAt: '2024-10-20T00:00:00Z',
   },
   {
     slug: 'daily-stamina-routine',
@@ -65,6 +91,9 @@ export const GUIDE_TOPICS = [
     description: 'Create an effective daily routine that fits your lifestyle and delivers consistent stamina improvements.',
     keywords: ['daily stamina routine', 'stamina workout', 'daily exercises', 'stamina schedule'],
     category: 'routines',
+    priority: 0.7,
+    publishedAt: '2024-04-15T00:00:00Z',
+    updatedAt: '2024-11-05T00:00:00Z',
   },
 ] as const
 
