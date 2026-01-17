@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next'
+import { GUIDE_TOPICS } from '@/lib/seo/config'
 
 const baseUrl = 'https://staminatimer.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date().toISOString()
 
-  // Static pages with their priorities and change frequencies
+  // Core static pages - publicly accessible
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -20,52 +21,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/training`,
+      url: `${baseUrl}/guides`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/faq`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: currentDate,
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/analytics`,
-      lastModified: currentDate,
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/goals`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/ai-coach`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/kegels`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/mental`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/settings`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.5,
     },
     {
       url: `${baseUrl}/privacy`,
@@ -87,5 +52,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  return staticPages
+  // Dynamic guide pages - programmatic SEO
+  const guidePages: MetadataRoute.Sitemap = GUIDE_TOPICS.map((guide) => ({
+    url: `${baseUrl}/guides/${guide.slug}`,
+    lastModified: currentDate,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
+  return [...staticPages, ...guidePages]
 }

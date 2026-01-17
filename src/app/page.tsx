@@ -553,20 +553,61 @@ export default function Home() {
       </ScrollSection>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12">
+      <footer className="border-t border-border py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Timer className="w-5 h-5 text-primary" />
-              <span className="font-semibold">Stamina Timer</span>
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                <Timer className="w-6 h-6 text-primary" />
+                <span className="font-bold text-lg">Stamina Timer</span>
+              </Link>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Science-backed stamina training app for men. Build lasting control
+                with data-driven progress tracking and AI-powered coaching.
+              </p>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-              <Link href="/license" className="hover:text-foreground transition-colors">License</Link>
+
+            {/* Resources */}
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <nav className="flex flex-col gap-2">
+                <Link href="/guides" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Training Guides
+                </Link>
+                <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  FAQ
+                </Link>
+                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Get Started
+                </Link>
+              </nav>
             </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <nav className="flex flex-col gap-2">
+                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Terms of Service
+                </Link>
+                <Link href="/license" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  License
+                </Link>
+              </nav>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Stamina Timer
+              © {new Date().getFullYear()} Stamina Timer. All rights reserved.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              100% Private • No Ads • No Data Selling
             </p>
           </div>
         </div>
