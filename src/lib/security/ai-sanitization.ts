@@ -108,7 +108,15 @@ export function sanitizeAIInput(input: string): SanitizationResult {
   processed = processed
     .replace(/```/g, "'''") // Prevent code block manipulation
     .replace(/#+\s/g, '') // Remove markdown headers
-    .replace(/<\/?[a-z][^>]*>/gi, '') // Remove HTML-like tags
+
+  // Iteratively remove HTML-like tags and any script-like remnants
+  let previous: string
+  do {
+    previous = processed
+    processed = processed
+      .replace(/<\/?[a-z][^>]*>/gi, '') // Remove HTML-like tags
+      .replace(/<\/?\s*script\b[^>]*/gi, '') // Remove any remaining script-like starts
+  } while (processed !== previous)
 
   return { sanitized: processed, flagged: false }
 }
