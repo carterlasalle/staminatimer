@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { GUIDE_TOPICS } from '@/lib/seo/config'
+import { EXPANDED_GUIDE_TOPICS } from '@/lib/seo/guides-data'
 
 const baseUrl = 'https://staminatimer.com'
 
@@ -52,12 +52,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // Dynamic guide pages - programmatic SEO
-  const guidePages: MetadataRoute.Sitemap = GUIDE_TOPICS.map((guide) => ({
+  // Dynamic guide pages - programmatic SEO (60+ pages)
+  const guidePages: MetadataRoute.Sitemap = EXPANDED_GUIDE_TOPICS.map((guide) => ({
     url: `${baseUrl}/guides/${guide.slug}`,
-    lastModified: currentDate,
+    lastModified: guide.updatedAt,
     changeFrequency: 'monthly' as const,
-    priority: 0.8,
+    priority: guide.priority,
   }))
 
   return [...staticPages, ...guidePages]

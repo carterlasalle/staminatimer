@@ -131,9 +131,10 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback']
+  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback', '/faq', '/guides']
   const isPublicRoute = publicRoutes.includes(pathname) ||
                         pathname.startsWith('/share/') ||
+                        pathname.startsWith('/guides/') ||
                         pathname === '/offline.html' ||
                         isApiRoute
 
