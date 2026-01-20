@@ -241,3 +241,58 @@ CREATE INDEX IF NOT EXISTS idx_shared_sessions_expires_at ON public.shared_sessi
 -- Shared sessions: Find sessions created by a user
 CREATE INDEX IF NOT EXISTS idx_shared_sessions_created_by ON public.shared_sessions(created_by)
     WHERE created_by IS NOT NULL;
+
+-- =====================================================
+-- SERVER-SIDE VALIDATION CONSTRAINTS
+-- =====================================================
+-- These CHECK constraints enforce data integrity at the database level
+-- They prevent client-side manipulation of sensitive values
+
+-- Sessions: Enforce reasonable duration bounds
+-- Max duration: 24 hours (86400000ms) - no legitimate session would be longer
+-- Min duration: 0 (allows partial/incomplete sessions)
+ALTER TABLE public.sessions
+    DROP CONSTRAINT IF EXISTS check_session_total_duration;
+ALTER TABLE public.sessions
+    ADD CONSTRAINT check_session_total_duration
+    CHECK (total_duration IS NULL OR (total_duration >= 0 AND total_duration <= 86400000));
+
+ALTER TABLE public.sessions
+    DROP CONSTRAINT IF EXISTS check_session_active_duration;
+ALTER TABLE public.sessions
+    ADD CONSTRAINT check_session_active_duration
+    CHECK (active_duration IS NULL OR (active_duration >= 0 AND active_duration <= 86400000));
+
+ALTER TABLE public.sessions
+    DROP CONSTRAINT IF EXISTS check_session_edge_duration;
+ALTER TABLE public.sessions
+    ADD CONSTRAINT check_session_edge_duration
+    CHECK (edge_duration IS NULL OR (edge_duration >= 0 AND edge_duration <= 86400000));
+
+-- Sessions: Ensure durations are logically consistent
+-- Total duration should equal active + edge (with some tolerance for rounding)
+ALTER TABLE public.sessions
+    DROP CONSTRAINT IF EXISTS check_session_duration_consistency;
+ALTER TABLE public.sessions
+    ADD CONSTRAINT check_session_duration_consistency
+    CHECK (
+        total_duration IS NULL OR
+        active_duration IS NULL OR
+        edge_duration IS NULL OR
+        -- Allow 1 second tolerance for timing edge cases
+        ABS(total_duration - (active_duration + edge_duration)) <= 1000
+    );
+
+-- Edge events: Enforce reasonable duration bounds
+ALTER TABLE public.edge_events
+    DROP CONSTRAINT IF EXISTS check_edge_event_duration;
+ALTER TABLE public.edge_events
+    ADD CONSTRAINT check_edge_event_duration
+    CHECK (duration IS NULL OR (duration >= 0 AND duration <= 86400000));
+
+-- User achievements: Progress should be 0-100
+ALTER TABLE public.user_achievements
+    DROP CONSTRAINT IF EXISTS check_achievement_progress;
+ALTER TABLE public.user_achievements
+    ADD CONSTRAINT check_achievement_progress
+    CHECK (progress >= 0 AND progress <= 100);
