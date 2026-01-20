@@ -10,7 +10,8 @@ import {
   Bot,
   Settings,
   Menu,
-  X
+  X,
+  BookOpen
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -21,7 +22,8 @@ const navigationItems = [
   { title: 'Home', href: '/dashboard', icon: Home },
   { title: 'Train', href: '/training', icon: Timer },
   { title: 'Progress', href: '/progress', icon: TrendingUp },
-  { title: 'AI Coach', href: '/ai-coach', icon: Bot }
+  { title: 'AI Coach', href: '/ai-coach', icon: Bot },
+  { title: 'Guides', href: '/guides', icon: BookOpen }
 ]
 
 type AppNavigationProps = {
