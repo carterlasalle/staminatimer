@@ -39,6 +39,11 @@ export const VALIDATION_CONSTANTS = {
   MIN_GOAL_DAYS: 1,
   MAX_AI_PROMPT_LENGTH: 10000,
   HIGH_ENTROPY_THRESHOLD: 5.5,
+  // Server-side validation bounds (must match database CHECK constraints)
+  MAX_SESSION_DURATION_MS: 86400000, // 24 hours
+  MIN_SESSION_DURATION_MS: 0,
+  MAX_ACHIEVEMENT_PROGRESS: 100,
+  MIN_ACHIEVEMENT_PROGRESS: 0,
 } as const
 
 // Share Duration Map (in milliseconds)
