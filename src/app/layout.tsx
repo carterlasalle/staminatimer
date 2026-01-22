@@ -1,4 +1,5 @@
 import { ClarityAnalytics } from "@/components/ClarityAnalytics"
+import { FontLoader } from "@/components/FontLoader"
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
 import {
@@ -136,13 +137,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Font preconnects */}
+        {/* Preconnect to Google Fonts for faster DNS resolution */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
-          rel="stylesheet"
-        />
 
         {/* PWA - iOS specific */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -188,6 +185,7 @@ export default function RootLayout({
                   <ClarityAnalytics />
                   <ServiceWorkerRegistrar />
                   <PWAInstallPrompt />
+                  <FontLoader />
                 </div>
               </div>
             </GlobalProvider>

@@ -8,16 +8,16 @@ const isDev = process.env.NODE_ENV !== 'production'
 const cspDirectives = [
   "default-src 'self'",
   // Script-src: Required 'unsafe-inline' for Next.js, 'unsafe-eval' only in dev
-  // Added clarity.ms for Microsoft Clarity analytics
+  // Added clarity.ms domains for Microsoft Clarity analytics
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms"
-    : "script-src 'self' 'unsafe-inline' https://www.clarity.ms",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://scripts.clarity.ms"
+    : "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms",
   // Style-src: Required for Tailwind and inline styles
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Font-src: Self and Google Fonts
   "font-src 'self' data: https://fonts.gstatic.com",
   // Img-src: Allow self, data URLs, blobs, and HTTPS images (added clarity.ms)
-  "img-src 'self' data: blob: https: https://www.clarity.ms",
+  "img-src 'self' data: blob: https: https://www.clarity.ms https://*.clarity.ms",
   // Connect-src: API endpoints and WebSocket connections (added clarity.ms)
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://www.clarity.ms https://*.clarity.ms",
   // Frame ancestors: Prevent clickjacking
