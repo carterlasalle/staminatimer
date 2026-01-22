@@ -169,23 +169,29 @@ function FeatureCarousel() {
       <div className="flex items-center justify-center gap-4 mt-6">
         <button
           onClick={prevSlide}
+          aria-label="Previous feature"
           className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <div className="flex gap-2">
-          {features.map((_, i) => (
+        <div className="flex gap-2" role="tablist" aria-label="Feature slides">
+          {features.map((feature, i) => (
             <button
               key={i}
               onClick={() => setActiveIndex(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === activeIndex ? 'w-8 bg-primary' : 'bg-border'
+              role="tab"
+              aria-selected={i === activeIndex}
+              aria-label={`Go to ${feature.title}`}
+              className={`h-2 rounded-full transition-transform duration-300 ${
+                i === activeIndex ? 'w-8 bg-primary scale-100' : 'w-2 bg-border scale-100'
               }`}
+              style={{ willChange: 'transform' }}
             />
           ))}
         </div>
         <button
           onClick={nextSlide}
+          aria-label="Next feature"
           className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
