@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Fonts loaded via <link> in layout.tsx */
+  /* Font families - loaded async via FontLoader component */
   --font-display: 'Bricolage Grotesque', Georgia, serif;
   --font-body: 'Albert Sans', system-ui, -apple-system, sans-serif;
 

@@ -345,10 +345,10 @@ export default function Home() {
 
             <div className="flex items-center gap-3">
               <ModeToggle />
-              <Link href="/login">
-                <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Log In</Button>
+              <Link href="/login" aria-label="Log in to your account" className="hidden sm:inline-flex">
+                <Button variant="ghost" size="sm">Log In</Button>
               </Link>
-              <Link href="/login">
+              <Link href="/login" aria-label="Get started with Stamina Timer">
                 <BeamButton size="sm">
                   Get Started
                   <ArrowRight className="w-4 h-4 ml-2" />
