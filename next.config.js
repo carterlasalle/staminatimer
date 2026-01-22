@@ -8,23 +8,26 @@ const isDev = process.env.NODE_ENV !== 'production'
 const cspDirectives = [
   "default-src 'self'",
   // Script-src: Required 'unsafe-inline' for Next.js, 'unsafe-eval' only in dev
+  // Added clarity.ms for Microsoft Clarity analytics
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : "script-src 'self' 'unsafe-inline'",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms"
+    : "script-src 'self' 'unsafe-inline' https://www.clarity.ms",
   // Style-src: Required for Tailwind and inline styles
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Font-src: Self and Google Fonts
   "font-src 'self' data: https://fonts.gstatic.com",
-  // Img-src: Allow self, data URLs, blobs, and HTTPS images
-  "img-src 'self' data: blob: https:",
-  // Connect-src: API endpoints and WebSocket connections
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com",
+  // Img-src: Allow self, data URLs, blobs, and HTTPS images (added clarity.ms)
+  "img-src 'self' data: blob: https: https://www.clarity.ms",
+  // Connect-src: API endpoints and WebSocket connections (added clarity.ms)
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://www.clarity.ms https://*.clarity.ms",
   // Frame ancestors: Prevent clickjacking
   "frame-ancestors 'none'",
   // Base URI: Prevent base tag hijacking
   "base-uri 'self'",
   // Form action: Restrict form submissions
   "form-action 'self'",
+  // Worker-src: Required for Clarity web workers
+  "worker-src 'self' blob:",
   // Upgrade insecure requests in production
   !isDev ? "upgrade-insecure-requests" : "",
 ].filter(Boolean).join('; ')
@@ -70,6 +73,16 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: cspDirectives,
+          },
+          {
+            // Cross-Origin-Opener-Policy for security isolation
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups',
+          },
+          {
+            // Cross-Origin-Embedder-Policy (use unsafe-none to allow OAuth popups)
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'unsafe-none',
           },
         ],
       },

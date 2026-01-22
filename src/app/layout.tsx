@@ -39,8 +39,8 @@ const siteConfig = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5, // Allow zooming for accessibility
+  userScalable: true, // Enable pinch-to-zoom for accessibility
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
@@ -179,7 +179,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <GlobalProvider>
-              <div className="relative min-h-screen bg-[url('/background.png')] bg-cover bg-center bg-no-repeat bg-fixed">
+              <div className="relative min-h-screen bg-[url('/background.webp')] bg-cover bg-center bg-no-repeat bg-fixed">
                 <div className="relative z-10">
                   {children}
                   <Toaster />
