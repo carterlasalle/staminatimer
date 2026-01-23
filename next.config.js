@@ -35,6 +35,15 @@ const cspDirectives = [
 const nextConfig = {
   reactStrictMode: true,
 
+  // React Compiler - automatic memoization (stable in Next.js 16)
+  reactCompiler: true,
+
+  // Turbopack configuration (stable in Next.js 16)
+  experimental: {
+    // Faster dev restarts with filesystem caching
+    turbopackFileSystemCacheForDev: true,
+  },
+
   // Security headers
   async headers() {
     return [
