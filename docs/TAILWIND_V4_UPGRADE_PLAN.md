@@ -8,6 +8,8 @@ This document outlines the migration plan from Tailwind CSS v3.4.17 to v4.x for 
 
 Tailwind v4 is a significant rewrite with CSS-first configuration, new package structure, and many utility renames. The upgrade tool will automate most changes, but careful review is required.
 
+**Note:** Project is already on Next.js 16.1.4 with React Compiler and Turbopack enabled.
+
 ---
 
 ## Table of Contents
@@ -28,12 +30,18 @@ Tailwind v4 is a significant rewrite with CSS-first configuration, new package s
 
 | Package | Version | v4 Status |
 |---------|---------|-----------|
+| next | 16.1.4 | ✅ Already upgraded |
 | tailwindcss | 3.4.17 | → 4.x |
 | tailwindcss-animate | 1.0.7 | → v4-compatible version |
 | tailwind-merge | 2.6.0 | → 3.x (v4 compatible) |
 | class-variance-authority | 0.7.1 | Compatible |
 | clsx | 2.1.1 | Compatible |
 | autoprefixer | 10.4.23 | No longer needed (built-in) |
+
+### Framework Status
+- **Next.js 16.1.4** ✅ (with React Compiler, Turbopack)
+- **ESLint** ✅ Already using flat config format
+- **React 19.2.3** ✅
 
 ### Configuration Files
 
