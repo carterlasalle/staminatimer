@@ -137,9 +137,19 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to Google Fonts for faster DNS resolution */}
+        {/* Preconnect to Supabase for faster API connections */}
+        <link rel="preconnect" href="https://slqswobeccrzbdygkykn.supabase.co" />
+        <link rel="dns-prefetch" href="https://slqswobeccrzbdygkykn.supabase.co" />
+
+        {/* Preconnect to Google Fonts with high priority for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Load font stylesheet with display=swap for fast text rendering */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap"
+        />
 
         {/* PWA - iOS specific */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
