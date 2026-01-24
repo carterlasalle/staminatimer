@@ -1,10 +1,7 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase/client'
 import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 import {
   Timer,
@@ -90,7 +87,7 @@ function AnimatedText({ text, className = '', delay = 0 }: { text: string; class
   )
 }
 
-// Scroll-triggered section
+// Scroll-triggered section with GPU-composited animations
 function ScrollSection({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
@@ -103,6 +100,7 @@ function ScrollSection({ children, className = '', id }: { children: React.React
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className={className}
+      style={{ willChange: 'transform, opacity' }}
     >
       {children}
     </motion.section>
@@ -291,13 +289,21 @@ export default function Home() {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
 
   useEffect(() => {
+    // Lazy load Supabase client only when checking session
+    // This prevents blocking initial render with Supabase initialization
     async function checkSession(): Promise<void> {
+      const { supabase } = await import('@/lib/supabase/client')
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         router.push('/dashboard')
       }
     }
-    checkSession()
+    // Use requestIdleCallback to defer session check until after paint
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => checkSession(), { timeout: 2000 })
+    } else {
+      setTimeout(checkSession, 1000)
+    }
   }, [router])
 
   return (
@@ -377,23 +383,24 @@ export default function Home() {
           </motion.div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-8 overflow-hidden">
-            <AnimatedText text="Last Longer." className="block" delay={0.2} />
+            <AnimatedText text="Last Longer." className="block" delay={0} />
             <span className="block overflow-hidden">
               <motion.span
                 className="inline-block text-gradient"
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               >
                 Feel Confident.
               </motion.span>
             </span>
           </h1>
 
+          {/* LCP element - render immediately with minimal animation for better performance */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
             className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
           >
             The training app that helps you build lasting control.
@@ -403,7 +410,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link href="/login">
@@ -422,7 +429,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 0.4 }}
             className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground"
           >
             <div className="flex items-center gap-2">
@@ -447,7 +454,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
+            transition={{ delay: 0.5 }}
             className="absolute bottom-12 left-1/2 -translate-x-1/2 scroll-indicator"
           >
             <ArrowDown className="w-6 h-6 text-muted-foreground" />
