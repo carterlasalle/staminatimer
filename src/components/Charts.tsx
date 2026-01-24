@@ -159,7 +159,7 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
         <CardTitle>Progress Over Time (Minutes)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="w-full aspect-[2/1] relative">
+        <div className="w-full aspect-2/1 relative">
           <LineChart data={chartData} options={chartOptions} />
         </div>
       </CardContent>

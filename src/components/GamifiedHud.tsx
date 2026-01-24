@@ -99,7 +99,7 @@ export function GamifiedHud() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Level Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-yellow-500/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-yellow-500/10 via-transparent to-yellow-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export function GamifiedHud() {
 
         {/* Streak Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-orange-500/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-orange-500/10 via-transparent to-orange-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export function GamifiedHud() {
 
         {/* Daily Goal Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-blue-500/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-transparent to-blue-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export function GamifiedHud() {
 
         {/* Achievements Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-green-500/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-green-500/10 via-transparent to-green-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -239,7 +239,7 @@ export function GamifiedHud() {
 
       {/* Today's Progress Summary */}
       <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-transparent to-primary/5" />
         <CardContent className="pt-6 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">

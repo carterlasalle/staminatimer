@@ -152,8 +152,8 @@ function FeatureCarousel() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           {features.map((feature, i) => (
-            <div key={i} className="w-full flex-shrink-0 p-8 md:p-12">
-              <div className={`bg-gradient-to-br ${feature.color} rounded-2xl p-8 md:p-12 min-h-[300px] flex flex-col justify-center`}>
+            <div key={i} className="w-full shrink-0 p-8 md:p-12">
+              <div className={`bg-linear-to-br ${feature.color} rounded-2xl p-8 md:p-12 min-h-[300px] flex flex-col justify-center`}>
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
                   {feature.icon}
                 </div>
@@ -216,7 +216,7 @@ function TestimonialsMarquee() {
     <div className="marquee marquee-mask py-8">
       <div className="marquee-content">
         {testimonials.map((t, i) => (
-          <div key={i} className="flex-shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
+          <div key={i} className="shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
             <div className="flex gap-1 mb-4">
               {[...Array(t.rating)].map((_, j) => (
                 <Star key={j} className="w-4 h-4 fill-amber-500 text-amber-500" />
@@ -229,7 +229,7 @@ function TestimonialsMarquee() {
       </div>
       <div className="marquee-content" aria-hidden>
         {testimonials.map((t, i) => (
-          <div key={i} className="flex-shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
+          <div key={i} className="shrink-0 w-[350px] p-6 rounded-2xl bg-card border border-border">
             <div className="flex gap-1 mb-4">
               {[...Array(t.rating)].map((_, j) => (
                 <Star key={j} className="w-4 h-4 fill-amber-500 text-amber-500" />
@@ -306,7 +306,7 @@ export default function Home() {
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-background" />
         <div className="absolute inset-0 grid-pattern" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-background/50 to-background" />
         <motion.div
           className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[128px]"
           animate={{
@@ -535,7 +535,7 @@ export default function Home() {
             whileInView={{ scale: [0.9, 1] }}
             className="relative p-12 md:p-16 rounded-3xl overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-card to-accent/20 rounded-3xl" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-card to-accent/20 rounded-3xl" />
             <div className="absolute inset-0 grid-pattern opacity-50" />
             <div className="relative z-10">
               <Flame className="w-16 h-16 text-primary mx-auto mb-8" />

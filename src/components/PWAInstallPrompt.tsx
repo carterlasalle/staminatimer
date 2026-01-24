@@ -77,7 +77,7 @@ export function PWAInstallPrompt() {
     <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300 md:left-auto md:right-4 md:w-96">
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl">
         {/* Gradient border effect */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50" />
+        <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-primary/20 via-accent/20 to-primary/20 opacity-50" />
 
         <div className="relative p-4">
           <button
@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
           </button>
 
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary to-accent">
               <Download className="h-6 w-6 text-primary-foreground" />
             </div>
 
@@ -121,7 +121,7 @@ export function PWAInstallPrompt() {
               </button>
               <button
                 onClick={handleInstall}
-                className="flex-1 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                className="flex-1 rounded-lg bg-linear-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
               >
                 Install
               </button>

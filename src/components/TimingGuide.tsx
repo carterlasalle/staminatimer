@@ -126,7 +126,7 @@ export function TimingGuide() {
 
           {/* Active Timing Display */}
           {isStrokeGuideEnabled && (
-            <div className="space-y-4 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+            <div className="space-y-4 p-4 bg-linear-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   {strokePhase.phase === 'up' ? (
@@ -225,7 +225,7 @@ export function TimingGuide() {
 
           {/* Active Session Display */}
           {isGuidedSessionEnabled && (
-            <div className="space-y-4 p-4 bg-gradient-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/20">
+            <div className="space-y-4 p-4 bg-linear-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/20">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   {sessionPhase === 'on' ? (

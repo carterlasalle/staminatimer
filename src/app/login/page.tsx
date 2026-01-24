@@ -68,7 +68,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen safe-area-top safe-area-bottom">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-12 xl:px-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-primary/5 to-transparent" />
         <div className="relative z-10">
           <div className="flex items-center mb-8">
             <TimerIcon className="h-12 w-12 text-primary" />
@@ -85,7 +85,7 @@ export default function LoginPage() {
           
           <div className="grid grid-cols-1 gap-6 mb-8">
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                 <Zap className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -105,7 +105,7 @@ export default function LoginPage() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -127,7 +127,7 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center pt-4">
             <Link href="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center mr-2">
+              <div className="h-10 w-10 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center mr-2">
                 <TimerIcon className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold">Stamina Timer</span>
