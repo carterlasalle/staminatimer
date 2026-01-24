@@ -82,7 +82,7 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
               <CardTitle>Edge Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full aspect-[2/1]">
+              <div className="w-full aspect-2/1">
                 <LineChart
                   data={chartData}
                   options={{

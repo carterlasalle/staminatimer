@@ -78,7 +78,7 @@ export function AICoachChat() {
         <div className="flex-1 p-6 overflow-y-auto">
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center space-y-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
                 <Brain className="h-8 w-8 text-white" />
               </div>
               <div className="text-center space-y-2">
@@ -106,7 +106,7 @@ export function AICoachChat() {
                     className="text-left h-auto p-3 justify-start whitespace-normal"
                     onClick={() => setInputValue(suggestion.text)}
                   >
-                    <suggestion.icon className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <suggestion.icon className="h-4 w-4 mr-2 shrink-0" />
                     <span className="text-xs sm:text-sm leading-tight">{suggestion.text}</span>
                   </Button>
                 ))}
@@ -122,7 +122,7 @@ export function AICoachChat() {
               }`}
             >
               {message.role === 'assistant' && (
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shrink-0">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
               )}
@@ -172,7 +172,7 @@ export function AICoachChat() {
               </div>
 
               {message.role === 'user' && (
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
                   <User className="h-5 w-5 text-primary-foreground" />
                 </div>
               )}
@@ -181,7 +181,7 @@ export function AICoachChat() {
 
           {isLoading && (
             <div className="flex gap-4 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div className="max-w-[85%]">

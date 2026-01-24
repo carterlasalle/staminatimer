@@ -124,7 +124,7 @@ export default function GuidesPage() {
       )}
 
       {/* Category Navigation */}
-      <section className="py-6 border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
+      <section className="py-6 border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {orderedCategories.map((category) => {

@@ -71,7 +71,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
           <div className="p-4 lg:p-6 border-b border-border/50 safe-area-top">
             <div className="flex items-center justify-between">
               <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
                   <Timer className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <h1 className="font-semibold text-lg">Stamina Timer</h1>

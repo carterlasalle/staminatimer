@@ -155,7 +155,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Average Session Duration */}
-          <div className="p-4 bg-gradient-to-br from-blue-500/5 to-blue-500/10 rounded-lg border border-blue-500/10">
+          <div className="p-4 bg-linear-to-br from-blue-500/5 to-blue-500/10 rounded-lg border border-blue-500/10">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-blue-500/10 rounded-full">
                 <Clock className="h-4 w-4 text-blue-500" />
@@ -170,7 +170,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           </div>
 
           {/* Average Edge Duration */}
-          <div className="p-4 bg-gradient-to-br from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10">
+          <div className="p-4 bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-orange-500/10 rounded-full">
                 <Zap className="h-4 w-4 text-orange-500" />
@@ -185,7 +185,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           </div>
 
           {/* Time Between Edges */}
-          <div className="p-4 bg-gradient-to-br from-purple-500/5 to-purple-500/10 rounded-lg border border-purple-500/10">
+          <div className="p-4 bg-linear-to-br from-purple-500/5 to-purple-500/10 rounded-lg border border-purple-500/10">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-purple-500/10 rounded-full">
                 <Timer className="h-4 w-4 text-purple-500" />

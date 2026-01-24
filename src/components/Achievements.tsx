@@ -114,10 +114,10 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
   return (
     <div className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
       unlocked 
-        ? 'bg-gradient-to-r from-green-500/10 to-green-500/5 border-green-500/20' 
+        ? 'bg-linear-to-r from-green-500/10 to-green-500/5 border-green-500/20' 
         : 'bg-secondary/30 border-border hover:bg-secondary/50'
     }`}>
-      <div className={`rounded-full p-2 flex-shrink-0 ${
+      <div className={`rounded-full p-2 shrink-0 ${
         unlocked ? 'bg-green-500/20' : 'bg-secondary'
       }`}>
         <Trophy className={`w-4 h-4 ${unlocked ? 'text-green-400' : 'text-muted-foreground'}`} />

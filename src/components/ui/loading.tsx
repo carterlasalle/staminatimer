@@ -29,7 +29,7 @@ export function Loading({ className, size = 'md', text, fullScreen }: LoadingPro
 
 function FullScreenWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-xs">
       {children}
     </div>
   )

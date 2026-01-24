@@ -71,12 +71,12 @@ Found **27 occurrences** across **16 files** of utilities that change meaning in
 
 | v3 Utility | v4 Utility | Impact |
 |------------|------------|--------|
+| `shadow-xs` | `shadow-2xs` | Shadow scale shifted |
 | `shadow-sm` | `shadow-xs` | Shadow scale shifted |
-| `shadow` | `shadow-sm` | Shadow scale shifted |
 | `rounded-sm` | `rounded-xs` | Radius scale shifted |
 | `rounded` | `rounded-sm` | Radius scale shifted |
-| `blur-sm` | `blur-xs` | Blur scale shifted |
-| `outline-none` | `outline-hidden` | Renamed for clarity |
+| `blur-xs` | `blur-xs` | Blur scale shifted |
+| `outline-hidden` | `outline-hidden` | Renamed for clarity |
 
 **Files affected:**
 - `src/components/ui/*.tsx` (multiple)
@@ -88,10 +88,10 @@ Found **27 occurrences** across **16 files** of utilities that change meaning in
 
 ### 2. Default Ring Width Change ⚠️ MEDIUM IMPACT
 
-- v3: `ring` = 3px
-- v4: `ring` = 1px
+- v3: `ring-3` = 3px
+- v4: `ring-3` = 1px
 
-**Action:** Replace `ring` with `ring-3` where 3px width is expected.
+**Action:** Replace `ring-3` with `ring-3` where 3px width is expected.
 
 ### 3. Default Border Color Change ⚠️ MEDIUM IMPACT
 
@@ -357,10 +357,10 @@ Based on grep analysis:
 
 | Pattern | Count | Files |
 |---------|-------|-------|
-| `shadow-sm` | ~10 | UI components |
+| `shadow-xs` | ~10 | UI components |
 | `rounded-sm` | ~5 | Cards, buttons |
-| `outline-none` | ~5 | Focus states |
-| `blur-sm` | ~2 | Backdrop effects |
+| `outline-hidden` | ~5 | Focus states |
+| `blur-xs` | ~2 | Backdrop effects |
 | Other | ~5 | Various |
 | **Total** | **~27** | **16 files** |
 

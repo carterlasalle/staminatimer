@@ -186,21 +186,21 @@ export function Timer() {
         <CardContent className="space-y-4 md:space-y-6">
           {/* Enhanced Time Display */}
           <div className="grid grid-cols-3 gap-2 md:gap-4">
-            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg md:rounded-xl border border-primary/10">
+            <div className="text-center p-3 md:p-6 bg-linear-to-br from-primary/5 to-primary/10 rounded-lg md:rounded-xl border border-primary/10">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Total</p>
               <p className="text-lg md:text-3xl font-bold text-primary">
                 {formatDuration(totalTime)}
               </p>
             </div>
 
-            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-green-500/5 to-green-500/10 rounded-lg md:rounded-xl border border-green-500/10">
+            <div className="text-center p-3 md:p-6 bg-linear-to-br from-green-500/5 to-green-500/10 rounded-lg md:rounded-xl border border-green-500/10">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Active</p>
               <p className="text-lg md:text-3xl font-bold text-green-600">
                 {formatDuration(activeTime)}
               </p>
             </div>
 
-            <div className="text-center p-3 md:p-6 bg-gradient-to-br from-orange-500/5 to-orange-500/10 rounded-lg md:rounded-xl border border-orange-500/10">
+            <div className="text-center p-3 md:p-6 bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg md:rounded-xl border border-orange-500/10">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Edge</p>
               <p className="text-lg md:text-3xl font-bold text-orange-600">
                 {formatDuration(edgeTime)}
@@ -237,7 +237,7 @@ export function Timer() {
                 {edgeLaps.map((lap, index) => (
                   <div 
                     key={index} 
-                    className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10 hover:border-orange-500/20 transition-colors"
+                    className="flex justify-between items-center p-3 bg-linear-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10 hover:border-orange-500/20 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-orange-500" />

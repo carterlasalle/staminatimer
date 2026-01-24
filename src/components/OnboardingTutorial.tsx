@@ -81,7 +81,7 @@ function TimerDemo() {
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-6 border border-primary/20"
+      className="bg-linear-to-br from-primary/20 to-primary/5 rounded-2xl p-6 border border-primary/20"
     >
       <div className="text-center space-y-4">
         <motion.div
@@ -151,7 +151,7 @@ function StatsDemo() {
       className="grid grid-cols-3 gap-3"
     >
       <motion.div
-        className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl p-4 text-center border border-blue-500/20"
+        className="bg-linear-to-br from-blue-500/20 to-blue-500/5 rounded-xl p-4 text-center border border-blue-500/20"
         whileHover={{ scale: 1.05 }}
       >
         <BarChart3 className="h-5 w-5 mx-auto mb-2 text-blue-500" />
@@ -159,7 +159,7 @@ function StatsDemo() {
         <div className="text-xs text-muted-foreground">Sessions</div>
       </motion.div>
       <motion.div
-        className="bg-gradient-to-br from-orange-500/20 to-orange-500/5 rounded-xl p-4 text-center border border-orange-500/20"
+        className="bg-linear-to-br from-orange-500/20 to-orange-500/5 rounded-xl p-4 text-center border border-orange-500/20"
         whileHover={{ scale: 1.05 }}
       >
         <Flame className="h-5 w-5 mx-auto mb-2 text-orange-500" />
@@ -167,7 +167,7 @@ function StatsDemo() {
         <div className="text-xs text-muted-foreground">Day Streak</div>
       </motion.div>
       <motion.div
-        className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-4 text-center border border-purple-500/20"
+        className="bg-linear-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-4 text-center border border-purple-500/20"
         whileHover={{ scale: 1.05 }}
       >
         <Trophy className="h-5 w-5 mx-auto mb-2 text-purple-500" />
@@ -222,7 +222,7 @@ function AIChatDemo() {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 rounded-2xl p-4 border border-green-500/20 space-y-3"
+      className="bg-linear-to-br from-green-500/10 to-emerald-500/5 rounded-2xl p-4 border border-green-500/20 space-y-3"
     >
       <AnimatePresence>
         {messages.map((msg, i) => (
@@ -287,7 +287,7 @@ function TrainingMethodsDemo() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.4 + i * 0.1 }}
           whileHover={{ scale: 1.05, y: -2 }}
-          className={`bg-gradient-to-br ${item.color} rounded-xl p-4 text-center border cursor-pointer`}
+          className={`bg-linear-to-br ${item.color} rounded-xl p-4 text-center border cursor-pointer`}
         >
           <item.icon className={`h-6 w-6 mx-auto mb-2 ${item.iconColor}`} />
           <div className="text-sm font-medium">{item.label}</div>
@@ -434,7 +434,7 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-xs p-4"
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
@@ -480,7 +480,7 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', damping: 15, delay: 0.1 }}
-                className={`w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br ${slide.color} flex items-center justify-center`}
+                className={`w-20 h-20 mx-auto rounded-2xl bg-linear-to-br ${slide.color} flex items-center justify-center`}
               >
                 <div className="text-foreground">{slide.icon}</div>
               </motion.div>
