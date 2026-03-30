@@ -2,6 +2,10 @@ const CACHE_VERSION = 'v3';
 const STATIC_CACHE = `stamina-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `stamina-dynamic-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
+const ALLOWED_CROSS_ORIGIN_HOSTS = new Set([
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+]);
 
 // Static assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -56,8 +60,8 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip cross-origin requests (except fonts)
-  if (url.origin !== location.origin && !url.hostname.includes('fonts.googleapis.com') && !url.hostname.includes('fonts.gstatic.com')) {
+  // Skip cross-origin requests (except known font hosts)
+  if (url.origin !== location.origin && !ALLOWED_CROSS_ORIGIN_HOSTS.has(url.hostname)) {
     return;
   }
 
@@ -175,20 +179,25 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'dismiss') return;
 
-  const url = event.notification.data?.url || '/dashboard';
+  const destinationUrl = resolveAppUrl(event.notification.data?.url);
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
         // Focus existing window if available
         for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            client.navigate(url);
-            return client.focus();
+          try {
+            const clientOrigin = new URL(client.url).origin;
+            if (clientOrigin === self.location.origin && 'focus' in client) {
+              client.navigate(destinationUrl);
+              return client.focus();
+            }
+          } catch {
+            // Ignore malformed client URLs.
           }
         }
         // Open new window
         if (clients.openWindow) {
-          return clients.openWindow(url);
+          return clients.openWindow(destinationUrl);
         }
       })
   );
@@ -214,4 +223,16 @@ self.addEventListener('periodicsync', (event) => {
 
 async function updateContent() {
   // Placeholder for periodic content updates
+}
+
+function resolveAppUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl || '/dashboard', self.location.origin);
+    if (parsed.origin !== self.location.origin) {
+      return '/dashboard';
+    }
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return '/dashboard';
+  }
 }
