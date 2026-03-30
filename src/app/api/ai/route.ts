@@ -6,7 +6,7 @@ import type { CookieOptions } from '@supabase/ssr'
 import { checkRateLimit } from '@/lib/security/ratelimit'
 import { VALIDATION_CONSTANTS } from '@/lib/constants'
 import { validateAIInput } from '@/lib/security/ai-sanitization'
-import { validateCSRFToken, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
+import { validateCSRFTokenWithCookie, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
 import { isAllowedRequestOrigin } from '@/lib/security/origin'
 
 // Maximum request body size (10KB) to prevent DoS
@@ -31,7 +31,8 @@ export async function POST(request: NextRequest) {
 
     // SECURITY: Validate CSRF token
     const csrfToken = getCSRFTokenFromHeaders(request.headers)
-    if (!csrfToken || !(await validateCSRFToken(csrfToken))) {
+    const csrfCookie = request.cookies.get('csrf-token')?.value ?? null
+    if (!csrfToken || !(await validateCSRFTokenWithCookie(csrfToken, csrfCookie))) {
       return NextResponse.json(
         { error: 'Invalid or missing CSRF token' },
         { status: 403 }

@@ -103,6 +103,7 @@ export function useProgramSession(phase: number) {
   const sessionClientIdRef = useRef(createSessionClientId())
   const cueFlagsRef = useRef<Record<string, boolean>>({})
   const stage2StartedAtRef = useRef<number | null>(null)
+  const stageEndAtMsRef = useRef<number | null>(null)
 
   const [phase8Config, setPhase8Config] = useState<Phase8Config>({
     includePositionSetup: true,
@@ -175,6 +176,7 @@ export function useProgramSession(phase: number) {
       setLatestCue(null)
 
       if (nextStage === 'summary') {
+        stageEndAtMsRef.current = null
         setCompletedAt((prev) => prev ?? new Date().toISOString())
         setIsStageRunning(false)
         setStageRemainingSec(0)
@@ -182,6 +184,7 @@ export function useProgramSession(phase: number) {
       }
 
       const duration = getStageDurationSecondsForConfig(phase, nextStage, phase8Config)
+      stageEndAtMsRef.current = duration > 0 ? Date.now() + duration * 1000 : null
       setStageRemainingSec(duration)
       setIsStageRunning(duration > 0)
 
@@ -346,6 +349,7 @@ export function useProgramSession(phase: number) {
     if (!startedAt) {
       setStartedAt(new Date().toISOString())
     }
+    stageEndAtMsRef.current = null
     setAccidentallyFinished(true)
     setEndedEarly(true)
     setCompletedAt(new Date().toISOString())
@@ -357,6 +361,7 @@ export function useProgramSession(phase: number) {
     if (!startedAt) {
       setStartedAt(new Date().toISOString())
     }
+    stageEndAtMsRef.current = null
     setEndedEarly(true)
     setCompletedAt(new Date().toISOString())
     setIsStageRunning(false)
@@ -373,23 +378,37 @@ export function useProgramSession(phase: number) {
   }, [])
 
   // Stage countdown timer
+  // Uses absolute end timestamps to avoid drift when browsers throttle intervals
+  // in background tabs or when device screens turn off.
   useEffect(() => {
     if (!isStageRunning) {
       return
     }
 
-    if (stageDurationSec <= 0 || stageRemainingSec <= 0) {
+    if (stageDurationSec <= 0) {
       return
     }
 
+    const tick = () => {
+      const endAtMs = stageEndAtMsRef.current
+      if (!endAtMs) {
+        return
+      }
+
+      const remainingMs = Math.max(0, endAtMs - Date.now())
+      const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000))
+      setStageRemainingSec((prev) => (prev === remainingSec ? prev : remainingSec))
+    }
+
+    tick()
     const intervalId = window.setInterval(() => {
-      setStageRemainingSec((prev) => Math.max(0, prev - 1))
-    }, 1000)
+      tick()
+    }, 250)
 
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [isStageRunning, stageDurationSec, stageRemainingSec])
+  }, [isStageRunning, stage, stageDurationSec])
 
   // Automatic stage advance when timer reaches zero
   useEffect(() => {

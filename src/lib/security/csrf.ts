@@ -93,6 +93,21 @@ export async function validateCSRFToken(tokenString: string): Promise<boolean> {
 }
 
 /**
+ * Validate a CSRF token and require it to match the CSRF cookie value.
+ * This enforces a double-submit style binding to the current browser session.
+ */
+export async function validateCSRFTokenWithCookie(
+  headerToken: string,
+  cookieToken: string | null | undefined
+): Promise<boolean> {
+  if (!cookieToken || headerToken !== cookieToken) {
+    return false
+  }
+
+  return validateCSRFToken(headerToken)
+}
+
+/**
  * Timing-safe string comparison
  */
 function timingSafeEqual(a: string, b: string): boolean {

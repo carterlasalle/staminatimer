@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
 import { checkRateLimit } from '@/lib/security/ratelimit'
 import { API_CONSTANTS } from '@/lib/constants'
-import { validateCSRFToken, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
+import { validateCSRFTokenWithCookie, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
 import { isAllowedRequestOrigin } from '@/lib/security/origin'
 
 // Maximum request body size (50KB for session IDs array)
@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
 
     // SECURITY: Validate CSRF token
     const csrfToken = getCSRFTokenFromHeaders(request.headers)
-    if (!csrfToken || !(await validateCSRFToken(csrfToken))) {
+    const csrfCookie = request.cookies.get('csrf-token')?.value ?? null
+    if (!csrfToken || !(await validateCSRFTokenWithCookie(csrfToken, csrfCookie))) {
       return NextResponse.json(
         { error: 'Invalid or missing CSRF token' },
         { status: 403 }
@@ -112,8 +113,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!sessionIds.every((id: unknown) => typeof id === 'string')) {
+      return NextResponse.json(
+        { error: 'Invalid session ID format' },
+        { status: 400 }
+      )
+    }
+
+    const uniqueSessionIds = [...new Set(sessionIds as string[])]
+
     // SECURITY: Enforce maximum sessions limit (server-side)
-    if (sessionIds.length > API_CONSTANTS.MAX_SHARE_SESSIONS) {
+    if (uniqueSessionIds.length > API_CONSTANTS.MAX_SHARE_SESSIONS) {
       return NextResponse.json(
         { error: `Cannot share more than ${API_CONSTANTS.MAX_SHARE_SESSIONS} sessions at once` },
         { status: 400 }
@@ -122,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     // Validate all session IDs are valid UUIDs
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!sessionIds.every((id: unknown) => typeof id === 'string' && uuidRegex.test(id))) {
+    if (!uniqueSessionIds.every((id) => uuidRegex.test(id))) {
       return NextResponse.json(
         { error: 'Invalid session ID format' },
         { status: 400 }
@@ -142,7 +152,7 @@ export async function POST(request: NextRequest) {
     const { data: sessions, error: fetchError } = await supabase
       .from('sessions')
       .select(`*, edge_events (*)`)
-      .in('id', sessionIds)
+      .in('id', uniqueSessionIds)
       .eq('user_id', user.id) // Only fetch sessions owned by this user
 
     if (fetchError) {
@@ -155,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     // SECURITY: Verify we got all requested sessions
     // If count doesn't match, user tried to share sessions they don't own
-    if (!sessions || sessions.length !== sessionIds.length) {
+    if (!sessions || sessions.length !== uniqueSessionIds.length) {
       return NextResponse.json(
         { error: 'One or more sessions not found or not authorized' },
         { status: 403 }

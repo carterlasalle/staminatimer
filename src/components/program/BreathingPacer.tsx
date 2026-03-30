@@ -1,32 +1,30 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-type BreathPhase = 'inhale' | 'exhale'
+const INHALE_MS = 4_000
+const EXHALE_MS = 6_000
+const CYCLE_MS = INHALE_MS + EXHALE_MS
 
 export function BreathingPacer() {
-  const [phase, setPhase] = useState<BreathPhase>('inhale')
-  const [secondsLeft, setSecondsLeft] = useState(4)
+  const cycleStartAtRef = useRef(Date.now())
+  const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
-    setSecondsLeft(phase === 'inhale' ? 4 : 6)
-
-    const switchTimer = window.setTimeout(() => {
-      setPhase((prev) => (prev === 'inhale' ? 'exhale' : 'inhale'))
-    }, (phase === 'inhale' ? 4 : 6) * 1000)
-
-    const tickTimer = window.setInterval(() => {
-      setSecondsLeft((prev) => Math.max(1, prev - 1))
-    }, 1000)
+    const intervalId = window.setInterval(() => {
+      setNowMs(Date.now())
+    }, 250)
 
     return () => {
-      window.clearTimeout(switchTimer)
-      window.clearInterval(tickTimer)
+      window.clearInterval(intervalId)
     }
-  }, [phase])
+  }, [])
 
-  const inhale = phase === 'inhale'
+  const elapsedInCycle = (nowMs - cycleStartAtRef.current) % CYCLE_MS
+  const inhale = elapsedInCycle < INHALE_MS
+  const msLeftInPhase = inhale ? INHALE_MS - elapsedInCycle : CYCLE_MS - elapsedInCycle
+  const secondsLeft = Math.max(1, Math.ceil(msLeftInPhase / 1000))
 
   return (
     <div className="rounded-xl border border-border/60 bg-card/70 p-4">
