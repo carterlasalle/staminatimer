@@ -50,12 +50,39 @@ export function ProblemGuidance({ sessions }: ProblemGuidanceProps) {
   )
 }
 
+function extractNumericNoteMetric(notes: string | null, key: string): number | null {
+  if (!notes) {
+    return null
+  }
+
+  const regex = new RegExp(`${key}=(\\d+)`)
+  const match = notes.match(regex)
+  if (!match) {
+    return null
+  }
+
+  const parsed = Number.parseInt(match[1], 10)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 function buildGuidance(sessions: ProgramSessionRow[]): GuidanceItem[] {
   const items: GuidanceItem[] = []
 
   const earlyPhaseSessions = sessions.filter((s) => (s.phase ?? 0) <= 2).slice(0, 6)
   const fastSpikeCount = earlyPhaseSessions.filter(
-    (s) => (s.highest_arousal_reached ?? 0) >= 9 && (s.duration_ms ?? 0) < 5 * 60 * 1000
+    (s) => {
+      if ((s.highest_arousal_reached ?? 0) < 9) {
+        return false
+      }
+
+      const stage2FirstNineMs = extractNumericNoteMetric(s.notes, 'stage2_first_9_ms')
+      if (stage2FirstNineMs !== null) {
+        return stage2FirstNineMs < 5 * 60 * 1000
+      }
+
+      // Fallback for historical sessions before metric capture existed.
+      return (s.duration_ms ?? Number.MAX_SAFE_INTEGER) < 5 * 60 * 1000
+    }
   ).length
   if (fastSpikeCount >= 2) {
     items.push({

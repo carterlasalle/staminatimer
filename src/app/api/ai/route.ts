@@ -7,6 +7,7 @@ import { checkRateLimit } from '@/lib/security/ratelimit'
 import { VALIDATION_CONSTANTS } from '@/lib/constants'
 import { validateAIInput } from '@/lib/security/ai-sanitization'
 import { validateCSRFToken, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
+import { isAllowedRequestOrigin } from '@/lib/security/origin'
 
 // Maximum request body size (10KB) to prevent DoS
 const MAX_BODY_SIZE = 10 * 1024
@@ -18,40 +19,10 @@ const ALLOWED_ORIGINS = [
   'https://www.staminatimer.com',
 ].filter(Boolean)
 
-/**
- * Validates that the request origin is allowed
- * Returns true if valid, false otherwise
- */
-function validateOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  const referer = request.headers.get('referer')
-
-  // In development, allow localhost
-  if (process.env.NODE_ENV === 'development') {
-    if (!origin && !referer) return true // Allow same-origin requests
-    if (origin?.includes('localhost') || referer?.includes('localhost')) return true
-  }
-
-  // Check if origin or referer matches allowed origins
-  if (origin && ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed as string))) {
-    return true
-  }
-  if (referer && ALLOWED_ORIGINS.some(allowed => referer.startsWith(allowed as string))) {
-    return true
-  }
-
-  // Allow same-origin requests (no origin header)
-  if (!origin && referer) {
-    return ALLOWED_ORIGINS.some(allowed => referer.startsWith(allowed as string))
-  }
-
-  return !origin // Same-origin requests don't send origin header
-}
-
 export async function POST(request: NextRequest) {
   try {
     // SECURITY: Validate request origin to prevent CSRF
-    if (!validateOrigin(request)) {
+    if (!isAllowedRequestOrigin(request, ALLOWED_ORIGINS)) {
       return NextResponse.json(
         { error: 'Invalid request origin' },
         { status: 403 }

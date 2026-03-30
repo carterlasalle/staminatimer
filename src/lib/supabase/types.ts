@@ -327,7 +327,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      record_program_session: {
+        Args: {
+          p_started_at: string
+          p_completed_at: string
+          p_duration_ms: number
+          p_cycles_completed: number
+          p_complete_stops: number
+          p_time_in_zone_ms: number
+          p_highest_arousal_reached: number
+          p_accidentally_finished: boolean
+          p_ended_early: boolean
+          p_self_rating: number
+          p_breathing_maintained?: 'yes' | 'mostly' | 'no' | null
+          p_imagery_rating?: number | null
+          p_positions_used?: string[] | null
+          p_notes?: string | null
+          p_lube_used: boolean
+          p_toy_used: boolean
+          p_ejaculation_outcome: 'no' | 'accidental' | 'intentional_after'
+        }
+        Returns: {
+          advanced_to_phase: number | null
+          previous_phase: number | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

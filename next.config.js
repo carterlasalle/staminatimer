@@ -35,6 +35,11 @@ const cspDirectives = [
 const nextConfig = {
   reactStrictMode: true,
 
+  // Avoid monorepo/workspace root mis-detection when parent directories contain lockfiles.
+  turbopack: {
+    root: __dirname,
+  },
+
   // React Compiler - automatic memoization (stable in Next.js 16)
   reactCompiler: true,
 

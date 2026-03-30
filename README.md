@@ -12,7 +12,7 @@ A production-ready Next.js application for tracking and improving personal endur
 
 ## Tech Stack
 
-- Next.js 14
+- Next.js 16
 - TypeScript
 - Tailwind CSS
 - Supabase
@@ -26,13 +26,14 @@ A production-ready Next.js application for tracking and improving personal endur
   git clone https://github.com/yourusername/staminatimer.git
 
   # Install dependencies
-  npm install
+  corepack enable
+  yarn install --immutable
 
   # Set up environment variables
   cp .env.example .env.local
 
   # Start development server
-  npm run dev
+  yarn dev
   ```
 
 ## Environment Variables
@@ -65,12 +66,12 @@ Optional seed for achievements: run `supabase/seed_achievements.sql` in your Sup
 
 ## Scripts
 
-- `npm run dev` – Start dev server
-- `npm run build` – Production build
-- `npm start` – Start production server
-- `npm run lint` – ESLint checks
-- `npm run typecheck` – TypeScript type checks
-- `npm run format` / `format:check` – Prettier formatting
+- `yarn dev` – Start dev server
+- `yarn build` – Production build
+- `yarn start` – Start production server
+- `yarn lint` – ESLint checks
+- `yarn typecheck` – TypeScript type checks
+- `yarn format` / `yarn format:check` – Prettier formatting
 
 ## CI
 

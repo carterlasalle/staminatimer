@@ -49,7 +49,7 @@ async function hashClientIdentifier(ip: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16)
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname
 
   // Rate limiting for auth-related endpoints (login, signup, password reset)

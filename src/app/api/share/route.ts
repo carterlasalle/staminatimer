@@ -5,6 +5,7 @@ import type { CookieOptions } from '@supabase/ssr'
 import { checkRateLimit } from '@/lib/security/ratelimit'
 import { API_CONSTANTS } from '@/lib/constants'
 import { validateCSRFToken, getCSRFTokenFromHeaders } from '@/lib/security/csrf'
+import { isAllowedRequestOrigin } from '@/lib/security/origin'
 
 // Maximum request body size (50KB for session IDs array)
 const MAX_BODY_SIZE = 50 * 1024
@@ -25,29 +26,10 @@ const ALLOWED_ORIGINS = [
   'https://www.staminatimer.com',
 ].filter(Boolean)
 
-function validateOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  const referer = request.headers.get('referer')
-
-  if (process.env.NODE_ENV === 'development') {
-    if (!origin && !referer) return true
-    if (origin?.includes('localhost') || referer?.includes('localhost')) return true
-  }
-
-  if (origin && ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed as string))) {
-    return true
-  }
-  if (referer && ALLOWED_ORIGINS.some(allowed => referer.startsWith(allowed as string))) {
-    return true
-  }
-
-  return !origin
-}
-
 export async function POST(request: NextRequest) {
   try {
     // SECURITY: Validate request origin
-    if (!validateOrigin(request)) {
+    if (!isAllowedRequestOrigin(request, ALLOWED_ORIGINS)) {
       return NextResponse.json(
         { error: 'Invalid request origin' },
         { status: 403 }

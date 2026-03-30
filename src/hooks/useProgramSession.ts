@@ -134,6 +134,7 @@ export function useProgramSession(phase: number) {
   const [cycleTimestamps, setCycleTimestamps] = useState<number[]>([])
   const [completeStops, setCompleteStops] = useState(0)
   const [timeInZoneMs, setTimeInZoneMs] = useState(0)
+  const [firstTimeToNineMs, setFirstTimeToNineMs] = useState<number | null>(null)
 
   const [accidentallyFinished, setAccidentallyFinished] = useState(false)
   const [endedEarly, setEndedEarly] = useState(false)
@@ -187,6 +188,7 @@ export function useProgramSession(phase: number) {
       if (nextStage === 'stage2') {
         setLubeUsed(true)
         stage2StartedAtRef.current = Date.now()
+        setFirstTimeToNineMs(null)
       }
     },
     [phase, phase8Config]
@@ -237,6 +239,7 @@ export function useProgramSession(phase: number) {
     setToyUsed(phase >= 6)
     setLubeUsed(false)
     setCycleTimestamps([])
+    setFirstTimeToNineMs(null)
     stage2StartedAtRef.current = null
     enterStage('position_setup')
   }, [allCommitmentsChecked, enterStage, phase])
@@ -273,6 +276,9 @@ export function useProgramSession(phase: number) {
       }
 
       if (stage === 'stage2') {
+        if (next >= 9 && firstTimeToNineMs === null && stage2StartedAtRef.current !== null) {
+          setFirstTimeToNineMs(Date.now() - stage2StartedAtRef.current)
+        }
         if (phase <= 3 && next >= 7) {
           setLatestCue(
             "You're at 7+. Trigger STOP now: remove your hand and breathe 4 in, 6 out until arousal returns to 4-5."
@@ -286,7 +292,7 @@ export function useProgramSession(phase: number) {
         }
       }
     },
-    [phase, stage, startedAt]
+    [firstTimeToNineMs, phase, stage, startedAt]
   )
 
   const triggerBuildStop = useCallback(() => {
@@ -623,6 +629,7 @@ export function useProgramSession(phase: number) {
     averageCycleIntervalMs,
     completeStops,
     timeInZoneMs,
+    firstTimeToNineMs,
 
     accidentallyFinished,
     endedEarly,

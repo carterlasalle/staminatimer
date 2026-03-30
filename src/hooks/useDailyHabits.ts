@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type DailyHabitsState = {
   squatDoneDate: string | null
@@ -31,11 +31,21 @@ function getYesterdayLocalDateString(): string {
   return getLocalDateString(date)
 }
 
+function getYesterdayFromDateString(dateString: string): string {
+  const [year, month, day] = dateString.split('-').map((part) => Number.parseInt(part, 10))
+  if (!year || !month || !day) {
+    return getYesterdayLocalDateString()
+  }
+
+  const date = new Date(year, month - 1, day)
+  date.setDate(date.getDate() - 1)
+  return getLocalDateString(date)
+}
+
 export function useDailyHabits() {
   const { user } = useAuth()
   const [state, setState] = useState<DailyHabitsState>(defaultState)
-
-  const today = useMemo(() => getLocalDateString(), [])
+  const [today, setToday] = useState(() => getLocalDateString())
 
   useEffect(() => {
     try {
@@ -62,13 +72,22 @@ export function useDailyHabits() {
     }
   }, [state])
 
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      const next = getLocalDateString()
+      setToday((prev) => (prev === next ? prev : next))
+    }, 60 * 1000)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
   const markSquatDone = useCallback(async () => {
     setState((prev) => {
       if (prev.squatDoneDate === today) {
         return prev
       }
 
-      const yesterday = getYesterdayLocalDateString()
+      const yesterday = getYesterdayFromDateString(today)
       const nextStreak = prev.squatDoneDate === yesterday ? prev.squatStreak + 1 : 1
 
       const next = {

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { formatDuration } from '@/lib/utils'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { BreathingMaintained, EjaculationOutcome } from '@/hooks/useProgramProgress'
 
 export type SessionSummarySubmission = {
@@ -33,6 +33,7 @@ type SessionSummaryProps = {
   timeInZoneMs: number
   highestArousalReached: number
   accidentallyFinished: boolean
+  initialPositionsUsed?: string[]
   saving: boolean
   onSubmit: (data: SessionSummarySubmission) => Promise<void>
 }
@@ -53,6 +54,7 @@ export function SessionSummary({
   timeInZoneMs,
   highestArousalReached,
   accidentallyFinished,
+  initialPositionsUsed,
   saving,
   onSubmit,
 }: SessionSummaryProps) {
@@ -63,7 +65,13 @@ export function SessionSummary({
     accidentallyFinished ? 'accidental' : 'no'
   )
   const [notes, setNotes] = useState('')
-  const [positionsUsed, setPositionsUsed] = useState<string[]>([])
+  const [positionsUsed, setPositionsUsed] = useState<string[]>(initialPositionsUsed ?? [])
+
+  useEffect(() => {
+    if (phase >= 7) {
+      setPositionsUsed(initialPositionsUsed ?? [])
+    }
+  }, [initialPositionsUsed, phase])
 
   const outcomeGuidance = useMemo(() => {
     if (ejaculationOutcome === 'no') {

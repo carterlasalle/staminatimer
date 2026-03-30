@@ -105,6 +105,15 @@ export function ActiveSession() {
     const startedAt = session.startedAt ?? new Date(Date.now() - session.sessionDurationMs).toISOString()
     const completedAt = session.completedAt ?? new Date().toISOString()
 
+    const normalizedNotes =
+      [
+        summary.notes?.trim(),
+        session.averageCycleIntervalMs ? `avg_cycle_interval_ms=${session.averageCycleIntervalMs}` : null,
+        session.firstTimeToNineMs !== null ? `stage2_first_9_ms=${session.firstTimeToNineMs}` : null,
+      ]
+        .filter(Boolean)
+        .join(' | ') || undefined
+
     const result = await recordSession({
       startedAt,
       completedAt,
@@ -118,16 +127,8 @@ export function ActiveSession() {
       selfRating: summary.selfRating,
       breathingMaintained: summary.breathingMaintained,
       imageryRating: summary.imageryRating,
-      positionsUsed: summary.positionsUsed,
-      notes:
-        [
-          summary.notes?.trim(),
-          session.averageCycleIntervalMs
-            ? `avg_cycle_interval_ms=${session.averageCycleIntervalMs}`
-            : null,
-        ]
-          .filter(Boolean)
-          .join(' | ') || undefined,
+      positionsUsed: summary.positionsUsed ?? session.positionsUsed,
+      notes: normalizedNotes,
       lubeUsed: session.lubeUsed,
       toyUsed: session.toyUsed,
       ejaculationOutcome: summary.ejaculationOutcome,
@@ -540,6 +541,7 @@ export function ActiveSession() {
           timeInZoneMs={session.timeInZoneMs}
           highestArousalReached={session.highestArousalReached}
           accidentallyFinished={session.accidentallyFinished}
+          initialPositionsUsed={session.positionsUsed}
           saving={saving}
           onSubmit={submitSummary}
         />

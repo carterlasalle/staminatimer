@@ -6,7 +6,6 @@ import type { Database } from '@/lib/supabase/types'
 import { useCallback, useEffect, useState } from 'react'
 
 type ProgramSessionRow = Database['public']['Tables']['program_sessions']['Row']
-type ProgramSessionInsert = Database['public']['Tables']['program_sessions']['Insert']
 type ProgramProgressRow = Database['public']['Tables']['program_progress']['Row']
 
 export type EjaculationOutcome = 'no' | 'accidental' | 'intentional_after'
@@ -30,20 +29,6 @@ export type ProgramSessionInput = {
   lubeUsed: boolean
   toyUsed: boolean
   ejaculationOutcome: EjaculationOutcome
-}
-
-const QUALIFYING_TARGET_PER_PHASE = 5
-
-function isQualifyingSession(phase: number, input: ProgramSessionInput): boolean {
-  if (input.accidentallyFinished || input.endedEarly) {
-    return false
-  }
-
-  if (phase === 1) {
-    return input.cyclesCompleted >= 3
-  }
-
-  return true
 }
 
 function makeDefaultProgress(userId: string): Database['public']['Tables']['program_progress']['Insert'] {
@@ -93,6 +78,18 @@ export function useProgramProgress() {
         .single()
 
       if (insertError) {
+        // Another tab/request may have inserted this row first.
+        if ((insertError as { code?: string }).code === '23505') {
+          const { data: retry, error: retryError } = await supabase
+            .from('program_progress')
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+          if (retryError) {
+            throw retryError
+          }
+          return retry
+        }
         throw insertError
       }
 
@@ -167,99 +164,37 @@ export function useProgramProgress() {
       setError(null)
 
       try {
-        const currentProgress = progress ?? (await ensureProgressRow(user.id))
-
-        const currentPhase = currentProgress.current_phase ?? 1
-        const nextSessionInPhase = (currentProgress.sessions_in_current_phase ?? 0) + 1
-        const nextTotalSessions = (currentProgress.total_sessions ?? 0) + 1
-
-        const didEjaculate =
-          input.ejaculationOutcome === 'accidental' || input.ejaculationOutcome === 'intentional_after'
-        const accidentallyFinished = input.accidentallyFinished || input.ejaculationOutcome === 'accidental'
-
-        const insertPayload: ProgramSessionInsert = {
-          user_id: user.id,
-          phase: currentPhase,
-          session_number_in_phase: nextSessionInPhase,
-          started_at: input.startedAt,
-          completed_at: input.completedAt,
-          duration_ms: input.durationMs,
-          cycles_completed: input.cyclesCompleted,
-          complete_stops: input.completeStops,
-          time_in_zone_ms: input.timeInZoneMs,
-          highest_arousal_reached: input.highestArousalReached,
-          accidentally_finished: accidentallyFinished,
-          ended_early: input.endedEarly,
-          self_rating: input.selfRating,
-          breathing_maintained: input.breathingMaintained ?? null,
-          imagery_rating: input.imageryRating ?? null,
-          positions_used: input.positionsUsed ?? null,
-          notes: input.notes ?? null,
-          lube_used: input.lubeUsed,
-          toy_used: input.toyUsed,
-        }
-
-        const { error: insertError } = await supabase.from('program_sessions').insert(insertPayload)
-        if (insertError) {
-          throw insertError
-        }
-
-        const qualifies = isQualifyingSession(currentPhase, {
-          ...input,
-          accidentallyFinished,
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('record_program_session', {
+          p_started_at: input.startedAt,
+          p_completed_at: input.completedAt,
+          p_duration_ms: input.durationMs,
+          p_cycles_completed: input.cyclesCompleted,
+          p_complete_stops: input.completeStops,
+          p_time_in_zone_ms: input.timeInZoneMs,
+          p_highest_arousal_reached: input.highestArousalReached,
+          p_accidentally_finished: input.accidentallyFinished,
+          p_ended_early: input.endedEarly,
+          p_self_rating: input.selfRating,
+          p_breathing_maintained: input.breathingMaintained ?? null,
+          p_imagery_rating: input.imageryRating ?? null,
+          p_positions_used: input.positionsUsed ?? null,
+          p_notes: input.notes ?? null,
+          p_lube_used: input.lubeUsed,
+          p_toy_used: input.toyUsed,
+          p_ejaculation_outcome: input.ejaculationOutcome,
         })
 
-        let nextPhase = currentPhase
-        let nextSessionsInCurrentPhase = nextSessionInPhase
-        let nextQualifyingInPhase = (currentProgress.qualifying_sessions_in_phase ?? 0) + (qualifies ? 1 : 0)
-        let nextPhaseStartedAt = currentProgress.phase_started_at ?? new Date().toISOString()
-        let nextPhase8EnteredAt = currentProgress.phase_8_entered_at ?? null
-
-        if (
-          currentPhase < 8 &&
-          nextQualifyingInPhase >= QUALIFYING_TARGET_PER_PHASE
-        ) {
-          nextPhase = currentPhase + 1
-          nextSessionsInCurrentPhase = 0
-          nextQualifyingInPhase = 0
-          nextPhaseStartedAt = new Date().toISOString()
-          if (nextPhase === 8 && !nextPhase8EnteredAt) {
-            nextPhase8EnteredAt = new Date().toISOString()
-          }
+        if (rpcError) {
+          throw rpcError
         }
 
-        let nextSessionsSinceEjaculation = (currentProgress.sessions_since_ejaculation ?? 0) + 1
-        let nextLastEjaculationSession = currentProgress.last_ejaculation_session ?? null
-
-        if (didEjaculate) {
-          nextSessionsSinceEjaculation = 0
-          nextLastEjaculationSession = nextTotalSessions
-        }
-
-        const { error: progressError } = await supabase
-          .from('program_progress')
-          .update({
-            current_phase: nextPhase,
-            sessions_in_current_phase: nextSessionsInCurrentPhase,
-            qualifying_sessions_in_phase: nextQualifyingInPhase,
-            total_sessions: nextTotalSessions,
-            sessions_since_ejaculation: nextSessionsSinceEjaculation,
-            last_ejaculation_session: nextLastEjaculationSession,
-            last_session_at: input.completedAt,
-            phase_started_at: nextPhaseStartedAt,
-            phase_8_entered_at: nextPhase8EnteredAt,
-          })
-          .eq('user_id', user.id)
-
-        if (progressError) {
-          throw progressError
-        }
+        const resultRow = Array.isArray(rpcResult) ? rpcResult[0] : null
 
         await refresh()
 
         return {
-          advancedToPhase: nextPhase > currentPhase ? nextPhase : null,
-          previousPhase: currentPhase,
+          advancedToPhase: resultRow?.advanced_to_phase ?? null,
+          previousPhase: resultRow?.previous_phase ?? (progress?.current_phase ?? 1),
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to save session'
@@ -269,7 +204,7 @@ export function useProgramProgress() {
         setSaving(false)
       }
     },
-    [ensureProgressRow, progress, refresh, user]
+    [progress?.current_phase, refresh, user]
   )
 
   return {

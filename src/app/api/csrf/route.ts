@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateCSRFToken } from '@/lib/security/csrf'
+import { isAllowedRequestOrigin } from '@/lib/security/origin'
 
 // Allowed origins for validation
 const ALLOWED_ORIGINS = [
@@ -8,29 +9,10 @@ const ALLOWED_ORIGINS = [
   'https://www.staminatimer.com',
 ].filter(Boolean)
 
-function validateOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get('origin')
-  const referer = request.headers.get('referer')
-
-  if (process.env.NODE_ENV === 'development') {
-    if (!origin && !referer) return true
-    if (origin?.includes('localhost') || referer?.includes('localhost')) return true
-  }
-
-  if (origin && ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed as string))) {
-    return true
-  }
-  if (referer && ALLOWED_ORIGINS.some(allowed => referer.startsWith(allowed as string))) {
-    return true
-  }
-
-  return !origin
-}
-
 export async function GET(request: NextRequest) {
   try {
     // Validate request origin
-    if (!validateOrigin(request)) {
+    if (!isAllowedRequestOrigin(request, ALLOWED_ORIGINS)) {
       return NextResponse.json(
         { error: 'Invalid request origin' },
         { status: 403 }

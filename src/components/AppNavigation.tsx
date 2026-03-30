@@ -32,9 +32,16 @@ type AppNavigationProps = {
   children: React.ReactNode
 }
 
+function isNavigationItemActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 export function AppNavigation({ children }: AppNavigationProps) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const activeNavigationItem = navigationItems.find((item) =>
+    isNavigationItemActive(pathname, item.href)
+  )
 
   // Close sidebar on route change
   useEffect(() => {
@@ -93,7 +100,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
           {/* Navigation */}
           <nav className="flex-1 p-3 lg:p-4 space-y-1 overflow-y-auto">
             {navigationItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = isNavigationItemActive(pathname, item.href)
               const Icon = item.icon
 
               return (
@@ -151,7 +158,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 <Menu className="h-5 w-5" />
               </Button>
               <h2 className="font-medium text-sm lg:text-base truncate">
-                {navigationItems.find(item => item.href === pathname)?.title ||
+                {activeNavigationItem?.title ||
                  (pathname === '/settings' ? 'Settings' : 'Home')}
               </h2>
             </div>
@@ -172,7 +179,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t border-border/50 lg:hidden z-30 safe-area-bottom">
         <div className="flex h-full items-center justify-around px-2">
           {navigationItems.map((item) => {
-            const isActive = pathname === item.href
+            const isActive = isNavigationItemActive(pathname, item.href)
             const Icon = item.icon
 
             return (
