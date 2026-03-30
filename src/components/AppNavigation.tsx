@@ -11,7 +11,8 @@ import {
   Settings,
   Menu,
   X,
-  BookOpen
+  BookOpen,
+  GraduationCap
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -21,6 +22,7 @@ import { ModeToggle } from './mode-toggle'
 const navigationItems = [
   { title: 'Home', href: '/dashboard', icon: Home },
   { title: 'Train', href: '/training', icon: Timer },
+  { title: 'Program', href: '/program', icon: GraduationCap },
   { title: 'Progress', href: '/progress', icon: TrendingUp },
   { title: 'AI Coach', href: '/ai-coach', icon: Bot },
   { title: 'Guides', href: '/guides', icon: BookOpen }

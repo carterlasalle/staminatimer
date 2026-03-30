@@ -196,6 +196,132 @@ export type Database = {
         }
         Relationships: []
       }
+      program_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          phase: number
+          session_number_in_phase: number
+          started_at: string
+          completed_at: string | null
+          duration_ms: number | null
+          cycles_completed: number | null
+          complete_stops: number | null
+          time_in_zone_ms: number | null
+          highest_arousal_reached: number | null
+          accidentally_finished: boolean | null
+          ended_early: boolean | null
+          self_rating: number | null
+          breathing_maintained: 'yes' | 'mostly' | 'no' | null
+          imagery_rating: number | null
+          positions_used: string[] | null
+          notes: string | null
+          lube_used: boolean | null
+          toy_used: boolean | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          phase: number
+          session_number_in_phase?: number
+          started_at?: string
+          completed_at?: string | null
+          duration_ms?: number | null
+          cycles_completed?: number | null
+          complete_stops?: number | null
+          time_in_zone_ms?: number | null
+          highest_arousal_reached?: number | null
+          accidentally_finished?: boolean | null
+          ended_early?: boolean | null
+          self_rating?: number | null
+          breathing_maintained?: 'yes' | 'mostly' | 'no' | null
+          imagery_rating?: number | null
+          positions_used?: string[] | null
+          notes?: string | null
+          lube_used?: boolean | null
+          toy_used?: boolean | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          phase?: number
+          session_number_in_phase?: number
+          started_at?: string
+          completed_at?: string | null
+          duration_ms?: number | null
+          cycles_completed?: number | null
+          complete_stops?: number | null
+          time_in_zone_ms?: number | null
+          highest_arousal_reached?: number | null
+          accidentally_finished?: boolean | null
+          ended_early?: boolean | null
+          self_rating?: number | null
+          breathing_maintained?: 'yes' | 'mostly' | 'no' | null
+          imagery_rating?: number | null
+          positions_used?: string[] | null
+          notes?: string | null
+          lube_used?: boolean | null
+          toy_used?: boolean | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      program_progress: {
+        Row: {
+          id: string
+          user_id: string
+          current_phase: number | null
+          sessions_in_current_phase: number | null
+          qualifying_sessions_in_phase: number | null
+          total_sessions: number | null
+          sessions_since_ejaculation: number | null
+          last_ejaculation_session: number | null
+          last_session_at: string | null
+          phase_started_at: string | null
+          program_started_at: string | null
+          phase_8_entered_at: string | null
+          daily_squat_streak: number | null
+          last_squat_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          current_phase?: number | null
+          sessions_in_current_phase?: number | null
+          qualifying_sessions_in_phase?: number | null
+          total_sessions?: number | null
+          sessions_since_ejaculation?: number | null
+          last_ejaculation_session?: number | null
+          last_session_at?: string | null
+          phase_started_at?: string | null
+          program_started_at?: string | null
+          phase_8_entered_at?: string | null
+          daily_squat_streak?: number | null
+          last_squat_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          current_phase?: number | null
+          sessions_in_current_phase?: number | null
+          qualifying_sessions_in_phase?: number | null
+          total_sessions?: number | null
+          sessions_since_ejaculation?: number | null
+          last_ejaculation_session?: number | null
+          last_session_at?: string | null
+          phase_started_at?: string | null
+          program_started_at?: string | null
+          phase_8_entered_at?: string | null
+          daily_squat_streak?: number | null
+          last_squat_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
