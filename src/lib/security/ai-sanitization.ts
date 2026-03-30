@@ -58,6 +58,9 @@ const INJECTION_PATTERNS: RegExp[] = [
   /(?:you\s*are\s*now|from\s*now\s*on)/i,
 ]
 
+const HTML_TAG_PATTERN = /<\/?[a-z][^>]*>/i
+const SCRIPT_TAG_PATTERN = /<\s*\/?\s*script\b/i
+
 /**
  * More comprehensive sanitization for AI input
  */
@@ -104,19 +107,19 @@ export function sanitizeAIInput(input: string): SanitizationResult {
     }
   }
 
+  // Reject HTML/script content instead of trying to strip it via regex sanitization.
+  if (HTML_TAG_PATTERN.test(processed) || SCRIPT_TAG_PATTERN.test(processed)) {
+    return {
+      sanitized: '',
+      flagged: true,
+      reason: 'HTML/script content is not allowed',
+    }
+  }
+
   // Replace dangerous patterns with safe alternatives
   processed = processed
     .replace(/```/g, "'''") // Prevent code block manipulation
-    .replace(/#+\s/g, '') // Remove markdown headers
-
-  // Iteratively remove HTML-like tags and any script-like remnants
-  let previous: string
-  do {
-    previous = processed
-    processed = processed
-      .replace(/<\/?[a-z][^>]*>/gi, '') // Remove HTML-like tags
-      .replace(/<\/?\s*script\b[^>]*/gi, '') // Remove any remaining script-like starts
-  } while (processed !== previous)
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '') // Remove markdown headers
 
   return { sanitized: processed, flagged: false }
 }
