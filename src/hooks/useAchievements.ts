@@ -23,7 +23,12 @@ export function useAchievements(): { checkAchievements: (session: DBSession) => 
       .select('*')
       .eq('user_id', user.id)
 
-    const unlockedIds = new Set(userAchievements?.map((ua: { achievement_id: string }) => ua.achievement_id))
+    const userAchievementMap = new Map(
+      (userAchievements ?? []).map((ua: { achievement_id: string; progress: number | null; unlocked_at: string | null }) => [
+        ua.achievement_id,
+        ua,
+      ])
+    )
 
     // Get historical sessions for progress calculations
     const { data: historicalSessions } = await supabase
@@ -35,8 +40,10 @@ export function useAchievements(): { checkAchievements: (session: DBSession) => 
 
     // Check each achievement
     for (const achievement of achievements) {
-      // Skip if already unlocked
-      if (unlockedIds.has(achievement.id)) continue
+      const existingAchievement = userAchievementMap.get(achievement.id)
+
+      // Skip only if the achievement is actually unlocked.
+      if (existingAchievement?.unlocked_at) continue
 
       let progress = 0
       let unlocked = false
@@ -115,13 +122,18 @@ export function useAchievements(): { checkAchievements: (session: DBSession) => 
 
       // Update or create user achievement
       if (progress > 0 || unlocked) {
+        const nextProgress = Math.max(
+          unlocked ? 100 : Math.round(progress),
+          existingAchievement?.progress ?? 0
+        )
+
         const { error } = await supabase
           .from('user_achievements')
           .upsert({
             user_id: user.id,
             achievement_id: achievement.id,
-            progress: unlocked ? 100 : Math.round(progress),
-            unlocked_at: unlocked ? new Date().toISOString() : null
+            progress: nextProgress,
+            unlocked_at: unlocked ? (existingAchievement?.unlocked_at ?? new Date().toISOString()) : null
           })
 
         if (error) {

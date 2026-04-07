@@ -152,54 +152,22 @@ DROP POLICY IF EXISTS "update_global_stats_policy" ON public.global_stats;
 DROP POLICY IF EXISTS "Authenticated users can update global stats" ON public.global_stats;
 -- No UPDATE policy = no direct updates allowed from client
 
--- Trigger function to auto-increment session count (SECURITY DEFINER bypasses RLS)
-CREATE OR REPLACE FUNCTION increment_global_sessions()
-RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION public.recalculate_global_stats()
+RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
     v_stats_id UUID;
-BEGIN
-    SELECT id
-    INTO v_stats_id
-    FROM public.global_stats
-    LIMIT 1;
-
-    IF v_stats_id IS NULL THEN
-        INSERT INTO public.global_stats (id, active_users_count, total_sessions_count, last_updated)
-        VALUES (gen_random_uuid(), 0, 1, NOW());
-    ELSE
-        UPDATE public.global_stats
-        SET total_sessions_count = total_sessions_count + 1,
-            last_updated = NOW()
-        WHERE id = v_stats_id;
-    END IF;
-
-    RETURN NEW;
-END;
-$$;
-
--- Trigger to increment session count when a new session is created
-DROP TRIGGER IF EXISTS on_session_created ON public.sessions;
-CREATE TRIGGER on_session_created
-    AFTER INSERT ON public.sessions
-    FOR EACH ROW
-    EXECUTE FUNCTION increment_global_sessions();
-
--- Trigger function to update active users count (based on users with sessions in last 30 days)
-CREATE OR REPLACE FUNCTION update_active_users_count()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-    v_stats_id UUID;
+    v_total_sessions INTEGER;
     v_active_users_count INTEGER;
 BEGIN
-    SELECT COUNT(DISTINCT user_id)
+    SELECT COUNT(*)::INTEGER
+    INTO v_total_sessions
+    FROM public.sessions;
+
+    SELECT COUNT(DISTINCT user_id)::INTEGER
     INTO v_active_users_count
     FROM public.sessions
     WHERE created_at > NOW() - INTERVAL '30 days';
@@ -207,28 +175,45 @@ BEGIN
     SELECT id
     INTO v_stats_id
     FROM public.global_stats
+    ORDER BY last_updated DESC NULLS LAST, id
     LIMIT 1;
 
     IF v_stats_id IS NULL THEN
         INSERT INTO public.global_stats (id, active_users_count, total_sessions_count, last_updated)
-        VALUES (gen_random_uuid(), v_active_users_count, 0, NOW());
+        VALUES (gen_random_uuid(), v_active_users_count, v_total_sessions, NOW())
+        RETURNING id INTO v_stats_id;
     ELSE
         UPDATE public.global_stats
         SET active_users_count = v_active_users_count,
+            total_sessions_count = v_total_sessions,
             last_updated = NOW()
         WHERE id = v_stats_id;
     END IF;
 
-    RETURN NEW;
+    DELETE FROM public.global_stats
+    WHERE id <> v_stats_id;
 END;
 $$;
 
--- Trigger to update active users on session insert
+CREATE OR REPLACE FUNCTION public.sync_global_stats_trigger()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    PERFORM public.recalculate_global_stats();
+    RETURN NULL;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_session_created ON public.sessions;
 DROP TRIGGER IF EXISTS on_session_update_active_users ON public.sessions;
-CREATE TRIGGER on_session_update_active_users
-    AFTER INSERT ON public.sessions
-    FOR EACH ROW
-    EXECUTE FUNCTION update_active_users_count();
+DROP TRIGGER IF EXISTS trg_sync_global_stats_on_sessions ON public.sessions;
+CREATE TRIGGER trg_sync_global_stats_on_sessions
+    AFTER INSERT OR UPDATE OF user_id, created_at OR DELETE ON public.sessions
+    FOR EACH STATEMENT
+    EXECUTE FUNCTION public.sync_global_stats_trigger();
 
 -- Rate Limits (if using)
 -- DROP POLICY IF EXISTS "Enable read for authenticated users" ON public.rate_limits;
@@ -324,6 +309,17 @@ ALTER TABLE public.user_achievements
 ALTER TABLE public.user_achievements
     ADD CONSTRAINT check_achievement_progress
     CHECK (progress >= 0 AND progress <= 100);
+
+-- Shared sessions: Expiry must not be earlier than creation time
+ALTER TABLE public.shared_sessions
+    DROP CONSTRAINT IF EXISTS check_shared_sessions_expiry_after_creation;
+ALTER TABLE public.shared_sessions
+    ADD CONSTRAINT check_shared_sessions_expiry_after_creation
+    CHECK (
+        expires_at IS NULL
+        OR created_at IS NULL
+        OR expires_at >= created_at
+    );
 
 -- =====================================================
 -- PROGRAM TABLES
