@@ -65,6 +65,63 @@ export function useDailyHabits() {
   }, [])
 
   useEffect(() => {
+    if (!user) {
+      return
+    }
+
+    let cancelled = false
+
+    void supabase
+      .from('program_progress')
+      .select('daily_squat_streak, last_squat_date')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) {
+          return
+        }
+
+        setState((prev) => {
+          const remoteDate = data.last_squat_date ?? null
+          const remoteStreak = Math.max(0, data.daily_squat_streak ?? 0)
+
+          if (!remoteDate) {
+            return prev
+          }
+
+          if (!prev.squatDoneDate) {
+            return {
+              ...prev,
+              squatDoneDate: remoteDate,
+              squatStreak: remoteStreak,
+            }
+          }
+
+          if (remoteDate > prev.squatDoneDate) {
+            return {
+              ...prev,
+              squatDoneDate: remoteDate,
+              squatStreak: remoteStreak,
+            }
+          }
+
+          if (remoteDate === prev.squatDoneDate && remoteStreak > prev.squatStreak) {
+            return {
+              ...prev,
+              squatStreak: remoteStreak,
+            }
+          }
+
+          return prev
+        })
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [user])
+
+  useEffect(() => {
     try {
       localStorage.setItem(DAILY_HABITS_STORAGE_KEY, JSON.stringify(state))
     } catch {

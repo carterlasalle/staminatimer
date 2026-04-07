@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@/contexts/AuthContext'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export type ProgramStage =
@@ -130,7 +131,7 @@ const initialCommitments: CommitmentState = {
   understandEarlyEndRule: false,
 }
 
-const ACTIVE_PROGRAM_SESSION_STORAGE_KEY = 'program_active_session_v1'
+const ACTIVE_PROGRAM_SESSION_STORAGE_KEY_PREFIX = 'program_active_session_v1'
 
 function getRemainingSeconds(endAtMs: number | null) {
   if (!endAtMs) {
@@ -140,6 +141,7 @@ function getRemainingSeconds(endAtMs: number | null) {
 }
 
 export function useProgramSession(phase: number) {
+  const { user } = useAuth()
   const sessionClientIdRef = useRef(createSessionClientId())
   const cueFlagsRef = useRef<Record<string, boolean>>({})
   const stage2StartedAtRef = useRef<number | null>(null)
@@ -186,6 +188,11 @@ export function useProgramSession(phase: number) {
   const [lubeUsed, setLubeUsed] = useState(false)
   const [toyUsed, setToyUsed] = useState(phase >= 6)
   const [positionsUsed, setPositionsUsed] = useState<string[]>([])
+
+  const activeSessionStorageKey = useMemo(
+    () => `${ACTIVE_PROGRAM_SESSION_STORAGE_KEY_PREFIX}:${user?.id ?? 'anonymous'}`,
+    [user?.id]
+  )
 
   const allCommitmentsChecked = useMemo(
     () => commitments.privateSpace && commitments.noPorn && commitments.understandEarlyEndRule,
@@ -526,7 +533,7 @@ export function useProgramSession(phase: number) {
     }
 
     try {
-      const raw = window.localStorage.getItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+      const raw = window.localStorage.getItem(activeSessionStorageKey)
       if (!raw) {
         hydratedRef.current = true
         return
@@ -534,13 +541,13 @@ export function useProgramSession(phase: number) {
 
       const parsed = JSON.parse(raw) as PersistedProgramSession
       if (parsed.version !== 1) {
-        window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+        window.localStorage.removeItem(activeSessionStorageKey)
         hydratedRef.current = true
         return
       }
 
       if (parsed.phase !== phase) {
-        window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+        window.localStorage.removeItem(activeSessionStorageKey)
         hydratedRef.current = true
         return
       }
@@ -577,11 +584,11 @@ export function useProgramSession(phase: number) {
       setToyUsed(parsed.toyUsed)
       setPositionsUsed(parsed.positionsUsed)
     } catch {
-      window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+      window.localStorage.removeItem(activeSessionStorageKey)
     } finally {
       hydratedRef.current = true
     }
-  }, [phase])
+  }, [activeSessionStorageKey, phase])
 
   useEffect(() => {
     if (!hydratedRef.current || typeof window === 'undefined') {
@@ -620,11 +627,12 @@ export function useProgramSession(phase: number) {
     }
 
     try {
-      window.localStorage.setItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY, JSON.stringify(payload))
+      window.localStorage.setItem(activeSessionStorageKey, JSON.stringify(payload))
     } catch {
       // Ignore storage write failures; the session can still be completed in-memory.
     }
   }, [
+    activeSessionStorageKey,
     accidentallyFinished,
     arousalHistory,
     arousalRating,
@@ -823,11 +831,11 @@ export function useProgramSession(phase: number) {
       return
     }
     try {
-      window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+      window.localStorage.removeItem(activeSessionStorageKey)
     } catch {
       // Ignore storage cleanup failures.
     }
-  }, [])
+  }, [activeSessionStorageKey])
 
   return {
     sessionClientId: sessionClientIdRef.current,
