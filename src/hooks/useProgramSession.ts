@@ -540,6 +540,8 @@ export function useProgramSession(phase: number) {
       }
 
       if (parsed.phase !== phase) {
+        window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+        hydratedRef.current = true
         return
       }
 
