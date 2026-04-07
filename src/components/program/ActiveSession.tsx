@@ -134,6 +134,8 @@ export function ActiveSession() {
       ejaculationOutcome: summary.ejaculationOutcome,
     })
 
+    session.clearPersistedSession()
+
     if (result.advancedToPhase) {
       setAdvancedToPhase(result.advancedToPhase)
       setShowAdvancementModal(true)

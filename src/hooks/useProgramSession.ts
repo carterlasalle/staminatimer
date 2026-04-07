@@ -33,6 +33,37 @@ type Phase8Config = {
   mainSessionSeconds: number
 }
 
+type PersistedProgramSession = {
+  version: 1
+  phase: number
+  sessionClientId: string
+  phase8Config: Phase8Config
+  stage: ProgramStage
+  stageEndAtMs: number | null
+  startedAt: string | null
+  completedAt: string | null
+  latestCue: string | null
+  commitments: CommitmentState
+  rkPracticeEndAtMs: number | null
+  arousalRating: number
+  highestArousalReached: number
+  arousalHistory: ArousalSample[]
+  stage1HighArousalFlag: boolean
+  buildState: BuildState
+  regulationEndAtMs: number | null
+  cyclesCompleted: number
+  cycleTimestamps: number[]
+  completeStops: number
+  timeInZoneMs: number
+  firstTimeToNineMs: number | null
+  accidentallyFinished: boolean
+  endedEarly: boolean
+  lubeUsed: boolean
+  toyUsed: boolean
+  positionsUsed: string[]
+  stage2StartedAtMs: number | null
+}
+
 const STAGE_DURATIONS_SECONDS: Record<Exclude<ProgramStage, 'commitment' | 'summary'>, number> = {
   position_setup: 60,
   pelvic_check: 60,
@@ -99,11 +130,23 @@ const initialCommitments: CommitmentState = {
   understandEarlyEndRule: false,
 }
 
+const ACTIVE_PROGRAM_SESSION_STORAGE_KEY = 'program_active_session_v1'
+
+function getRemainingSeconds(endAtMs: number | null) {
+  if (!endAtMs) {
+    return 0
+  }
+  return Math.max(0, Math.ceil((endAtMs - Date.now()) / 1000))
+}
+
 export function useProgramSession(phase: number) {
   const sessionClientIdRef = useRef(createSessionClientId())
   const cueFlagsRef = useRef<Record<string, boolean>>({})
   const stage2StartedAtRef = useRef<number | null>(null)
   const stageEndAtMsRef = useRef<number | null>(null)
+  const regulationEndAtMsRef = useRef<number | null>(null)
+  const rkPracticeEndAtMsRef = useRef<number | null>(null)
+  const hydratedRef = useRef(false)
 
   const [phase8Config, setPhase8Config] = useState<Phase8Config>({
     includePositionSetup: true,
@@ -177,9 +220,13 @@ export function useProgramSession(phase: number) {
 
       if (nextStage === 'summary') {
         stageEndAtMsRef.current = null
+        regulationEndAtMsRef.current = null
+        rkPracticeEndAtMsRef.current = null
         setCompletedAt((prev) => prev ?? new Date().toISOString())
         setIsStageRunning(false)
         setStageRemainingSec(0)
+        setRegulationRemainingSec(0)
+        setRkPracticeRemainingSec(0)
         return
       }
 
@@ -244,6 +291,9 @@ export function useProgramSession(phase: number) {
     setCycleTimestamps([])
     setFirstTimeToNineMs(null)
     stage2StartedAtRef.current = null
+    stageEndAtMsRef.current = null
+    regulationEndAtMsRef.current = null
+    rkPracticeEndAtMsRef.current = null
     enterStage('position_setup')
   }, [allCommitmentsChecked, enterStage, phase])
 
@@ -252,7 +302,8 @@ export function useProgramSession(phase: number) {
   }, [])
 
   const startRkPractice = useCallback(() => {
-    setRkPracticeRemainingSec(10)
+    rkPracticeEndAtMsRef.current = Date.now() + 10_000
+    setRkPracticeRemainingSec(getRemainingSeconds(rkPracticeEndAtMsRef.current))
   }, [])
 
   const setArousalRating = useCallback(
@@ -303,7 +354,8 @@ export function useProgramSession(phase: number) {
       return
     }
     setBuildState('stop')
-    setRegulationRemainingSec(60)
+    regulationEndAtMsRef.current = Date.now() + 60_000
+    setRegulationRemainingSec(getRemainingSeconds(regulationEndAtMsRef.current))
     setLatestCue('STOP state: remove your hand completely and breathe. Wait for arousal to drop to 4-5.')
   }, [phase, stage])
 
@@ -315,7 +367,8 @@ export function useProgramSession(phase: number) {
     const minimumRest = phase >= 5 ? 30 : 45
     const mode: BuildState = phase >= 5 ? 'freeze' : 'stop'
     setBuildState(mode)
-    setRegulationRemainingSec(minimumRest)
+    regulationEndAtMsRef.current = Date.now() + minimumRest * 1000
+    setRegulationRemainingSec(getRemainingSeconds(regulationEndAtMsRef.current))
     setCompleteStops((prev) => prev + 1)
 
     if (phase >= 5) {
@@ -343,6 +396,8 @@ export function useProgramSession(phase: number) {
     }
 
     setBuildState('build')
+    regulationEndAtMsRef.current = null
+    setRegulationRemainingSec(0)
   }, [phase, regulationRemainingSec, stage])
 
   const markAccidentalFinish = useCallback(() => {
@@ -350,6 +405,8 @@ export function useProgramSession(phase: number) {
       setStartedAt(new Date().toISOString())
     }
     stageEndAtMsRef.current = null
+    regulationEndAtMsRef.current = null
+    rkPracticeEndAtMsRef.current = null
     setAccidentallyFinished(true)
     setEndedEarly(true)
     setCompletedAt(new Date().toISOString())
@@ -362,6 +419,8 @@ export function useProgramSession(phase: number) {
       setStartedAt(new Date().toISOString())
     }
     stageEndAtMsRef.current = null
+    regulationEndAtMsRef.current = null
+    rkPracticeEndAtMsRef.current = null
     setEndedEarly(true)
     setCompletedAt(new Date().toISOString())
     setIsStageRunning(false)
@@ -423,27 +482,173 @@ export function useProgramSession(phase: number) {
 
   // RK guided practice timer
   useEffect(() => {
-    if (rkPracticeRemainingSec <= 0) {
+    if (!rkPracticeEndAtMsRef.current) {
       return
     }
-    const intervalId = window.setInterval(() => {
-      setRkPracticeRemainingSec((prev) => Math.max(0, prev - 1))
-    }, 1000)
+
+    const tick = () => {
+      const remainingSec = getRemainingSeconds(rkPracticeEndAtMsRef.current)
+      setRkPracticeRemainingSec((prev) => (prev === remainingSec ? prev : remainingSec))
+      if (remainingSec === 0) {
+        rkPracticeEndAtMsRef.current = null
+      }
+    }
+
+    tick()
+    const intervalId = window.setInterval(tick, 250)
+
     return () => window.clearInterval(intervalId)
   }, [rkPracticeRemainingSec])
 
   // STOP/FREEZE regulation timer
   useEffect(() => {
-    if (stage !== 'stage2' || buildState === 'build' || regulationRemainingSec <= 0) {
+    if (stage !== 'stage2' || buildState === 'build' || !regulationEndAtMsRef.current) {
       return
     }
 
-    const intervalId = window.setInterval(() => {
-      setRegulationRemainingSec((prev) => Math.max(0, prev - 1))
-    }, 1000)
+    const tick = () => {
+      const remainingSec = getRemainingSeconds(regulationEndAtMsRef.current)
+      setRegulationRemainingSec((prev) => (prev === remainingSec ? prev : remainingSec))
+      if (remainingSec === 0) {
+        regulationEndAtMsRef.current = null
+      }
+    }
+
+    tick()
+    const intervalId = window.setInterval(tick, 250)
 
     return () => window.clearInterval(intervalId)
   }, [buildState, regulationRemainingSec, stage])
+
+  useEffect(() => {
+    if (hydratedRef.current || typeof window === 'undefined') {
+      return
+    }
+
+    try {
+      const raw = window.localStorage.getItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+      if (!raw) {
+        hydratedRef.current = true
+        return
+      }
+
+      const parsed = JSON.parse(raw) as PersistedProgramSession
+      if (parsed.version !== 1) {
+        window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+        hydratedRef.current = true
+        return
+      }
+
+      if (parsed.phase !== phase) {
+        return
+      }
+
+      sessionClientIdRef.current = parsed.sessionClientId
+      stageEndAtMsRef.current = parsed.stageEndAtMs
+      regulationEndAtMsRef.current = parsed.regulationEndAtMs
+      rkPracticeEndAtMsRef.current = parsed.rkPracticeEndAtMs
+      stage2StartedAtRef.current = parsed.stage2StartedAtMs
+
+      setPhase8Config(parsed.phase8Config)
+      setStage(parsed.stage)
+      setStageRemainingSec(getRemainingSeconds(parsed.stageEndAtMs))
+      setIsStageRunning(parsed.stage !== 'summary' && getRemainingSeconds(parsed.stageEndAtMs) > 0)
+      setStartedAt(parsed.startedAt)
+      setCompletedAt(parsed.completedAt)
+      setLatestCue(parsed.latestCue)
+      setCommitments(parsed.commitments)
+      setRkPracticeRemainingSec(getRemainingSeconds(parsed.rkPracticeEndAtMs))
+      setArousalRatingState(parsed.arousalRating)
+      setHighestArousalReached(parsed.highestArousalReached)
+      setArousalHistory(parsed.arousalHistory)
+      setStage1HighArousalFlag(parsed.stage1HighArousalFlag)
+      setBuildState(parsed.buildState)
+      setRegulationRemainingSec(getRemainingSeconds(parsed.regulationEndAtMs))
+      setCyclesCompleted(parsed.cyclesCompleted)
+      setCycleTimestamps(parsed.cycleTimestamps)
+      setCompleteStops(parsed.completeStops)
+      setTimeInZoneMs(parsed.timeInZoneMs)
+      setFirstTimeToNineMs(parsed.firstTimeToNineMs)
+      setAccidentallyFinished(parsed.accidentallyFinished)
+      setEndedEarly(parsed.endedEarly)
+      setLubeUsed(parsed.lubeUsed)
+      setToyUsed(parsed.toyUsed)
+      setPositionsUsed(parsed.positionsUsed)
+    } catch {
+      window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+    } finally {
+      hydratedRef.current = true
+    }
+  }, [phase])
+
+  useEffect(() => {
+    if (!hydratedRef.current || typeof window === 'undefined') {
+      return
+    }
+
+    const payload: PersistedProgramSession = {
+      version: 1,
+      phase,
+      sessionClientId: sessionClientIdRef.current,
+      phase8Config,
+      stage,
+      stageEndAtMs: stageEndAtMsRef.current,
+      startedAt,
+      completedAt,
+      latestCue,
+      commitments,
+      rkPracticeEndAtMs: rkPracticeEndAtMsRef.current,
+      arousalRating,
+      highestArousalReached,
+      arousalHistory,
+      stage1HighArousalFlag,
+      buildState,
+      regulationEndAtMs: regulationEndAtMsRef.current,
+      cyclesCompleted,
+      cycleTimestamps,
+      completeStops,
+      timeInZoneMs,
+      firstTimeToNineMs,
+      accidentallyFinished,
+      endedEarly,
+      lubeUsed,
+      toyUsed,
+      positionsUsed,
+      stage2StartedAtMs: stage2StartedAtRef.current,
+    }
+
+    try {
+      window.localStorage.setItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY, JSON.stringify(payload))
+    } catch {
+      // Ignore storage write failures; the session can still be completed in-memory.
+    }
+  }, [
+    accidentallyFinished,
+    arousalHistory,
+    arousalRating,
+    buildState,
+    commitments,
+    completeStops,
+    completedAt,
+    cycleTimestamps,
+    cyclesCompleted,
+    endedEarly,
+    firstTimeToNineMs,
+    highestArousalReached,
+    latestCue,
+    lubeUsed,
+    phase,
+    phase8Config,
+    positionsUsed,
+    regulationRemainingSec,
+    rkPracticeRemainingSec,
+    stage,
+    stage1HighArousalFlag,
+    stageRemainingSec,
+    startedAt,
+    timeInZoneMs,
+    toyUsed,
+  ])
 
   // For optional Phase 8 stages, auto-advance through zero-duration stages.
   useEffect(() => {
@@ -611,6 +816,17 @@ export function useProgramSession(phase: number) {
     return Math.max(0, end - start)
   }, [completedAt, startedAt])
 
+  const clearPersistedSession = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      window.localStorage.removeItem(ACTIVE_PROGRAM_SESSION_STORAGE_KEY)
+    } catch {
+      // Ignore storage cleanup failures.
+    }
+  }, [])
+
   return {
     sessionClientId: sessionClientIdRef.current,
     phase,
@@ -669,5 +885,6 @@ export function useProgramSession(phase: number) {
 
     advanceStage,
     setLatestCue,
+    clearPersistedSession,
   }
 }
