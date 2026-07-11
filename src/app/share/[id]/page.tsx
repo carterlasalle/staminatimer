@@ -19,11 +19,9 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchSharedData(): Promise<void> {
-      const { data, error } = await supabase
-        .from('shared_sessions')
-        .select('sessions_data')
-        .eq('id', id)
-        .single()
+      const { data, error } = await supabase.rpc('get_shared_session', {
+        p_share_id: id,
+      })
 
       if (error || !data) {
         console.error('Error fetching shared data:', error)
@@ -32,7 +30,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
         return
       }
 
-      setSharedData(data.sessions_data as DBSession[])
+      setSharedData(data as unknown as DBSession[])
       setLoading(false)
     }
 
@@ -40,7 +38,12 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
   }, [id])
 
   if (loading) return <Loading text="Loading shared data..." fullScreen />
-  if (error || !sharedData) return <div className="container mx-auto py-8 text-center text-destructive">{error || 'Share link not found or expired'}</div>
+  if (error || !sharedData)
+    return (
+      <div className="container mx-auto py-8 text-center text-destructive">
+        {error || 'Share link not found or expired'}
+      </div>
+    )
 
   return (
     <div className="container max-w-7xl mx-auto py-8">

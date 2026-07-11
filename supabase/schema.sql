@@ -127,16 +127,39 @@ CREATE POLICY "Users can insert/update their own achievement progress" -- Rename
 
 -- Shared Sessions
 DROP POLICY IF EXISTS "Users can view their own shared sessions or valid shared links" ON public.shared_sessions;
-CREATE POLICY "Public can view non-expired shared links"
+DROP POLICY IF EXISTS "Public can view non-expired shared links" ON public.shared_sessions;
+DROP POLICY IF EXISTS "Creators can view own shared sessions" ON public.shared_sessions;
+CREATE POLICY "Creators can view own shared sessions"
     ON public.shared_sessions
     FOR SELECT
-    USING ((expires_at IS NULL) OR (expires_at > now())); -- Public access based on expiry
+    TO authenticated
+    USING (auth.uid() = created_by);
 
 DROP POLICY IF EXISTS "Only authenticated users can create shared sessions" ON public.shared_sessions;
 CREATE POLICY "Authenticated users can create shared sessions"
     ON public.shared_sessions
     FOR INSERT
-    WITH CHECK (auth.role() = 'authenticated');
+    TO authenticated
+    WITH CHECK (auth.uid() = created_by);
+
+-- Public share reads must go through a narrow SECURITY DEFINER function.
+-- Granting anon SELECT on the table would allow enumeration of every active share.
+CREATE OR REPLACE FUNCTION public.get_shared_session(p_share_id UUID)
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT sessions_data
+    FROM public.shared_sessions
+    WHERE id = p_share_id
+      AND (expires_at IS NULL OR expires_at > now())
+    LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_shared_session(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_shared_session(UUID) TO anon, authenticated;
 
 -- Global Stats
 DROP POLICY IF EXISTS "Anyone can view global stats" ON public.global_stats;
