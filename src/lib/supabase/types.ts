@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   public: {
@@ -69,12 +63,12 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_session"
-            columns: ["session_id"]
+            foreignKeyName: 'fk_session'
+            columns: ['session_id']
             isOneToOne: false
-            referencedRelation: "sessions"
-            referencedColumns: ["id"]
-          }
+            referencedRelation: 'sessions'
+            referencedColumns: ['id']
+          },
         ]
       }
       achievements: {
@@ -143,12 +137,12 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_achievements_achievement_id_fkey"
-            columns: ["achievement_id"]
+            foreignKeyName: 'user_achievements_achievement_id_fkey'
+            columns: ['achievement_id']
             isOneToOne: false
-            referencedRelation: "achievements"
-            referencedColumns: ["id"]
-          }
+            referencedRelation: 'achievements'
+            referencedColumns: ['id']
+          },
         ]
       }
       shared_sessions: {
@@ -327,6 +321,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_shared_session: {
+        Args: {
+          p_share_id: string
+        }
+        Returns: Json | null
+      }
       record_program_session: {
         Args: {
           p_started_at: string
