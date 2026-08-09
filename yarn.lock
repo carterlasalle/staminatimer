@@ -4470,7 +4470,6 @@ __metadata:
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-
   languageName: node
   linkType: hard
 
