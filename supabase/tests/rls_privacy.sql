@@ -47,7 +47,7 @@ select is((select active_duration from public.sessions where id = 'aaaaaaaa-aaaa
 
 set local role anon;
 select set_config('request.jwt.claim.sub', '', true);
-select is((select count(*)::integer from public.shared_sessions), 0, 'anonymous user cannot enumerate shared-session rows');
+select throws_ok($$select * from public.shared_sessions$$, 'permission denied for table shared_sessions', 'anonymous user cannot enumerate shared-session rows');
 select is(public.get_shared_session('44444444-4444-4444-4444-444444444444'::uuid), '[{"safe":"active"}]'::jsonb, 'anonymous lookup returns only the requested active share payload');
 select is(public.get_shared_session('55555555-5555-5555-5555-555555555555'::uuid), null::jsonb, 'anonymous lookup returns no payload for an expired share');
 
