@@ -41,17 +41,19 @@ OSV and repository security workflows remain independent defense-in-depth checks
 
 ## Local production rehearsal
 
+Use the same pinned Supabase CLI version as CI:
+
 ```bash
 corepack enable
 yarn install --immutable
-supabase start
-supabase db reset
+yarn dlx supabase@2.114.0 start
+yarn dlx supabase@2.114.0 db reset
 yarn test
 yarn build
 yarn start
 ```
 
-Then verify `http://127.0.0.1:3000/api/health`. For the database privacy suite run `supabase test db`. For browser tests, create a local test identity and supply `E2E_EMAIL`/`E2E_PASSWORD`, then run `yarn playwright install chromium` followed by `yarn test:e2e`.
+Then verify `http://127.0.0.1:3000/api/health`. For the database privacy suite run `yarn dlx supabase@2.114.0 test db`. For browser tests, create a local test identity and supply `E2E_EMAIL`/`E2E_PASSWORD`, then run `yarn playwright install chromium` followed by `yarn test:e2e`.
 
 ## Incident checklist
 
@@ -59,4 +61,5 @@ Then verify `http://127.0.0.1:3000/api/health`. For the database privacy suite r
 - Separate client exceptions, server/API failures, database/auth failures, and rate-limit saturation.
 - Reproduce against a fresh local Supabase reset when database policy or migration drift is suspected.
 - Never disable RLS, CSRF, origin checks, or immutable dependency installation to restore service.
-- Roll back the application and database migration together when a schema-dependent release cannot be made forward-compatible.
+- Prefer a forward-fix migration that preserves already-written production data.
+- Roll back a database migration only when the reversal has been tested against representative data, or when a verified backup restore/backfill procedure is ready. Application rollback alone must not assume an irreversible schema change disappeared.
