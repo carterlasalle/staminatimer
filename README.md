@@ -4,6 +4,8 @@ A privacy-focused training timer with guided sessions, progress analytics, goals
 
 [Live application](https://staminatimer.com)
 
+![Stamina Timer product flow: train, control, and review](docs/demo.svg)
+
 ## Features
 
 - Guided training and program timers
