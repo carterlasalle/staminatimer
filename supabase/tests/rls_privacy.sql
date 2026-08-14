@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(8);
+select plan(9);
 
 insert into auth.users (id, aud, role, email)
 values
@@ -50,13 +50,18 @@ select is(
   'second user cannot read first user session'
 );
 
-select is(
-  (update public.sessions set active_duration = 1 where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' returning 1)::integer,
-  null,
-  'second user cannot update first user session'
+select lives_ok(
+  $$update public.sessions set active_duration = 1 where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'$$,
+  'cross-account update is filtered by RLS rather than leaking row existence'
 );
 
 reset role;
+select is(
+  (select active_duration from public.sessions where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
+  900,
+  'cross-account update did not modify the owner row'
+);
+
 set local role anon;
 select set_config('request.jwt.claim.sub', '', true);
 
