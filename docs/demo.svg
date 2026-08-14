@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img" aria-labelledby="title desc">
+  <title id="title">Stamina Timer product flow</title>
+  <desc id="desc">Three panels show starting a guided training session, tracking active and edge time, and reviewing progress.</desc>
+  <rect width="1200" height="500" rx="28" fill="#0b1020"/>
+  <text x="60" y="62" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="30" font-weight="700">Stamina Timer — private training from session to insight</text>
+  <g font-family="system-ui,sans-serif">
+    <g transform="translate(60 105)">
+      <rect width="320" height="330" rx="20" fill="#111827" stroke="#334155"/>
+      <text x="24" y="42" fill="#94a3b8" font-size="15">1 · TRAIN</text>
+      <text x="24" y="82" fill="#f8fafc" font-size="27" font-weight="700">Ready to Begin</text>
+      <text x="24" y="112" fill="#cbd5e1" font-size="16">Guided session with keyboard controls</text>
+      <circle cx="160" cy="205" r="66" fill="#172554" stroke="#60a5fa" stroke-width="6"/>
+      <path d="M146 174 L196 205 L146 236 Z" fill="#93c5fd"/>
+      <rect x="76" y="294" width="168" height="12" rx="6" fill="#1e293b"/>
+      <rect x="76" y="294" width="72" height="12" rx="6" fill="#60a5fa"/>
+    </g>
+    <g transform="translate(440 105)">
+      <rect width="320" height="330" rx="20" fill="#111827" stroke="#334155"/>
+      <text x="24" y="42" fill="#94a3b8" font-size="15">2 · CONTROL</text>
+      <text x="24" y="82" fill="#f8fafc" font-size="27" font-weight="700">Session Active</text>
+      <text x="24" y="112" fill="#cbd5e1" font-size="16">Wall-clock persistence survives pauses</text>
+      <text x="24" y="176" fill="#93c5fd" font-size="44" font-weight="700">08:42</text>
+      <text x="24" y="207" fill="#94a3b8" font-size="15">ACTIVE TIME</text>
+      <rect x="24" y="242" width="272" height="52" rx="14" fill="#3f1d2e" stroke="#fb7185"/>
+      <text x="45" y="275" fill="#fecdd3" font-size="18" font-weight="600">Edge Zone · 01:16</text>
+    </g>
+    <g transform="translate(820 105)">
+      <rect width="320" height="330" rx="20" fill="#111827" stroke="#334155"/>
+      <text x="24" y="42" fill="#94a3b8" font-size="15">3 · REVIEW</text>
+      <text x="24" y="82" fill="#f8fafc" font-size="27" font-weight="700">Progress</text>
+      <text x="24" y="112" fill="#cbd5e1" font-size="16">Private history and trend analytics</text>
+      <path d="M30 255 C82 235 108 270 152 213 S236 180 292 145" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="30" cy="255" r="7" fill="#6ee7b7"/><circle cx="152" cy="213" r="7" fill="#6ee7b7"/><circle cx="292" cy="145" r="7" fill="#6ee7b7"/>
+      <text x="24" y="300" fill="#a7f3d0" font-size="18" font-weight="600">RLS-protected by default</text>
+    </g>
+  </g>
+</svg>
