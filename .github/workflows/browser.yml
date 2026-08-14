@@ -1,0 +1,83 @@
+name: Browser and accessibility
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions: read-all
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4.2.2
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.x'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          version: 2.114.0
+
+      - name: Start local Supabase and configure app
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset
+          eval "$(supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "CSRF_SECRET=e2e-only-secret-not-for-production"
+            echo "E2E_EMAIL=browser-test@example.test"
+            echo "E2E_PASSWORD=BrowserTest-2026!"
+          } >> "$GITHUB_ENV"
+          cat > .env.local <<EOF
+          NEXT_PUBLIC_SUPABASE_URL=${API_URL}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+          CSRF_SECRET=e2e-only-secret-not-for-production
+          EOF
+          curl --fail-with-body --silent --show-error \
+            --request POST "${API_URL}/auth/v1/admin/users" \
+            --header "apikey: ${SERVICE_ROLE_KEY}" \
+            --header "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
+            --header "Content-Type: application/json" \
+            --data '{"email":"browser-test@example.test","password":"BrowserTest-2026!","email_confirm":true}'
+
+      - name: Build production app
+        run: yarn build
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Run Playwright flows
+        run: yarn test:e2e
+
+      - name: Run Lighthouse accessibility gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          yarn start > /tmp/staminatimer.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          for _ in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:3000/api/health
+          yarn dlx @lhci/cli@0.15.1 autorun
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
