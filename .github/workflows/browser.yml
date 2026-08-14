@@ -64,7 +64,7 @@ jobs:
       - name: Run Playwright flows
         run: yarn test:e2e
       - name: Run Lighthouse accessibility gate
-        run: yarn lhci autorun
+        run: yarn dlx @lhci/cli@0.15.1 autorun
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
