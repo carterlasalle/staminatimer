@@ -41,7 +41,7 @@ See [docs/architecture.md](docs/architecture.md) for the auth/session flow, time
 
 ## Getting Started
 
-The repository includes a local Supabase configuration, migrations, seed data, and automated privacy tests. A fresh clone can run the same database stack used by CI.
+The repository includes a local Supabase configuration, migrations, seed data, and automated privacy tests. A fresh clone can run the same database stack used by CI without installing a global Supabase CLI.
 
 ```bash
 # Clone the repository
@@ -52,11 +52,11 @@ cd staminatimer
 corepack enable
 yarn install --immutable
 
-# Install the Supabase CLI, then start and rebuild the local database
-supabase start
-supabase db reset
+# Start and rebuild the local Supabase stack with the CI-pinned CLI version
+yarn dlx supabase@2.114.0 start
+yarn dlx supabase@2.114.0 db reset
 
-# Copy the local values reported by `supabase status -o env`
+# Copy the local values reported by `yarn dlx supabase@2.114.0 status -o env`
 # into the matching NEXT_PUBLIC_* entries in .env.local.
 cp .env.example .env.local
 
@@ -64,7 +64,7 @@ cp .env.example .env.local
 yarn dev
 ```
 
-For a production rehearsal, run `yarn test`, `yarn build`, and `yarn start`, then verify `/api/health`. Run `supabase test db` to execute the two-user/anonymous RLS privacy proof.
+For a production rehearsal, run `yarn test`, `yarn build`, and `yarn start`, then verify `/api/health`. Run `yarn dlx supabase@2.114.0 test db` to execute the two-user/anonymous RLS privacy proof.
 
 ## Environment Variables
 
@@ -81,7 +81,7 @@ Never prefix `GEMINI_API_KEY`, `CSRF_SECRET`, Upstash credentials, or a Supabase
 
 ## Database Setup
 
-`supabase/config.toml` defines the reproducible local stack. Existing environments should apply every migration under `supabase/migrations/` in timestamp order. `supabase db reset` rebuilds a local database from those migrations and the configured achievement seed; `supabase test db` then proves the RLS/privacy boundaries.
+`supabase/config.toml` defines the reproducible local stack. Existing environments should apply every migration under `supabase/migrations/` in timestamp order. `yarn dlx supabase@2.114.0 db reset` rebuilds a local database from those migrations and the configured achievement seed; `yarn dlx supabase@2.114.0 test db` then proves the RLS/privacy boundaries.
 
 The migration `20260711000000_secure_shared_sessions.sql` removes anonymous table reads and exposes public shares only through `get_shared_session(uuid)`.
 
