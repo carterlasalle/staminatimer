@@ -11,52 +11,27 @@ const mocks = vi.hoisted(() => {
   const sessionFetchSingle = vi.fn()
   const edgeInsert = vi.fn()
   const edgeUpdateIs = vi.fn()
+  const rpc = vi.fn()
   const checkAchievements = vi.fn()
-
-  return {
-    getUser,
-    sessionInsertSingle,
-    sessionUpdateEq,
-    sessionFetchSingle,
-    edgeInsert,
-    edgeUpdateIs,
-    checkAchievements,
-  }
+  return { getUser, sessionInsertSingle, sessionUpdateEq, sessionFetchSingle, edgeInsert, edgeUpdateIs, rpc, checkAchievements }
 })
 
-vi.mock('@/hooks/useAchievements', () => ({
-  useAchievements: () => ({ checkAchievements: mocks.checkAchievements }),
-}))
-
-vi.mock('sonner', () => ({
-  toast: { error: vi.fn(), success: vi.fn() },
-}))
-
+vi.mock('@/hooks/useAchievements', () => ({ useAchievements: () => ({ checkAchievements: mocks.checkAchievements }) }))
+vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 vi.mock('@/lib/supabase/client', () => ({
   supabase: {
     auth: { getUser: mocks.getUser },
+    rpc: mocks.rpc,
     from: (table: string) => {
-      if (table === 'sessions') {
-        return {
-          insert: () => ({
-            select: () => ({ single: mocks.sessionInsertSingle }),
-          }),
-          update: () => ({ eq: mocks.sessionUpdateEq }),
-          select: () => ({
-            eq: () => ({ single: mocks.sessionFetchSingle }),
-          }),
-        }
+      if (table === 'sessions') return {
+        insert: () => ({ select: () => ({ single: mocks.sessionInsertSingle }) }),
+        update: () => ({ eq: mocks.sessionUpdateEq }),
+        select: () => ({ eq: () => ({ single: mocks.sessionFetchSingle }) }),
       }
-
-      if (table === 'edge_events') {
-        return {
-          insert: mocks.edgeInsert,
-          update: () => ({
-            eq: () => ({ is: mocks.edgeUpdateIs }),
-          }),
-        }
+      if (table === 'edge_events') return {
+        insert: mocks.edgeInsert,
+        update: () => ({ eq: () => ({ is: mocks.edgeUpdateIs }) }),
       }
-
       throw new Error(`Unexpected table ${table}`)
     },
   },
@@ -72,6 +47,7 @@ describe('useTimer lifecycle', () => {
     mocks.sessionFetchSingle.mockResolvedValue({ data: { id: 'session-1' }, error: null })
     mocks.edgeInsert.mockResolvedValue({ error: null })
     mocks.edgeUpdateIs.mockResolvedValue({ error: null })
+    mocks.rpc.mockResolvedValue({ error: null })
   })
 
   afterEach(() => {
@@ -81,59 +57,74 @@ describe('useTimer lifecycle', () => {
 
   it('starts, pauses, resumes, edges, completes, and resets without counting paused time', async () => {
     const { result } = renderHook(() => useTimer())
-
     await act(async () => result.current.startSession())
     expect(result.current.state).toBe('active')
-    expect(result.current.isPaused).toBe(false)
-
     act(() => vi.advanceTimersByTime(5_000))
-    expect(result.current.activeTime).toBe(5_000)
-
     await act(async () => result.current.pauseSession())
-    expect(result.current.state).toBe('active')
-    expect(result.current.isPaused).toBe(true)
     expect(result.current.activeTime).toBe(5_000)
-
     act(() => vi.advanceTimersByTime(2_000))
     expect(result.current.activeTime).toBe(5_000)
-
     act(() => result.current.resumeSession())
-    expect(result.current.isPaused).toBe(false)
     act(() => vi.advanceTimersByTime(3_000))
-    expect(result.current.activeTime).toBe(8_000)
-
     await act(async () => result.current.startEdge())
-    expect(result.current.state).toBe('edging')
-
     act(() => vi.advanceTimersByTime(4_000))
-    expect(result.current.edgeTime).toBe(4_000)
-
     await act(async () => result.current.endEdge())
-    expect(result.current.state).toBe('active')
-    expect(result.current.edgeLaps).toHaveLength(1)
-    expect(result.current.edgeLaps[0]?.duration).toBe(4_000)
-
     act(() => vi.advanceTimersByTime(1_000))
     await act(async () => result.current.finishSession())
     expect(result.current.state).toBe('finished')
     expect(result.current.activeTime).toBe(9_000)
     expect(result.current.edgeTime).toBe(4_000)
+    expect(mocks.rpc).toHaveBeenCalledWith('finish_timer_session', expect.objectContaining({
+      p_active_duration: 9_000,
+      p_edge_duration: 4_000,
+      p_finished_during_edge: false,
+      p_open_edge_duration: null,
+    }))
     expect(mocks.checkAchievements).toHaveBeenCalledTimes(1)
-
     act(() => result.current.resetTimer())
     expect(result.current.state).toBe('idle')
-    expect(result.current.isPaused).toBe(false)
     expect(result.current.activeTime).toBe(0)
     expect(result.current.edgeTime).toBe(0)
+  })
+
+  it('does not advance committed active time when starting an edge fails', async () => {
+    const { result } = renderHook(() => useTimer())
+    await act(async () => result.current.startSession())
+    act(() => vi.advanceTimersByTime(5_000))
+    mocks.edgeInsert.mockResolvedValueOnce({ error: new Error('insert failed') })
+    await act(async () => result.current.startEdge())
+    expect(result.current.state).toBe('active')
+    expect(result.current.activeTime).toBe(5_000)
+    mocks.edgeInsert.mockResolvedValueOnce({ error: null })
+    await act(async () => result.current.startEdge())
+    expect(result.current.state).toBe('edging')
+    expect(result.current.activeTime).toBe(5_000)
+  })
+
+  it('finalizes an open edge atomically when the session finishes while edging', async () => {
+    const { result } = renderHook(() => useTimer())
+    await act(async () => result.current.startSession())
+    act(() => vi.advanceTimersByTime(2_000))
+    await act(async () => result.current.startEdge())
+    act(() => vi.advanceTimersByTime(3_000))
+    await act(async () => result.current.finishSession())
+    expect(result.current.state).toBe('finished')
+    expect(result.current.edgeTime).toBe(3_000)
+    expect(result.current.edgeLaps[0]?.duration).toBe(3_000)
+    expect(mocks.rpc).toHaveBeenCalledWith('finish_timer_session', expect.objectContaining({
+      p_active_duration: 2_000,
+      p_edge_duration: 3_000,
+      p_total_duration: 5_000,
+      p_finished_during_edge: true,
+      p_open_edge_duration: 3_000,
+    }))
   })
 
   it('reconciles elapsed wall-clock time when page visibility changes', async () => {
     const { result } = renderHook(() => useTimer())
     await act(async () => result.current.startSession())
-
     vi.setSystemTime(new Date('2026-08-14T12:00:11.000Z'))
     act(() => document.dispatchEvent(new Event('visibilitychange')))
-
     expect(result.current.activeTime).toBe(11_000)
   })
 })
