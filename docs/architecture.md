@@ -8,10 +8,11 @@ Stamina Timer is a Next.js App Router application. Public pages, authenticated p
 Browser
 ├── public pages / PWA
 ├── authenticated dashboard, training, progress, settings
+├── local UI preferences stored in the browser
 └── public Supabase client (URL + anon key)
        │
        ├── auth session
-       ├── RLS-protected tables
+       ├── RLS-protected user tables
        └── get_shared_session(uuid) RPC
 
 Next.js server
@@ -29,13 +30,23 @@ If public Supabase variables are absent during build/SSR, the client module inte
 
 ## Data ownership
 
-Private user-owned rows carry a `user_id` or equivalent owner column. RLS policies compare that owner to `auth.uid()` for sessions, edge events, achievements/progress, preferences, and program data. Code must never compensate for a missing RLS policy by filtering only in JavaScript; database authorization is the trust boundary.
+Private database rows carry a `user_id` or derive ownership through an owned parent. RLS policies enforce that boundary for sessions, edge events, user-achievement progress, program sessions/progress, and private share-management rows. Base achievement definitions and aggregate global statistics are intentionally readable application data; they are not private per-user records. UI preferences that remain in browser storage are outside the Supabase RLS boundary.
 
-The automated `supabase/tests/rls_privacy.sql` test creates two authenticated identities plus an anonymous context and proves that one identity cannot read or mutate the other's session rows.
+Code must never compensate for a missing RLS policy by filtering only in JavaScript; database authorization is the trust boundary for persisted user data. The automated `supabase/tests/rls_privacy.sql` test creates two authenticated identities plus an anonymous context and proves cross-account isolation across the private tables, verifies a cross-account mutation cannot change the owner row, denies anonymous share-table enumeration, and tests the narrow active/expired share RPC behavior.
 
 ## Public sharing boundary
 
 `shared_sessions` is intentionally not anonymous-readable. A creator may insert/read their own rows, while an anonymous visitor can only execute `get_shared_session(uuid)`. The SECURITY DEFINER function accepts one opaque UUID and returns only its non-expired copied payload. This prevents table enumeration while preserving share links.
+
+A share is a copied snapshot, not a live authorization grant to the creator's underlying session rows. Expired shares return no payload through the public RPC.
+
+## Retention, deletion, and analytics
+
+Training records remain in the user's Supabase account until the application/user deletes them or the account is removed; there is no hidden short-retention job that silently removes active training history. Expiring a public share only makes that copied share payload unavailable through the public lookup path—it does not delete the owner's underlying training record.
+
+Account deletion must remove the authenticated identity and its owned application data together. Database relationships and RLS are the enforcement layer; UI-only deletion is not considered sufficient. Any production account-deletion flow must be validated against a fresh migration-built database before release.
+
+Microsoft Clarity is optional and only initializes when its public project ID is configured. Operational/error telemetry must exclude timer notes, session/share payloads, AI prompts, email addresses, Supabase tokens, auth headers, and other wellness content. See `docs/operations.md` for the redaction and incident-handling rules.
 
 ## Server-only secrets
 
@@ -43,7 +54,7 @@ The automated `supabase/tests/rls_privacy.sql` test creates two authenticated id
 
 ## Timer persistence
 
-The timer records wall-clock boundaries rather than trusting interval tick counts. Active and edge elapsed time are reconciled from timestamps, including after browser visibility changes. Pausing persists accumulated active time before stopping the active clock; resuming starts a new wall-clock segment. Finishing persists the final durations and then evaluates achievements.
+The timer records wall-clock boundaries rather than trusting interval tick counts. Active and edge elapsed time are reconciled from timestamps, including after browser visibility changes. Pausing persists accumulated active time before stopping the active clock; resuming starts a new wall-clock segment. Starting an edge commits local state only after persistence succeeds. Finishing calls one database function that closes any open edge and finalizes the parent session in the same transaction before achievements are evaluated.
 
 ## Deployment assumptions
 
