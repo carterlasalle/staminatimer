@@ -84,18 +84,21 @@ describe('useTimer lifecycle', () => {
 
     await act(async () => result.current.startSession())
     expect(result.current.state).toBe('active')
+    expect(result.current.isPaused).toBe(false)
 
     act(() => vi.advanceTimersByTime(5_000))
     expect(result.current.activeTime).toBe(5_000)
 
     await act(async () => result.current.pauseSession())
-    expect(result.current.state).toBe('paused')
+    expect(result.current.state).toBe('active')
+    expect(result.current.isPaused).toBe(true)
     expect(result.current.activeTime).toBe(5_000)
 
     act(() => vi.advanceTimersByTime(2_000))
     expect(result.current.activeTime).toBe(5_000)
 
     act(() => result.current.resumeSession())
+    expect(result.current.isPaused).toBe(false)
     act(() => vi.advanceTimersByTime(3_000))
     expect(result.current.activeTime).toBe(8_000)
 
@@ -119,6 +122,7 @@ describe('useTimer lifecycle', () => {
 
     act(() => result.current.resetTimer())
     expect(result.current.state).toBe('idle')
+    expect(result.current.isPaused).toBe(false)
     expect(result.current.activeTime).toBe(0)
     expect(result.current.edgeTime).toBe(0)
   })
