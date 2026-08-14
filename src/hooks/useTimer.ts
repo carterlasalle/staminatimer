@@ -6,7 +6,7 @@ import type { DBSession } from '@/lib/types'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import { toast } from 'sonner'
 
-type TimerState = 'idle' | 'active' | 'paused' | 'edging' | 'finished'
+type TimerState = 'idle' | 'active' | 'edging' | 'finished'
 
 type EdgeLap = {
   startTime: Date
@@ -16,6 +16,7 @@ type EdgeLap = {
 
 export function useTimer() {
   const [state, setState] = useState<TimerState>('idle')
+  const [isPaused, setIsPaused] = useState(false)
   const [activeTime, setActiveTime] = useState(0)
   const [edgeTime, setEdgeTime] = useState(0)
   const [currentEdgeStart, setCurrentEdgeStart] = useState<Date | null>(null)
@@ -30,7 +31,7 @@ export function useTimer() {
 
   const syncDisplayTimes = useCallback(() => {
     const now = Date.now()
-    if (state === 'active' && lastActiveStart) {
+    if (state === 'active' && !isPaused && lastActiveStart) {
       setDisplayActiveTime(activeTime + (now - lastActiveStart.getTime()))
     } else {
       setDisplayActiveTime(activeTime)
@@ -41,20 +42,20 @@ export function useTimer() {
     } else {
       setDisplayEdgeTime(edgeTime)
     }
-  }, [state, activeTime, edgeTime, lastActiveStart, currentEdgeStart])
+  }, [state, isPaused, activeTime, edgeTime, lastActiveStart, currentEdgeStart])
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null
 
     syncDisplayTimes()
-    if (state === 'active' || state === 'edging') {
+    if ((state === 'active' && !isPaused) || state === 'edging') {
       intervalId = setInterval(syncDisplayTimes, 1000)
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId)
     }
-  }, [state, syncDisplayTimes])
+  }, [state, isPaused, syncDisplayTimes])
 
   useEffect(() => {
     const onVisibilityChange = () => syncDisplayTimes()
@@ -96,6 +97,7 @@ export function useTimer() {
 
       setSessionId(data.id)
       setLastActiveStart(now)
+      setIsPaused(false)
       setState('active')
     } catch (err) {
       console.error('Session start error:', err)
@@ -106,7 +108,7 @@ export function useTimer() {
   }, [])
 
   const pauseSession = useCallback(async () => {
-    if (!sessionId || state !== 'active' || !lastActiveStart || operationLockRef.current) return
+    if (!sessionId || state !== 'active' || isPaused || !lastActiveStart || operationLockRef.current) return
     operationLockRef.current = true
 
     try {
@@ -122,23 +124,23 @@ export function useTimer() {
       setActiveTime(newActiveTime)
       setDisplayActiveTime(newActiveTime)
       setLastActiveStart(null)
-      setState('paused')
+      setIsPaused(true)
     } catch (err) {
       console.error('Error pausing session:', err)
       toast.error('Failed to pause session')
     } finally {
       operationLockRef.current = false
     }
-  }, [sessionId, state, lastActiveStart, activeTime])
+  }, [sessionId, state, isPaused, lastActiveStart, activeTime])
 
   const resumeSession = useCallback(() => {
-    if (!sessionId || state !== 'paused' || operationLockRef.current) return
+    if (!sessionId || state !== 'active' || !isPaused || operationLockRef.current) return
     setLastActiveStart(new Date())
-    setState('active')
-  }, [sessionId, state])
+    setIsPaused(false)
+  }, [sessionId, state, isPaused])
 
   const startEdge = useCallback(async () => {
-    if (!sessionId || state !== 'active') {
+    if (!sessionId || state !== 'active' || isPaused) {
       toast.error('No active session')
       return
     }
@@ -172,7 +174,7 @@ export function useTimer() {
     } finally {
       operationLockRef.current = false
     }
-  }, [sessionId, state, lastActiveStart, activeTime])
+  }, [sessionId, state, isPaused, lastActiveStart, activeTime])
 
   const endEdge = useCallback(async () => {
     if (!sessionId || !currentEdgeStart || state !== 'edging') return
@@ -228,7 +230,7 @@ export function useTimer() {
       let finalEdgeTime = edgeTime
       let finalFinishedDuringEdge = false
 
-      if (state === 'active' && lastActiveStart) {
+      if (state === 'active' && !isPaused && lastActiveStart) {
         finalActiveTime += now.getTime() - lastActiveStart.getTime()
       } else if (state === 'edging' && currentEdgeStart) {
         finalEdgeTime += now.getTime() - currentEdgeStart.getTime()
@@ -252,6 +254,7 @@ export function useTimer() {
       setEdgeTime(finalEdgeTime)
       setLastActiveStart(null)
       setCurrentEdgeStart(null)
+      setIsPaused(false)
       setState('finished')
       toast.success('Session finished and saved!')
 
@@ -271,10 +274,11 @@ export function useTimer() {
     } finally {
       operationLockRef.current = false
     }
-  }, [sessionId, state, lastActiveStart, currentEdgeStart, activeTime, edgeTime, checkAchievements])
+  }, [sessionId, state, isPaused, lastActiveStart, currentEdgeStart, activeTime, edgeTime, checkAchievements])
 
   const resetTimer = useCallback(() => {
     setState('idle')
+    setIsPaused(false)
     setActiveTime(0)
     setEdgeTime(0)
     setDisplayActiveTime(0)
@@ -287,6 +291,7 @@ export function useTimer() {
 
   return {
     state,
+    isPaused,
     activeTime: displayActiveTime,
     edgeTime: displayEdgeTime,
     edgeLaps,
