@@ -53,8 +53,12 @@ jobs:
             --header "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
             --header "Content-Type: application/json" \
             --data '{"email":"browser-test@example.test","password":"BrowserTest-2026!","email_confirm":true}'
-      - name: Build production app
-        run: yarn build
+          curl --fail-with-body --silent --show-error \
+            --request POST "${API_URL}/auth/v1/token?grant_type=password" \
+            --header "apikey: ${ANON_KEY}" \
+            --header "Content-Type: application/json" \
+            --data '{"email":"browser-test@example.test","password":"BrowserTest-2026!"}' \
+            | jq -e '.access_token | length > 0' >/dev/null
       - name: Install Chromium
         run: yarn playwright install --with-deps chromium
       - name: Run Playwright flows
