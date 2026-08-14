@@ -52,13 +52,16 @@ cd staminatimer
 corepack enable
 yarn install --immutable
 
+# Create the local app environment file before filling in local Supabase values
+cp .env.example .env.local
+
 # Start and rebuild the local Supabase stack with the CI-pinned CLI version
 yarn dlx supabase@2.114.0 start
 yarn dlx supabase@2.114.0 db reset
 
-# Copy the local values reported by `yarn dlx supabase@2.114.0 status -o env`
-# into the matching NEXT_PUBLIC_* entries in .env.local.
-cp .env.example .env.local
+# Print the local URL and keys, then copy API_URL -> NEXT_PUBLIC_SUPABASE_URL
+# and ANON_KEY -> NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local.
+yarn dlx supabase@2.114.0 status -o env
 
 # Start development server
 yarn dev
@@ -100,7 +103,7 @@ The migration `20260711000000_secure_shared_sessions.sql` removes anonymous tabl
 - `yarn typecheck` – TypeScript type checks
 - `yarn test` – Vitest unit/integration tests
 - `yarn test:watch` – Unit tests in watch mode
-- `yarn test:e2e` – Playwright production browser flows
+- `yarn test:e2e` – Build and run Playwright production browser flows
 - `yarn format` / `yarn format:check` – Prettier formatting
 
 ## CI
@@ -114,7 +117,7 @@ Pull requests run immutable Yarn installation, lint, type checking, Vitest, and 
 ## Privacy and security
 
 - Training records are scoped to the authenticated user with PostgreSQL RLS.
-- Automated database tests prove one account cannot read or mutate another account's session rows.
+- Automated database tests prove one account cannot read or mutate another account's session, edge-event, achievement-progress, and program rows.
 - Public shares contain copied session data, use random UUIDs, and can expire.
 - Anonymous clients cannot list `shared_sessions`; retrieval is limited to the single ID passed to `get_shared_session`.
 - AI requests are authenticated, origin checked, CSRF protected, size limited, and rate limited.
