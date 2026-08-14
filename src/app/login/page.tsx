@@ -9,7 +9,6 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from '@/lib/supabase/client'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { Timer as TimerIcon, Zap, TrendingUp, Users, ArrowRight } from 'lucide-react'
@@ -17,22 +16,38 @@ import Link from 'next/link'
 import { Loading } from '@/components/ui/loading'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
   useEffect(() => {
+    let active = true
+    let redirectTimer: ReturnType<typeof setTimeout> | null = null
+
+    const redirectToDashboard = (): void => {
+      if (!active) return
+      setIsLoading(true)
+      redirectTimer = setTimeout(() => {
+        window.location.replace('/dashboard')
+      }, 0)
+    }
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) redirectToDashboard()
+    })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       if (session) {
-        setIsLoading(true)
         toast.success('Welcome back!')
-        router.push('/dashboard')
-        router.refresh()
+        redirectToDashboard()
       }
     })
 
-    return () => subscription.unsubscribe()
-  }, [router])
+    return () => {
+      active = false
+      if (redirectTimer) clearTimeout(redirectTimer)
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const handleGoogleSignIn = async (): Promise<void> => {
     setGoogleLoading(true)
@@ -265,4 +280,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-} 
+}
