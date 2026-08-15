@@ -15,7 +15,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
   const [sharedData, setSharedData] = useState<DBSession[] | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [unavailable, setUnavailable] = useState(false)
 
   useEffect(() => {
     async function fetchSharedData(): Promise<void> {
@@ -24,8 +24,8 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
       })
 
       if (error || !data) {
-        console.error('Error fetching shared data:', error)
-        setError(error?.message || 'Shared link not found or expired')
+        if (error) console.error('Error fetching shared data:', error)
+        setUnavailable(true)
         setLoading(false)
         return
       }
@@ -38,10 +38,10 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
   }, [id])
 
   if (loading) return <Loading text="Loading shared data..." fullScreen />
-  if (error || !sharedData)
+  if (unavailable || !sharedData)
     return (
-      <div className="container mx-auto py-8 text-center text-destructive">
-        {error || 'Share link not found or expired'}
+      <div className="container mx-auto py-8 text-center text-destructive" role="status">
+        Shared link unavailable, not found, or expired.
       </div>
     )
 
