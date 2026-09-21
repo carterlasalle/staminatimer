@@ -41,6 +41,19 @@ function toMarkdown(html: string): string {
   return `${markdown.trim()}\n`
 }
 
+function notFoundMarkdown(path: string): string {
+  return `# 404 — page not found
+
+No page exists at \`${path}\` on staminatimer.com.
+
+- [Home](/) — what Stamina Timer is and how the guided program works
+- [Guides](/guides) — the full training library
+- [FAQ](/faq) — common questions about the training
+- [Sitemap](/sitemap.xml) — every public URL on this site
+- [llms.txt](/llms.txt) — machine-readable overview for agents
+`
+}
+
 export async function GET(req: NextRequest) {
   // The middleware rewrites here with the requested path in a header. The query
   // parameter is kept as a fallback so the endpoint stays directly testable.
@@ -59,6 +72,23 @@ export async function GET(req: NextRequest) {
     })
   } catch {
     return NextResponse.json({ error: 'Unable to render page', path }, { status: 502 })
+  }
+
+  // A path that does not exist answers with markdown rather than an HTML error
+  // page, so an agent probing for a resource gets a readable answer at the real
+  // 404 status.
+  if (page.status === 404) {
+    const body = notFoundMarkdown(path)
+
+    return new NextResponse(body, {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8',
+        'x-markdown-tokens': String(Math.ceil(body.length / 4)),
+        'Cache-Control': 'private, no-store',
+        Vary: 'Accept',
+      },
+    })
   }
 
   if (!page.ok) {

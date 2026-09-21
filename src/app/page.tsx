@@ -428,6 +428,22 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
+                    href="/about"
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/login"
                     className="text-sm text-muted-foreground hover:text-foreground"
                   >

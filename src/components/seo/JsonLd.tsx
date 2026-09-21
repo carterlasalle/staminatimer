@@ -51,16 +51,18 @@ export function OrganizationJsonLd() {
     name: 'Stamina Timer',
     url: 'https://staminatimer.com',
     logo: 'https://staminatimer.com/icon-512.png',
-    description: 'Science-backed stamina training app for men',
+    description: 'A private training app for building lasting control',
     foundingDate: '2024',
-    sameAs: [
-      // Add social media links when available
-    ],
+    sameAs: ['https://github.com/carterlasalle/staminatimer'],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
+      email: 'carterlasalle@gmail.com',
+      url: 'https://staminatimer.com/contact',
       availableLanguage: 'English',
     },
+    // No `address`: the project has no business premises to publish, and a
+    // made-up PostalAddress is worse than an absent one.
   }
 
   return <JsonLd data={data} />

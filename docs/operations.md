@@ -27,19 +27,27 @@ Do not log complete IP addresses alongside health/training data. If abuse teleme
 
 ## Agent discovery
 
-Four machine-readable surfaces are served by the application and can be checked
+Six machine-readable surfaces are served by the application and can be checked
 against any deployment:
 
-| Surface                   | Check                                                                       |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `Link` headers (RFC 8288) | `curl -sSI https://www.staminatimer.com/ \| grep -i '^link:'`               |
-| Content Signals           | `curl -sS https://www.staminatimer.com/robots.txt \| grep Content-Signal`   |
-| API catalog (RFC 9727)    | `curl -sS https://www.staminatimer.com/.well-known/api-catalog`             |
-| Markdown negotiation      | `curl -sS -H 'Accept: text/markdown' https://www.staminatimer.com/ \| head` |
+| Surface                   | Check                                                                         |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `Link` headers (RFC 8288) | `curl -sSI https://www.staminatimer.com/ \| grep -i '^link:'`                 |
+| Content Signals           | `curl -sS https://www.staminatimer.com/robots.txt \| grep Content-Signal`     |
+| API catalog (RFC 9727)    | `curl -sS https://www.staminatimer.com/.well-known/api-catalog`               |
+| OpenAPI                   | `curl -sS https://www.staminatimer.com/openapi.json`                          |
+| Agent instructions        | `curl -sS https://www.staminatimer.com/llms.txt`                              |
+| Markdown negotiation      | `curl -sS -H 'Accept: text/markdown' https://www.staminatimer.com/ \| head`   |
+| Real 404                  | `curl -sS -i -H 'Accept: text/markdown' https://www.staminatimer.com/no-such` |
 
 Markdown negotiation renders the pages a browser would get, restricted to the
 set robots.txt allows, and is served `private, no-store` so a shared cache cannot
 return it to a browser.
+
+An unknown path must answer `404`. If a probe returns `200` or a redirect to
+`/login`, the middleware has regressed to redirecting everything that is not on a
+public allow-list. Only the paths in `PRIVATE_PAGES` (`src/lib/agent-discovery.ts`)
+should require a session.
 
 ### DNS for AI Discovery (DNS-AID) — blocked on registrar access
 

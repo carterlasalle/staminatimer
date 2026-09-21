@@ -3,7 +3,12 @@ import type { CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { API_CONSTANTS } from '@/lib/constants'
-import { isMarkdownNegotiable, MARKDOWN_PATH_HEADER, wantsMarkdown } from '@/lib/agent-discovery'
+import {
+  isMarkdownNegotiable,
+  isPrivatePath,
+  MARKDOWN_PATH_HEADER,
+  wantsMarkdown,
+} from '@/lib/agent-discovery'
 
 // Rate limiting is handled by Redis when available (see lib/security/ratelimit.ts)
 // This middleware provides fallback cookie-based rate limiting and authentication
@@ -62,7 +67,6 @@ export async function proxy(req: NextRequest) {
 
   // Rate limiting for auth-related endpoints (login, signup, password reset)
   const isAuthRoute = pathname === '/login' || pathname === '/auth/callback'
-  const isApiRoute = pathname.startsWith('/api/')
 
   // Get client identifier (IP or fallback)
   const clientIp =
@@ -164,28 +168,11 @@ export async function proxy(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Public routes that don't require authentication
-  const publicRoutes = [
-    '/',
-    '/login',
-    '/license',
-    '/privacy',
-    '/terms',
-    '/auth/callback',
-    '/faq',
-    '/guides',
-  ]
-
-  const isPublicRoute =
-    publicRoutes.includes(pathname) ||
-    pathname.startsWith('/.well-known/') ||
-    pathname.startsWith('/share/') ||
-    pathname.startsWith('/guides/') ||
-    pathname === '/offline.html' ||
-    isApiRoute
-
-  // If user is not signed in and the route is protected, redirect to login
-  if (!user && !isPublicRoute) {
+  // Only pages that actually hold user data require a session. Everything else
+  // — including a path that does not exist — falls through to the router, so an
+  // unknown URL answers 404 instead of a redirect to /login that reads as a
+  // successful page to a crawler or an agent.
+  if (!user && isPrivatePath(pathname)) {
     const url = req.nextUrl.clone()
     url.pathname = '/login'
 

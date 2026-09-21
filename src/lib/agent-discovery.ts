@@ -8,15 +8,35 @@
  */
 
 /**
- * Pages an agent may request as markdown.
+ * Paths that require a session.
  *
- * Deliberately the same set `robots.txt` allows: anything behind auth is absent,
- * so this can never become a way to read another account's data as plain text.
+ * The middleware redirects only these to the login page. The older shape was a
+ * public allow-list, which meant every unknown URL — a typo, a stale inbound
+ * link, an agent probing for a resource — was redirected to `/login` and
+ * answered `200`, so nothing on the site could ever return a real 404.
  */
-const MARKDOWN_PAGES = ['/', '/faq', '/guides', '/license', '/login', '/privacy', '/terms']
+const PRIVATE_PAGES = ['/ai-coach', '/dashboard', '/program', '/progress', '/settings', '/training']
 
+export function isPrivatePath(pathname: string): boolean {
+  return PRIVATE_PAGES.some((page) => pathname === page || pathname.startsWith(`${page}/`))
+}
+
+/** Paths that are not pages and must never be negotiated. */
+const NON_PAGE_PREFIXES = ['/api/', '/auth/', '/.well-known/']
+
+/**
+ * Markdown is offered for everything that is not behind a session, including
+ * paths that do not exist: those answer with a markdown 404 body rather than an
+ * HTML one, so an agent probing for a resource gets a readable answer.
+ */
 export function isMarkdownNegotiable(pathname: string): boolean {
-  return MARKDOWN_PAGES.includes(pathname) || pathname.startsWith('/guides/')
+  if (isPrivatePath(pathname)) return false
+
+  // `/llms.txt`, `/robots.txt`, `/sitemap.xml`, `/openapi.json` and assets are
+  // already machine-readable; converting them would be busywork.
+  if (/\.[a-z0-9]+$/i.test(pathname)) return false
+
+  return !NON_PAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
 /**

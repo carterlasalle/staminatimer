@@ -96,7 +96,7 @@ const nextConfig = {
           {
             key: 'Link',
             value:
-              '</.well-known/api-catalog>; rel="api-catalog", </guides>; rel="service-doc", </license>; rel="license"',
+              '</.well-known/api-catalog>; rel="api-catalog", </llms.txt>; rel="describedby", </guides>; rel="service-doc", </license>; rel="license"',
           },
         ],
       },

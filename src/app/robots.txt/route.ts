@@ -13,9 +13,12 @@ const BASE_URL = 'https://staminatimer.com'
 
 const ROBOTS_TXT = `User-Agent: *
 Allow: /
+Allow: /about
+Allow: /contact
 Allow: /guides
 Allow: /guides/*
 Allow: /faq
+Allow: /llms.txt
 Allow: /login
 Allow: /privacy
 Allow: /terms
