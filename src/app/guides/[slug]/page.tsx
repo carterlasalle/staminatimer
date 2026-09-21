@@ -4,14 +4,49 @@ import { notFound } from 'next/navigation'
 import { SITE_CONFIG, generatePageMetadata } from '@/lib/seo/config'
 import { EXPANDED_GUIDE_TOPICS, findGuideContent, getGuidesByCategory } from '@/lib/seo/guides-data'
 import { BreadcrumbJsonLd, JsonLd } from '@/components/seo/JsonLd'
+import type { GuideContent } from '@/lib/seo/types'
+import { validateAllGuides } from '@/lib/seo/validation'
 import { Timer, ArrowLeft, ArrowRight, Clock, CheckCircle, BookOpen } from 'lucide-react'
 
 type PageProps = {
   params: Promise<{ slug: string }>
 }
 
+type GuideWithContent = (typeof EXPANDED_GUIDE_TOPICS)[number] & { content: GuideContent }
+
 // Generate static params for all guides
 export function generateStaticParams() {
+  const withContent = EXPANDED_GUIDE_TOPICS.map((topic) => ({
+    ...topic,
+    content: findGuideContent(topic.slug),
+  }))
+
+  // Every published topic needs its own content. This used to be optional and
+  // fell back to one shared block of boilerplate, which meant 55 pages served
+  // near-identical prose that also claimed "thousands of men" had results.
+  // Failing the build is the point: a missing guide is a data bug.
+  const incomplete = withContent.flatMap((guide) => (guide.content ? [] : [guide.slug]))
+
+  if (incomplete.length > 0) {
+    throw new Error(
+      `[guides] ${incomplete.length} topic(s) have no content in GUIDE_CONTENT: ${incomplete.join(', ')}`
+    )
+  }
+
+  const guideList = withContent.filter((guide): guide is GuideWithContent => !!guide.content)
+
+  // The repository's own thin-content bar, finally enforced. It was written but
+  // never called, so nothing stopped a 200-word page from being published.
+  const { isValid, results } = validateAllGuides(guideList)
+
+  if (!isValid) {
+    const failures = [...results].flatMap(([slug, result]) =>
+      result.isValid ? [] : [`  ${slug}: ${result.errors.join('; ')}`]
+    )
+
+    throw new Error(`[guides] content validation failed:\n${failures.join('\n')}`)
+  }
+
   return EXPANDED_GUIDE_TOPICS.map((guide) => ({
     slug: guide.slug,
   }))
@@ -32,49 +67,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   })
 }
 
-// Default content for guides without specific content
-function getDefaultContent(guide: (typeof EXPANDED_GUIDE_TOPICS)[number]) {
-  return {
-    readTime: '6 min read',
-    sections: [
-      {
-        title: `Understanding ${guide.title.replace(/:/g, '')}`,
-        content: `${guide.description} This comprehensive guide will walk you through everything you need to know about this topic, from the basic concepts to advanced techniques. Whether you're just starting your stamina training journey or looking to refine your skills, this guide provides actionable insights backed by research and real-world experience.`,
-      },
-      {
-        title: 'Why This Matters',
-        content: `Mastering the concepts in this guide is essential for anyone serious about improving their stamina and control. The techniques and strategies outlined here have been proven effective through both scientific research and the experiences of thousands of men who have successfully improved their performance. By understanding and applying these principles, you'll be well on your way to achieving your goals.`,
-      },
-      {
-        title: 'Getting Started',
-        content: `Begin by reading through this entire guide to understand the key concepts. Then, start implementing the techniques gradually, one at a time. Remember that consistency is more important than intensity - regular practice, even in small amounts, will lead to better results than sporadic intensive sessions. Track your progress using the Stamina Timer app to stay motivated and see your improvement over time.`,
-      },
-      {
-        title: 'Key Techniques',
-        content: `The most effective approach combines multiple techniques rather than relying on a single method. Start with the fundamentals and gradually incorporate more advanced strategies as you become comfortable. Pay attention to how your body responds and adjust your practice accordingly. Everyone is different, so what works best for you may vary from general recommendations.`,
-      },
-    ],
-    tips: [
-      'Start with the basics and build a strong foundation before advancing',
-      'Practice consistently - aim for regular short sessions rather than occasional long ones',
-      'Track your progress to stay motivated and identify what works best for you',
-      'Be patient - meaningful improvement takes time and dedication',
-      'Combine multiple techniques for the best results',
-    ],
-  }
-}
-
 export default async function GuidePage({ params }: PageProps) {
   const { slug } = await params
   const guide = EXPANDED_GUIDE_TOPICS.find((g) => g.slug === slug)
-  const specificContent = findGuideContent(slug)
+  const content = findGuideContent(slug)
 
   if (!guide) {
     notFound()
   }
 
-  // Use specific content if available, otherwise use default
-  const content = specificContent || getDefaultContent(guide)
+  // Every published topic has its own content; `generateStaticParams` fails the
+  // build otherwise. A guide without it is a data bug, not something to paper
+  // over with filler.
+  if (!content) {
+    notFound()
+  }
 
   // Find related guides (same category, excluding current)
   const categoryGuides = getGuidesByCategory(guide.category)
@@ -111,6 +118,24 @@ export default async function GuidePage({ params }: PageProps) {
     keywords: guide.keywords.join(', '),
   }
 
+  // FAQPage markup, but only when the questions are genuinely on the page —
+  // Google requires the Q&A to be visible, and a mismatch is worse than none.
+  const faqJsonLd =
+    content.faqs && content.faqs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: content.faqs.map((faq) => ({
+            '@type': 'Question',
+            name: faq.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: faq.answer,
+            },
+          })),
+        }
+      : null
+
   return (
     <div className="min-h-screen bg-background">
       <BreadcrumbJsonLd
@@ -121,6 +146,7 @@ export default async function GuidePage({ params }: PageProps) {
         ]}
       />
       <JsonLd data={articleJsonLd} />
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
 
       {/* Header */}
       <header className="border-b border-border">
@@ -232,6 +258,21 @@ export default async function GuidePage({ params }: PageProps) {
               ))}
             </ul>
           </div>
+
+          {/* Questions the page answers, in the words people search with */}
+          {content.faqs && content.faqs.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6">Common questions</h2>
+              <dl className="border-y border-border/60 divide-y divide-border/60">
+                {content.faqs.map((faq, i) => (
+                  <div key={i} className="py-5">
+                    <dt className="font-medium text-foreground">{faq.question}</dt>
+                    <dd className="mt-2 leading-relaxed text-foreground/90">{faq.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
 
           {/* CTA */}
           <div className="mt-12 p-8 rounded-xl bg-card border border-border text-center">

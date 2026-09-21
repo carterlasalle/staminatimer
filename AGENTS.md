@@ -2783,6 +2783,43 @@ device and says so in the footer.
   `next.config.js` `headers()` works on dynamic routes and is overwritten on
   static ones. Other middleware-set headers survive.
 
+## Guide content is now a hard requirement
+
+- Content for all 66 guides lives in `src/lib/seo/guide-content.ts`, keyed by
+  slug; `guides-data.ts` is topics and categories only, with `findGuideContent`
+  as the single accessor.
+- `src/app/guides/[slug]/page.tsx#generateStaticParams` fails the build when a
+  topic has no content, and runs the thin-content bar from
+  `src/lib/seo/validation.ts` (3+ sections, 80+ words each, 500+ total). That
+  validator existed but was never called, which is how 200-word pages shipped.
+- Why it is enforced rather than defaulted: the page used to fall back to one
+  shared block of `getDefaultContent` boilerplate. 55 of 77 guides served it, so
+  those pages were near-duplicates of each other that also claimed the techniques
+  were "proven effective through… thousands of men". Filler that invents
+  evidence is worse than a failed build.
+- Guide pages render `content.faqs` as a visible "Common questions" list and emit
+  `FAQPage` JSON-LD only when those questions are present, because Google
+  requires the Q&A to be on the page.
+
+## Soft 404s came from the middleware allow-list
+
+`src/proxy.ts` used to hold a list of _public_ routes and redirect everything
+else to `/login`. Every unknown URL therefore answered `307 → /login → 200`, so
+no path on the site could ever return a real 404 and an agent probing for a
+resource concluded it existed. It is now the inverse: only the paths in
+`PRIVATE_PAGES` require a session, and everything else falls through to the
+router. When adding an authenticated page, add it to that list — a private page
+is otherwise reachable, though row-level security still protects its data.
+
+## Lint and format ignore lists are separate
+
+`.gitignore` does not feed ESLint or Prettier. Playwright's reporter writes its
+own bundled viewer into `playwright-report/`, and linting that directory reports
+hundreds of errors in minified vendor code — so `playwright-report/**`,
+`test-results/**` and the repository-local scratch dirs (`.work/**`,
+`.artifacts/**`, `.cache/**`) are listed in `eslint.config.mjs` ignores as well as
+`.gitignore` and `.prettierignore`. Add a directory to all three when you add one.
+
 ## Content claims in structured data
 
 Fabricated `aggregateRating` ("4.9", "1250" ratings) lived in
