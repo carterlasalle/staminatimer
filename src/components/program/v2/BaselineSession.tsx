@@ -111,7 +111,9 @@ export function BaselineSession({
     <Card>
       <CardHeader className="space-y-1">
         <p className="text-xs font-medium uppercase tracking-wider text-primary">Baseline</p>
-        <CardTitle className="text-4xl tabular-nums">{formatTarget(session.attemptMs)}</CardTitle>
+        <CardTitle className="font-display text-6xl leading-none tracking-tight tabular-nums">
+          {formatTarget(session.attemptMs)}
+        </CardTitle>
         <p className="text-sm text-muted-foreground">
           Continuous stimulation until the natural endpoint. No full stops, no artificial pauses.
         </p>

@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { ContextGuidanceV2 } from '@/components/program/v2/ContextGuidanceV2'
 import { DailyPracticeV2 } from '@/components/program/v2/DailyPracticeV2'
 import { OnboardingV2 } from '@/components/program/v2/OnboardingV2'
@@ -79,7 +78,7 @@ export function ProgramDashboardV2() {
       <div className="mx-auto max-w-3xl space-y-4 p-4 md:p-8">
         {error && (
           <Card>
-            <CardContent className="p-4 text-sm text-red-400">{error}</CardContent>
+            <CardContent className="p-4 text-sm text-destructive">{error}</CardContent>
           </Card>
         )}
         <OnboardingV2 saving={saving} onInitialize={initialize} />
@@ -88,25 +87,16 @@ export function ProgramDashboardV2() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
+    <div className="entrance mx-auto max-w-6xl space-y-8 p-4 pt-6 md:p-8 md:pt-10">
       <TodaysPractice sessionType={todayType} currentTargetMs={currentTargetMs} status={status} />
 
       {error && (
-        <Card>
-          <CardContent className="p-4 text-sm text-red-400">{error}</CardContent>
-        </Card>
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
       )}
 
-      {status === 'maintenance' && (
-        <Card>
-          <CardContent className="p-4 text-sm text-emerald-500">
-            10:00 baseline established. You are in maintenance: keep practising with flexible
-            structure. There is no target beyond 10:00.
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
         <TargetProgress
           currentTargetMs={currentTargetMs}
           nextTargetMs={nextTargetMs}
@@ -114,7 +104,7 @@ export function ProgramDashboardV2() {
           gate={gate}
           observations={observations}
         />
-        <div className="space-y-6">
+        <div className="space-y-6 lg:space-y-8">
           <WeeklyPlan />
           <DailyPracticeV2 />
         </div>
@@ -137,20 +127,15 @@ export function ProgramDashboardV2() {
         onToggleEncounterLog={() => setEncounterLogOpen((open) => !open)}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Legacy history</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Any earlier Guided Program sessions remain stored as legacy history. They are never
-            converted into V2 progression and never shown as V2 metrics.
-          </p>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/progress">Open full progress history</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/60 pt-6 text-xs text-muted-foreground">
+        <span>
+          Earlier Guided Program sessions stay stored as legacy history, are never converted into V2
+          progression, and are never shown as V2 metrics.
+        </span>
+        <Link className="text-primary underline-offset-4 hover:underline" href="/progress">
+          Open full progress history
+        </Link>
+      </p>
     </div>
   )
 }

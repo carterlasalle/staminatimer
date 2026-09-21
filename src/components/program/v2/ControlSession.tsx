@@ -86,9 +86,9 @@ export function BlockEnded({ session }: { session: GuidedSessionController }) {
   const isLoop = session.terminationReason === 'rescue_loop'
 
   return (
-    <Card className="border-amber-500/40 bg-amber-500/5">
+    <Card className="border-warning/40 bg-warning/10">
       <CardHeader className="space-y-1">
-        <p className="text-xs font-medium uppercase tracking-wider text-amber-500">
+        <p className="text-xs font-medium uppercase tracking-wider text-warning">
           Structured block ended
         </p>
         <CardTitle className="text-xl">

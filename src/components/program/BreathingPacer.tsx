@@ -1,14 +1,16 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 const INHALE_MS = 4_000
-
 const EXHALE_MS = 6_000
-
 const CYCLE_MS = INHALE_MS + EXHALE_MS
 
+/**
+ * A 4s-in / 6s-out pacer. The ring is driven entirely by CSS keyframes on
+ * transform and opacity, so it stays on the compositor for the whole six
+ * minutes a Reset session runs and never touches paint or layout.
+ */
 export function BreathingPacer() {
   const cycleStartAtRef = useRef(Date.now())
   const [nowMs, setNowMs] = useState(() => Date.now())
@@ -29,28 +31,26 @@ export function BreathingPacer() {
   const secondsLeft = Math.max(1, Math.ceil(msLeftInPhase / 1000))
 
   return (
-    <div className="rounded-xl border border-border/60 bg-card/70 p-4">
-      <div className="flex flex-col items-center justify-center gap-3">
-        <motion.div
-          className={`h-24 w-24 rounded-full border-2 ${inhale ? 'border-sky-400/60 bg-sky-500/10' : 'border-emerald-400/60 bg-emerald-500/10'}`}
-          animate={{
-            scale: inhale ? 1.18 : 0.94,
-            boxShadow: inhale
-              ? '0 0 0 14px rgba(56, 189, 248, 0.10)'
-              : '0 0 0 10px rgba(16, 185, 129, 0.10)',
-          }}
-          transition={{
-            duration: inhale ? 4 : 6,
-            ease: 'easeInOut',
-          }}
+    <div
+      className="flex flex-col items-center justify-center gap-5 py-4"
+      role="timer"
+      aria-live="off"
+      aria-label={`${inhale ? 'Breathe in' : 'Breathe out'}, ${secondsLeft} seconds remaining in this phase`}
+    >
+      <div className="relative flex h-40 w-40 items-center justify-center">
+        <span aria-hidden className="breathe-halo absolute inset-0 rounded-full bg-primary/25" />
+        <span
+          aria-hidden
+          className="breathe-ring absolute inset-4 rounded-full border-2 border-primary/60 bg-primary/10"
         />
-        <div className="text-center">
-          <p className={`text-sm font-medium ${inhale ? 'text-sky-400' : 'text-emerald-400'}`}>
-            {inhale ? 'Breathe in...' : 'Breathe out...'}
-          </p>
-          <p className="text-xs text-muted-foreground">{secondsLeft}s</p>
-        </div>
+        <span className="tabular-nums font-display text-4xl leading-none text-foreground">
+          {secondsLeft}
+        </span>
       </div>
+
+      <p className="text-sm font-medium tracking-wide text-muted-foreground">
+        {inhale ? 'Breathe in' : 'Breathe out'}
+      </p>
     </div>
   )
 }

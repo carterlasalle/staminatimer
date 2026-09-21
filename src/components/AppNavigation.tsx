@@ -115,8 +115,8 @@ export function AppNavigation({ children }: AppNavigationProps) {
                   <div
                     className={cn(
                       'flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors',
-                      'hover:bg-accent/50 hover:text-accent-foreground',
-                      isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                      'hover:bg-muted/60 hover:text-foreground',
+                      isActive ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground'
                     )}
                   >
                     <Icon className="h-5 w-5 lg:h-4 lg:w-4 mr-3 shrink-0" />
@@ -133,9 +133,9 @@ export function AppNavigation({ children }: AppNavigationProps) {
               <div
                 className={cn(
                   'flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors',
-                  'hover:bg-accent/50 hover:text-accent-foreground',
+                  'hover:bg-muted/60 hover:text-foreground',
                   pathname === '/settings'
-                    ? 'bg-accent text-accent-foreground'
+                    ? 'bg-primary/10 font-medium text-primary'
                     : 'text-muted-foreground'
                 )}
               >
@@ -191,7 +191,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 className={cn(
                   'flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors',
                   isActive ? 'text-primary' : 'text-muted-foreground',
-                  'active:bg-accent/50'
+                  'active:bg-muted/60'
                 )}
               >
                 <Icon className="h-5 w-5" />

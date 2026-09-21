@@ -107,7 +107,9 @@ export function EnduranceSession({ session, targetMs }: EnduranceSessionProps) {
       <Card>
         <CardHeader className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-wider text-primary">Endurance</p>
-          <CardTitle className="text-4xl tabular-nums">{formatTarget(session.attemptMs)}</CardTitle>
+          <CardTitle className="font-display text-6xl leading-none tracking-tight tabular-nums">
+            {formatTarget(session.attemptMs)}
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
             Continuous target: {formatTarget(targetMs)}
             {session.attemptPassedTarget ? ' · passed' : ''}
@@ -115,8 +117,8 @@ export function EnduranceSession({ session, targetMs }: EnduranceSessionProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {session.attemptPassedTarget ? (
-            <div className="space-y-2 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4">
-              <p className="text-base font-medium text-emerald-500">Target passed</p>
+            <div className="space-y-3 rounded-md border border-primary/40 bg-primary/10 p-4">
+              <p className="text-base font-medium text-primary">Target passed</p>
               <p className="text-sm text-muted-foreground">
                 Continue for roughly another 30-60 seconds at a comparable intensity if you are
                 comfortable, then conclude. The target is a duration milestone, not an ejaculation

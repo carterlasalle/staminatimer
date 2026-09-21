@@ -38,32 +38,42 @@ export function TransferPanel({
           not imply the same duration during partnered sex.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-md border border-border/60 p-3">
-            <p className="text-xs text-muted-foreground">Solo capability (hand)</p>
-            <p className="text-lg font-semibold">{formatTarget(transfer.handTargetMs)}</p>
+      <CardContent className="space-y-5">
+        <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+              Solo capability (hand)
+            </dt>
+            <dd className="font-display text-3xl leading-none tabular-nums">
+              {formatTarget(transfer.handTargetMs)}
+            </dd>
           </div>
-          <div className="rounded-md border border-border/60 p-3">
-            <p className="text-xs text-muted-foreground">Partner transfer</p>
-            <p className="text-lg font-semibold">
+          <div className="space-y-1">
+            <dt className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+              Partner transfer
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] font-medium normal-case tracking-normal">
+                separate track
+              </span>
+            </dt>
+            <dd className="font-display text-3xl leading-none tabular-nums">
               {latestSleeve?.continuous_attempt_ms
                 ? formatTarget(latestSleeve.continuous_attempt_ms)
-                : 'not measured'}
-            </p>
+                : '—'}
+            </dd>
           </div>
-        </div>
+        </dl>
 
         <p className="text-sm text-muted-foreground">{transfer.reason}</p>
 
         {transfer.unlocked && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className="text-sm">
-              Suggested initial device target: {formatTarget(transfer.suggestedSleeveTargetMs)}. A
-              harder, more realistic stimulus may temporarily reduce duration. That is expected and
-              is not regression.
+              Suggested initial device target:{' '}
+              <span className="tabular-nums">{formatTarget(transfer.suggestedSleeveTargetMs)}</span>
+              . A harder, more realistic stimulus may temporarily reduce duration. That is expected
+              and is not regression.
             </p>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="touch-target">
               <Link href="/program/session?type=transfer">Start device session</Link>
             </Button>
           </div>
@@ -71,14 +81,23 @@ export function TransferPanel({
 
         {daysSinceLastEjaculation !== null && (
           <p className="text-xs text-muted-foreground">
-            Context only: {daysSinceLastEjaculation} day
-            {daysSinceLastEjaculation === 1 ? '' : 's'} since last known ejaculation. This is
-            recorded for your own comparison and is never a target or a rule.
+            Context only:{' '}
+            <span className="tabular-nums">
+              {daysSinceLastEjaculation} day
+              {daysSinceLastEjaculation === 1 ? '' : 's'}
+            </span>{' '}
+            since last known ejaculation. Recorded for your own comparison; never a target or a
+            rule.
           </p>
         )}
 
-        <div className="space-y-2">
-          <Button variant="secondary" size="sm" onClick={onToggleEncounterLog}>
+        <div className="space-y-2 border-t border-border/60 pt-4">
+          <Button
+            variant="secondary"
+            className="touch-target"
+            onClick={onToggleEncounterLog}
+            aria-expanded={encounterLogOpen}
+          >
             {encounterLogOpen ? 'Hide encounter log' : 'Log a partnered encounter'}
           </Button>
           <p className="text-xs text-muted-foreground">

@@ -175,13 +175,15 @@ export function ContextGuidanceV2({
       <CardHeader>
         <CardTitle className="text-base">Guidance from your sessions</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {items.map((item) => (
-          <div key={item.id} className="rounded-md border border-border/60 p-3">
-            <p className="text-sm font-medium">{item.title}</p>
-            <p className="text-sm text-muted-foreground">{item.body}</p>
-          </div>
-        ))}
+      <CardContent>
+        <ul className="divide-y divide-border/60">
+          {items.map((item) => (
+            <li key={item.id} className="space-y-1 py-3 first:pt-0 last:pb-0">
+              <p className="text-sm font-medium">{item.title}</p>
+              <p className="text-sm text-muted-foreground">{item.body}</p>
+            </li>
+          ))}
+        </ul>
       </CardContent>
     </Card>
   )

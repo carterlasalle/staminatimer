@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0a0a0a",
-  "theme_color": "#14F195",
+  "background_color": "#111518",
+  "theme_color": "#41af95",
   "categories": ["health", "fitness", "lifestyle"],
   "lang": "en-US",
   "dir": "ltr",
@@ -67,21 +67,36 @@
       "short_name": "Train",
       "description": "Start a new training session",
       "url": "/training",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "View Analytics",
       "short_name": "Analytics",
       "description": "View your progress and analytics",
       "url": "/analytics",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Dashboard",
       "short_name": "Home",
       "description": "Go to dashboard",
       "url": "/dashboard",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "screenshots": [

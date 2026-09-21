@@ -118,14 +118,14 @@ describe('Guided Program V2 dashboard surfaces', () => {
   it('marks optional sessions as genuinely optional', () => {
     render(<TodaysPractice sessionType="easy" currentTargetMs={240_000} status="active" />)
 
-    expect(screen.getByText(/Skipping it is completely acceptable/)).toBeTruthy()
+    expect(screen.getByText(/Skipping does not affect progression/)).toBeTruthy()
   })
 
   it('shows the maintenance state instead of a next target at 10:00', () => {
     render(<TodaysPractice sessionType="control" currentTargetMs={600_000} status="maintenance" />)
 
     expect(screen.getByText('Maintenance baseline')).toBeTruthy()
-    expect(screen.getByText('10:00 baseline established.')).toBeTruthy()
+    expect(screen.getByText('10:00 baseline established')).toBeTruthy()
   })
 
   it('lists the qualifying observations and the gate count', () => {
@@ -210,7 +210,8 @@ describe('Guided Program V2 dashboard surfaces', () => {
 
     expect(screen.getByText('Solo capability (hand)')).toBeTruthy()
     expect(screen.getByText('Partner transfer')).toBeTruthy()
-    expect(screen.getByText('not measured')).toBeTruthy()
+    expect(screen.getByText(/^—$/)).toBeTruthy()
+    expect(screen.getByText('separate track')).toBeTruthy()
     expect(screen.getByText(/Transfer unlocks after the 5:00 hand checkpoint/)).toBeTruthy()
     expect(screen.getByText(/never a target or a rule/)).toBeTruthy()
     expect(screen.queryByText(/Recommended ejaculation window/)).toBeNull()
@@ -227,7 +228,8 @@ describe('Guided Program V2 dashboard surfaces', () => {
       />
     )
 
-    expect(screen.getByText(/Suggested initial device target: 3:00/)).toBeTruthy()
+    expect(screen.getByText(/Suggested initial device target/)).toBeTruthy()
+    expect(screen.getByText('3:00')).toBeTruthy()
     expect(screen.getByText(/may temporarily reduce duration/)).toBeTruthy()
   })
 

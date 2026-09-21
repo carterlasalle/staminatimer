@@ -42,19 +42,25 @@ export function ResetSession({ session }: ResetSessionProps) {
 
   return (
     <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-xl">
-          Reset · {formatTarget(done ? session.elapsedMainMs : remainingMs)}{' '}
-          {done ? 'elapsed' : 'remaining'}
+      <CardHeader className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-primary">Reset</p>
+        <CardTitle className="font-display text-5xl leading-none tracking-tight tabular-nums">
+          {formatTarget(done ? session.elapsedMainMs : remainingMs)}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Roughly 4 second inhale, 6 second exhale. Lower abdomen, glutes, inner thighs and pelvic
-          floor soften. No hard contractions, no pushing, no straining.
+          {done ? 'Elapsed' : 'Remaining'}. Roughly 4 second inhale, 6 second exhale. Lower abdomen,
+          glutes, inner thighs and pelvic floor soften. No hard contractions, no pushing, no
+          straining.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <BreathingPacer />
-        <Button className="w-full" size="lg" onClick={session.completeSimpleSession}>
+        <Button
+          className="w-full"
+          size="lg"
+          variant="outline"
+          onClick={session.completeSimpleSession}
+        >
           {done ? 'Complete reset' : 'Complete reset early'}
         </Button>
         <p className="text-xs text-muted-foreground">

@@ -4,9 +4,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Design system: a calm precision instrument.
+
+  Neutrals are tinted toward the brand hue (a cool teal-ink) rather than being
+  pure gray, so surfaces read as one family in both themes. Pure black and pure
+  white are never used. Green means "positive / go", sand means "caution",
+  clay means "stop" - one meaning per colour, everywhere.
+*/
 @theme {
   --font-sans: var(--font-body), system-ui, sans-serif;
-  --font-display: var(--font-display), serif;
+  --font-display: var(--font-display), Georgia, serif;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -29,6 +37,9 @@
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
 
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
@@ -45,15 +56,17 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Deceleration curves. These read as natural slowing; bounce and elastic
+     curves draw attention to the animation itself. */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+  The default border color changed to `currentcolor` in Tailwind CSS v4, so we
+  keep the v3 behaviour for elements that rely on it.
 */
 @layer base {
   *,
@@ -61,649 +74,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
-@utility border-beam {
-  /* Border beam animation for buttons */
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: conic-gradient(
-      from var(--beam-angle),
-      transparent 0%,
-      hsl(var(--primary)) 10%,
-      hsl(var(--accent)) 20%,
-      transparent 30%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover::before {
-    opacity: 1;
-    animation: beam-rotate 2s linear infinite;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility text-clip-reveal {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Text clip slide animation */
-  clip-path: inset(0 0 100% 0);
-  animation: text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility stagger-reveal {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Staggered reveal for children */
-  & > * {
-    opacity: 0;
-    transform: translateY(30px);
-    animation: stagger-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  & > *:nth-child(1) {
-    animation-delay: 0.1s;
-  }
-  & > *:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-  & > *:nth-child(3) {
-    animation-delay: 0.3s;
-  }
-  & > *:nth-child(4) {
-    animation-delay: 0.4s;
-  }
-  & > *:nth-child(5) {
-    animation-delay: 0.5s;
-  }
-  & > *:nth-child(6) {
-    animation-delay: 0.6s;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility column-clip {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Column clip background animation */
-  --columns: 8;
-  clip-path: polygon(
-    0% 0%,
-    calc(100% / var(--columns) * 1) 0%,
-    calc(100% / var(--columns) * 1) 100%,
-    calc(100% / var(--columns) * 2) 100%,
-    calc(100% / var(--columns) * 2) 0%,
-    calc(100% / var(--columns) * 3) 0%,
-    calc(100% / var(--columns) * 3) 100%,
-    calc(100% / var(--columns) * 4) 100%,
-    calc(100% / var(--columns) * 4) 0%,
-    100% 0%,
-    100% 100%,
-    0% 100%
-  );
-  animation: column-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility marquee {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Marquee animation */
-  --gap: 2rem;
-  display: flex;
-  gap: var(--gap);
-  overflow: hidden;
-  user-select: none;
-
-  &:hover .marquee-content {
-    animation-play-state: paused;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility marquee-content {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-  flex-shrink: 0;
-  display: flex;
-  gap: var(--gap);
-  min-width: 100%;
-  animation: marquee 40s linear infinite;
-
-  .marquee:hover & {
-    animation-play-state: paused;
-  }
-
-  /* Reverse marquee */
-  .marquee-reverse & {
-    animation-direction: reverse;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility marquee-reverse {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Reverse marquee */
-  & .marquee-content {
-    animation-direction: reverse;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility marquee-mask {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Alpha mask for marquee edges */
-  -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
-  mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility flashlight-card {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Flashlight card effect */
-  position: relative;
-  overflow: hidden;
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      hsla(var(--primary) / 0.15),
-      transparent 40%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: radial-gradient(
-      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      hsla(var(--primary) / 0.4),
-      transparent 40%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility grid-pattern {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Grid pattern background */
-  background-image:
-    linear-gradient(hsla(var(--foreground) / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(var(--foreground) / 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility noise-overlay {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Noise texture overlay */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility glow-teal {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Glow effects */
-  box-shadow: 0 0 40px -10px hsla(var(--primary) / 0.5);
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility glow-gold {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-  box-shadow: 0 0 40px -10px hsla(var(--accent) / 0.5);
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility text-gradient {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Text gradient */
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility float {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Floating animation */
-  animation: float 6s ease-in-out infinite;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility pulse-ring {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Pulse ring animation */
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: inherit;
-    border: 2px solid hsl(var(--primary));
-    animation: pulse-ring-anim 2s ease-out infinite;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility scroll-indicator {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Scroll indicator bounce */
-  animation: scroll-bounce 2s ease-in-out infinite;
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-}
-@utility counter {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  /* Counter animation */
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-  transition: --num 2s ease-out;
-  counter-reset: num var(--num);
-
-  &::after {
-    content: counter(num);
-  }
-}
-@utility shimmer {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-
-  /* Shimmer effect */
-  position: relative;
-  overflow: hidden;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsla(var(--foreground) / 0.1) 50%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: shimmer 3s ease-in-out infinite;
-  }
-}
-
-/* ===== AUTH UI & EXISTING STYLES ===== */
-@utility auth-container {
-  @apply space-y-4;
-
-  & .supabase-auth-ui_ui-button {
-    @apply h-12 font-medium transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02];
-  }
-
-  & .supabase-auth-ui_ui-input {
-    @apply h-12 transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary;
-  }
-
-  & .supabase-auth-ui_ui-label {
-    @apply font-medium text-sm;
-  }
-
-  & .supabase-auth-ui_ui-message {
-    @apply text-sm;
-  }
-
-  & .supabase-auth-ui_ui-anchor {
-    @apply text-primary hover:underline transition-colors duration-200;
-  }
-}
-@utility supabase-auth-ui_ui-button {
-  .auth-container & {
-    @apply h-12 font-medium transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02];
-  }
-}
-@utility supabase-auth-ui_ui-input {
-  .auth-container & {
-    @apply h-12 transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary;
-  }
-}
-@utility supabase-auth-ui_ui-label {
-  .auth-container & {
-    @apply font-medium text-sm;
-  }
-}
-@utility supabase-auth-ui_ui-message {
-  .auth-container & {
-    @apply text-sm;
-  }
-}
-@utility supabase-auth-ui_ui-anchor {
-  .auth-container & {
-    @apply text-primary hover:underline transition-colors duration-200;
-  }
-}
-@utility safe-area-top {
-  /* Safe area utilities */
-  padding-top: env(safe-area-inset-top, 0px);
-}
-@utility safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-@utility safe-area-left {
-  padding-left: env(safe-area-inset-left, 0px);
-}
-@utility safe-area-right {
-  padding-right: env(safe-area-inset-right, 0px);
-}
-@utility touch-manipulation {
-  /* Mobile utilities */
-  touch-action: manipulation;
-}
-@utility no-tap-highlight {
-  -webkit-tap-highlight-color: transparent;
-}
-@utility touch-target {
-  min-height: 44px;
-  min-width: 44px;
-}
-@utility no-select {
-  -webkit-user-select: none;
-  user-select: none;
-}
-@utility scroll-smooth {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-@utility scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-@utility custom-scrollbar {
-  /* Custom scrollbar */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    @apply bg-muted/20;
-  }
-  &::-webkit-scrollbar-thumb {
-    @apply bg-muted rounded-full;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/60;
-  }
-}
-@utility glass {
-  /* Glass morphism */
-  backdrop-filter: blur(16px) saturate(180%);
-  background-color: hsla(var(--card) / 0.7);
-  border: 1px solid hsla(var(--border) / 0.5);
-}
-
-@layer utilities {
-  :root {
-    /* Font families - loaded async via FontLoader component */
-    --font-display: 'Bricolage Grotesque', Georgia, serif;
-    --font-body: 'Albert Sans', system-ui, -apple-system, sans-serif;
-
-    /* Core palette */
-    --midnight: 12 15 20;
-    --obsidian: 18 22 28;
-    --ember: 255 107 107;
-    --gold: 255 184 0;
-    --teal: 20 241 149;
-    --frost: 240 244 248;
-
-    /* Semantic colors */
-    --background: 220 20% 6%;
-    --foreground: 220 10% 96%;
-    --card: 220 20% 8%;
-    --card-foreground: 220 10% 96%;
-    --popover: 220 20% 8%;
-    --popover-foreground: 220 10% 96%;
-    --primary: 156 100% 51%;
-    --primary-foreground: 220 20% 6%;
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 220 10% 96%;
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 40 100% 50%;
-    --accent-foreground: 220 20% 6%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 220 10% 96%;
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 156 100% 51%;
-    --radius: 0.75rem;
-
-    /* Chart colors */
-    --chart-1: 156 100% 51%;
-    --chart-2: 40 100% 50%;
-    --chart-3: 0 72% 65%;
-    --chart-4: 200 90% 60%;
-    --chart-5: 280 80% 60%;
-  }
-
-  .light {
-    --background: 45 20% 96%;
-    --foreground: 220 20% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 156 85% 40%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 20% 10%;
-    --muted: 220 15% 92%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 40 100% 50%;
-    --accent-foreground: 220 20% 10%;
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 156 85% 40%;
+    border-color: hsl(var(--border));
   }
 
   * {
@@ -737,92 +108,451 @@
   }
 }
 
-/* ===== CUSTOM ANIMATIONS ===== */
-@layer components {
+@layer utilities {
+  :root {
+    /* Font families - loaded async via FontLoader component */
+    --font-display: 'Bricolage Grotesque', Georgia, serif;
+    --font-body: 'Albert Sans', system-ui, -apple-system, sans-serif;
+
+    /* Dark is the default surface: a deep ink ground tinted toward the brand
+       hue, never pure black. */
+    --background: 200 16% 8%;
+    --foreground: 195 14% 93%;
+    --card: 200 15% 11%;
+    --card-foreground: 195 14% 93%;
+    --popover: 200 15% 12%;
+    --popover-foreground: 195 14% 93%;
+    --primary: 166 46% 47%;
+    --primary-foreground: 200 26% 7%;
+    --secondary: 200 14% 17%;
+    --secondary-foreground: 195 14% 93%;
+    --muted: 200 14% 16%;
+    --muted-foreground: 195 11% 65%;
+    --accent: 34 52% 60%;
+    --accent-foreground: 200 26% 8%;
+    --warning: 34 58% 63%;
+    --warning-foreground: 200 26% 8%;
+    --destructive: 8 55% 60%;
+    --destructive-foreground: 10 40% 8%;
+    --border: 200 13% 20%;
+    --input: 200 13% 20%;
+    --ring: 166 46% 54%;
+    --radius: 0.75rem;
+
+    --chart-1: 166 46% 47%;
+    --chart-2: 34 52% 60%;
+    --chart-3: 200 38% 60%;
+    --chart-4: 8 55% 60%;
+    --chart-5: 122 22% 54%;
+  }
+
+  .light {
+    /* Warm-free, cool-tinted paper so both themes share one neutral family. */
+    --background: 195 20% 97%;
+    --foreground: 200 22% 14%;
+    --card: 195 24% 99%;
+    --card-foreground: 200 22% 14%;
+    --popover: 195 24% 99%;
+    --popover-foreground: 200 22% 14%;
+    --primary: 166 52% 30%;
+    --primary-foreground: 195 28% 98%;
+    --secondary: 195 15% 92%;
+    --secondary-foreground: 200 22% 14%;
+    --muted: 195 15% 93%;
+    --muted-foreground: 200 12% 38%;
+    --accent: 30 55% 42%;
+    --accent-foreground: 195 28% 98%;
+    --warning: 30 60% 38%;
+    --warning-foreground: 195 28% 98%;
+    --destructive: 8 60% 43%;
+    --destructive-foreground: 195 28% 98%;
+    --border: 200 12% 81%;
+    --input: 200 12% 81%;
+    --ring: 166 52% 34%;
+
+    --chart-1: 166 52% 30%;
+    --chart-2: 30 55% 42%;
+    --chart-3: 200 40% 42%;
+    --chart-4: 8 60% 47%;
+    --chart-5: 122 30% 34%;
+  }
+}
+
+/* ===== APP GROUND =====
+   Intentional ambient depth built from the palette itself: two brand-tinted
+   washes plus a fine grid. Replaces a photographic sci-fi backdrop whose red
+   glow fought the accent colour and hurt text contrast. */
+@utility app-ground {
+  position: relative;
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(70rem 44rem at 12% -12%, hsla(var(--primary) / 0.1), transparent 62%),
+    radial-gradient(56rem 38rem at 100% -6%, hsla(var(--accent) / 0.06), transparent 58%),
+    linear-gradient(hsla(var(--foreground) / 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--foreground) / 0.022) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    72px 72px,
+    72px 72px;
+}
+
+/* ===== MOTION =====
+   One orchestrated entrance, purposeful state changes, nothing decorative. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise-in {
+  animation: rise-in 0.5s var(--ease-out-expo) both;
+}
+
+/* Staggered entrance for a column of sections. Keep the list short: this is a
+   page-load orchestration, not a per-element effect. */
+@utility entrance {
+  & > * {
+    animation: rise-in 0.5s var(--ease-out-expo) both;
+  }
+
+  & > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 110ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 150ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 180ms;
+  }
+  & > *:nth-child(6) {
+    animation-delay: 210ms;
+  }
+  & > *:nth-child(n + 7) {
+    animation-delay: 230ms;
+  }
+}
+
+/* Progress/timer ticks: nudge without moving layout. */
+@keyframes tick-pulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+/* 4s inhale, 6s exhale in a single 10s cycle. Transform and opacity only, so it
+   stays on the compositor and cannot burn paint while a session runs. */
+@keyframes breathe {
+  0% {
+    transform: scale(0.9);
+  }
+  40% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+@utility breathe-ring {
+  animation: breathe 10s var(--ease-out-quart) infinite;
+}
+
+@keyframes breathe-halo {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  40% {
+    opacity: 0.12;
+    transform: scale(1.28);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+@utility breathe-halo {
+  animation: breathe-halo 10s var(--ease-out-quart) infinite;
+}
+
+/* ===== BRAND SURFACES (marketing page) ===== */
+@keyframes beam-rotate {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+@utility border-beam {
   @property --beam-angle {
     syntax: '<angle>';
     initial-value: 0deg;
     inherits: false;
   }
+  position: relative;
+  overflow: hidden;
 
-  @keyframes beam-rotate {
-    to {
-      --beam-angle: 360deg;
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0%,
+      hsl(var(--primary)) 10%,
+      hsl(var(--accent)) 20%,
+      transparent 30%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out-quart);
   }
 
-  @keyframes text-reveal {
-    to {
-      clip-path: inset(0 0 0% 0);
-    }
+  &:hover::before {
+    opacity: 1;
+    animation: beam-rotate 3s linear infinite;
+  }
+}
+
+@utility flashlight-card {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      hsla(var(--primary) / 0.12),
+      transparent 40%
+    );
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out-quart);
+    pointer-events: none;
   }
 
-  @keyframes stagger-in {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  &:hover::before {
+    opacity: 1;
   }
 
-  @keyframes column-reveal {
-    to {
-      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: radial-gradient(
+      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      hsla(var(--primary) / 0.35),
+      transparent 40%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out-quart);
+    pointer-events: none;
   }
 
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(calc(-100% - var(--gap)));
-    }
+  &:hover::after {
+    opacity: 1;
   }
+}
 
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-  }
+@utility grid-pattern {
+  background-image:
+    linear-gradient(hsla(var(--foreground) / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--foreground) / 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
 
-  @keyframes pulse-ring-anim {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1.3);
-      opacity: 0;
-    }
-  }
+@utility glow-teal {
+  box-shadow: 0 0 44px -14px hsla(var(--primary) / 0.45);
+}
 
-  @keyframes scroll-bounce {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(10px);
-    }
+@utility glass {
+  backdrop-filter: blur(18px) saturate(150%);
+  background-color: hsla(var(--card) / 0.72);
+  border: 1px solid hsla(var(--border) / 0.6);
+}
+
+@utility text-gradient {
+  /* Reserved for single brand moments on the marketing page, never for metrics
+     or data. */
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== MARQUEE (marketing page) ===== */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
   }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@utility marquee {
+  --gap: 2rem;
+  display: flex;
+  gap: var(--gap);
+  overflow: hidden;
+  user-select: none;
+
+  &:hover .marquee-content {
+    animation-play-state: paused;
+  }
+}
+
+@utility marquee-content {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--gap);
+  min-width: 100%;
+  animation: marquee 44s linear infinite;
+
+  .marquee:hover & {
+    animation-play-state: paused;
+  }
+}
+
+@utility marquee-mask {
+  -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+  mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+}
+
+@keyframes scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@utility scroll-indicator {
+  animation: scroll-bounce 2.4s ease-in-out infinite;
+}
+
+@utility counter {
   @property --num {
     syntax: '<integer>';
     initial-value: 0;
     inherits: false;
   }
+  transition: --num 2s var(--ease-out-quart);
+  counter-reset: num var(--num);
 
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+  &::after {
+    content: counter(num);
   }
 }
 
-/* Reduced motion */
+/* ===== AUTH UI ===== */
+@utility auth-container {
+  @apply space-y-4;
+
+  & .supabase-auth-ui_ui-button {
+    @apply h-12 font-medium transition-[color,background-color,border-color,box-shadow] duration-200;
+  }
+
+  & .supabase-auth-ui_ui-input {
+    @apply h-12 transition-[border-color,box-shadow] duration-200 focus:ring-2 focus:ring-primary/25 focus:border-primary;
+  }
+
+  & .supabase-auth-ui_ui-label {
+    @apply font-medium text-sm;
+  }
+
+  & .supabase-auth-ui_ui-message {
+    @apply text-sm;
+  }
+
+  & .supabase-auth-ui_ui-anchor {
+    @apply text-primary hover:underline transition-colors duration-200;
+  }
+}
+
+/* ===== MOBILE / ACCESSIBILITY ===== */
+@utility safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility touch-manipulation {
+  touch-action: manipulation;
+}
+@utility no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+}
+@utility touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    @apply bg-muted/20;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/60;
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -830,5 +560,6 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

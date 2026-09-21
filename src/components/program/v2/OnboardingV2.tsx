@@ -7,6 +7,8 @@ import {
   getInitialTargetForBucket,
   type InitialBaselineBucket,
 } from '@/lib/program/protocol-v2'
+import { cn } from '@/lib/utils'
+import { CheckIcon } from 'lucide-react'
 import { useState } from 'react'
 
 type OnboardingV2Props = {
@@ -47,31 +49,50 @@ export function OnboardingV2({ saving, onInitialize }: OnboardingV2Props) {
           overrides it.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         <div className="grid gap-2 sm:grid-cols-2">
-          {options.map((option) => (
-            <button
-              key={option.bucket}
-              type="button"
-              aria-pressed={selected === option.bucket}
-              onClick={() => setSelected(option.bucket)}
-              className={`rounded-md border px-3 py-3 text-left transition-colors ${
-                selected === option.bucket
-                  ? 'border-primary/60 bg-primary/10'
-                  : 'border-border/60 hover:bg-accent/40'
-              }`}
-            >
-              <p className="text-sm font-medium">{option.label}</p>
-              <p className="text-xs text-muted-foreground">{option.detail}</p>
-            </button>
-          ))}
+          {options.map((option) => {
+            const isSelected = selected === option.bucket
+
+            return (
+              <button
+                key={option.bucket}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setSelected(option.bucket)}
+                className={cn(
+                  'touch-target flex items-start justify-between gap-3 rounded-md border px-3 py-3 text-left transition-[color,background-color,border-color,box-shadow] duration-150 ease-out-quart active:scale-[0.99]',
+                  isSelected
+                    ? 'border-primary/70 bg-primary/10 ring-1 ring-primary/40'
+                    : 'border-border/60 hover:border-border hover:bg-muted/40'
+                )}
+              >
+                <span className="space-y-0.5">
+                  <span className="block text-sm font-medium">{option.label}</span>
+                  <span className="block text-xs text-muted-foreground">{option.detail}</span>
+                </span>
+                {isSelected && (
+                  <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                )}
+              </button>
+            )
+          })}
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Your starting target will be {formatTarget(getInitialTargetForBucket(selected))}.
+          Your starting target will be{' '}
+          <span className="tabular-nums text-foreground">
+            {formatTarget(getInitialTargetForBucket(selected))}
+          </span>
+          .
         </p>
 
-        <Button disabled={saving} onClick={() => onInitialize(selected)}>
+        <Button
+          size="lg"
+          className="w-full sm:w-auto"
+          disabled={saving}
+          onClick={() => onInitialize(selected)}
+        >
           {saving ? 'Starting…' : 'Start Guided Program V2'}
         </Button>
 

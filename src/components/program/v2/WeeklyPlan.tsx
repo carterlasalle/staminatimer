@@ -28,36 +28,49 @@ export function WeeklyPlan({ today = new Date() }: WeeklyPlanProps) {
           logged but only one training session per day can count toward progression.
         </p>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {WEEKLY_PLAN.map((entry, index) => {
-          const prescription = getSessionPrescription(entry.sessionType)
-          const isToday = index === todayIndex
+      <CardContent>
+        <ul className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60">
+          {WEEKLY_PLAN.map((entry, index) => {
+            const prescription = getSessionPrescription(entry.sessionType)
+            const isToday = index === todayIndex
 
-          return (
-            <div
-              key={entry.day}
-              className={cn(
-                'flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 px-3 py-2',
-                isToday && 'border-primary/40 bg-primary/5'
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <span className={cn('text-sm font-medium', isToday && 'text-primary')}>
-                  {entry.day}
-                </span>
-                {isToday && (
-                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">
-                    Today
-                  </span>
+            return (
+              <li
+                key={entry.day}
+                className={cn(
+                  'flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5',
+                  isToday && 'bg-primary/10'
                 )}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{prescription.label}</span>
-                {entry.optional && <span className="text-xs text-muted-foreground">optional</span>}
-              </div>
-            </div>
-          )
-        })}
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      'text-sm',
+                      isToday ? 'font-medium text-primary' : 'text-muted-foreground'
+                    )}
+                  >
+                    {entry.day}
+                  </span>
+                  {isToday && (
+                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wider text-primary">
+                      Today
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span
+                    className={cn('text-sm', isToday ? 'text-foreground' : 'text-foreground/85')}
+                  >
+                    {prescription.label}
+                  </span>
+                  {entry.optional && (
+                    <span className="text-xs text-muted-foreground">optional</span>
+                  )}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
       </CardContent>
     </Card>
   )

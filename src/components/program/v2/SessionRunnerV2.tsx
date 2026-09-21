@@ -159,7 +159,7 @@ function SessionRunnerInner() {
       <div className="mx-auto max-w-3xl space-y-4 p-4 md:p-8">
         {submitError && (
           <Card>
-            <CardContent className="p-4 text-sm text-red-400">{submitError}</CardContent>
+            <CardContent className="p-4 text-sm text-destructive">{submitError}</CardContent>
           </Card>
         )}
         <SessionSummaryV2

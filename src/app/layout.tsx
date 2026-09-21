@@ -183,7 +183,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <GlobalProvider>
-              <div className="relative min-h-screen bg-[url('/background.webp')] bg-cover bg-center bg-no-repeat bg-fixed">
+              <div className="app-ground min-h-screen">
                 <div className="relative z-10">
                   {children}
                   <Toaster />

@@ -26,11 +26,41 @@ type SessionSummaryV2Props = {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-border/60 p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-base font-semibold">{value}</p>
+    <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
+      <dt className="text-xs uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dd className="font-display text-lg tabular-nums">{value}</dd>
     </div>
   )
+}
+
+function heroFor(
+  sessionType: GuidedSessionType,
+  session: GuidedSessionController,
+  targetMs: number
+) {
+  switch (sessionType) {
+    case 'control':
+      return {
+        label: 'Longest continuous block',
+        value: formatTarget(session.longestContinuousBlockMs),
+      }
+    case 'endurance':
+      return {
+        label: `Attempt against ${formatTarget(targetMs)}`,
+        value: formatTarget(session.attemptMs),
+      }
+    case 'baseline':
+      return { label: 'Standardized result', value: formatTarget(session.attemptMs) }
+    case 'reset':
+      return { label: 'Reset completed', value: formatTarget(session.elapsedMainMs) }
+    case 'transfer':
+      return {
+        label: `Against device target ${formatTarget(targetMs)}`,
+        value: formatTarget(session.longestContinuousBlockMs),
+      }
+    default:
+      return { label: 'Practice time', value: formatTarget(session.mainActiveMs) }
+  }
 }
 
 const breathingOptions: Array<{ value: SummaryRatings['breathingMaintained']; label: string }> = [
@@ -58,121 +88,117 @@ export function SessionSummaryV2({
       ? session.attemptMs - previousBaselineMs
       : null
 
+  const hero = heroFor(sessionType, session, targetMs)
+
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-wider text-primary">
             {prescription.label} summary
           </p>
-          <CardTitle className="text-xl">
-            {sessionType === 'control' ? 'Longest continuous block' : 'Recorded result'}
+          <p className="text-sm text-muted-foreground">{hero.label}</p>
+          <CardTitle className="font-display text-5xl leading-none tracking-tight tabular-nums">
+            {hero.value}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          {sessionType === 'control' && (
-            <>
-              <Stat
-                label="Longest continuous block"
-                value={formatTarget(session.longestContinuousBlockMs)}
-              />
-              <Stat label="Main training time" value={formatTarget(session.mainActiveMs)} />
-              <Stat label="Rescue stops" value={`${session.rescueStopCount}`} />
-              <Stat label="Total rescue time" value={formatTarget(session.totalRescueMs)} />
-              <Stat label="Highest arousal reported" value={`${session.highestArousal}/10`} />
-              <Stat
-                label="Approx. time near 4-6/10"
-                value={formatTarget(session.timeInTargetRangeMs)}
-              />
-              <Stat
-                label="Rescue durations"
-                value={
-                  session.rescueEvents.length === 0
-                    ? 'none'
-                    : session.rescueEvents
-                        .map((event) => formatTarget(event.durationMs ?? 0))
-                        .join(' · ')
-                }
-              />
-              <Stat
-                label="Block durations"
-                value={
-                  session.completedBlocksMs.length === 0
-                    ? 'none'
-                    : session.completedBlocksMs.map((block) => formatTarget(block)).join(' · ')
-                }
-              />
-            </>
-          )}
-          {sessionType === 'endurance' && (
-            <>
-              <Stat label="Target" value={formatTarget(targetMs)} />
-              <Stat label="Uninterrupted attempt" value={formatTarget(session.attemptMs)} />
-              <Stat
-                label="Result"
-                value={
-                  session.attemptMs >= targetMs
-                    ? `Passed by ${formatTarget(session.attemptMs - targetMs)}`
-                    : `Short by ${formatTarget(targetMs - session.attemptMs)}`
-                }
-              />
-              {session.remainderMode && (
+        <CardContent>
+          <dl className="grid gap-x-10 gap-y-3 sm:grid-cols-2">
+            {sessionType === 'control' && (
+              <>
+                <Stat label="Main training time" value={formatTarget(session.mainActiveMs)} />
+                <Stat label="Rescue stops" value={`${session.rescueStopCount}`} />
+                <Stat label="Total rescue time" value={formatTarget(session.totalRescueMs)} />
+                <Stat label="Highest arousal reported" value={`${session.highestArousal}/10`} />
                 <Stat
-                  label="Remainder longest block"
-                  value={formatTarget(session.longestContinuousBlockMs)}
+                  label="Approx. time near 4-6/10"
+                  value={formatTarget(session.timeInTargetRangeMs)}
                 />
-              )}
-            </>
-          )}
-          {sessionType === 'baseline' && (
-            <>
+                <Stat
+                  label="Rescue durations"
+                  value={
+                    session.rescueEvents.length === 0
+                      ? 'none'
+                      : session.rescueEvents
+                          .map((event) => formatTarget(event.durationMs ?? 0))
+                          .join(' · ')
+                  }
+                />
+                <Stat
+                  label="Block durations"
+                  value={
+                    session.completedBlocksMs.length === 0
+                      ? 'none'
+                      : session.completedBlocksMs.map((block) => formatTarget(block)).join(' · ')
+                  }
+                />
+              </>
+            )}
+            {sessionType === 'endurance' && (
+              <>
+                <Stat label="Target" value={formatTarget(targetMs)} />
+                <Stat
+                  label="Result"
+                  value={
+                    session.attemptMs >= targetMs
+                      ? `Passed by ${formatTarget(session.attemptMs - targetMs)}`
+                      : `Short by ${formatTarget(targetMs - session.attemptMs)}`
+                  }
+                />
+                {session.remainderMode && (
+                  <Stat
+                    label="Remainder longest block"
+                    value={formatTarget(session.longestContinuousBlockMs)}
+                  />
+                )}
+              </>
+            )}
+            {sessionType === 'baseline' && (
+              <>
+                <Stat
+                  label="Previous baseline"
+                  value={
+                    previousBaselineMs === null ? 'none yet' : formatTarget(previousBaselineMs)
+                  }
+                />
+                <Stat
+                  label="Delta"
+                  value={
+                    deltaMs === null
+                      ? 'n/a'
+                      : `${deltaMs >= 0 ? '+' : '-'}${formatTarget(Math.abs(deltaMs))}`
+                  }
+                />
+                <Stat label="Current target" value={formatTarget(targetMs)} />
+                <Stat
+                  label="Ended by"
+                  value={
+                    session.baselineEndReason === 'ejaculation'
+                      ? 'natural endpoint'
+                      : session.baselineEndReason === 'full_stop'
+                        ? 'full stop'
+                        : 'not recorded'
+                  }
+                />
+              </>
+            )}
+            {sessionType === 'reset' && (
               <Stat
-                label="Standardized continuous result"
-                value={formatTarget(session.attemptMs)}
-              />
-              <Stat
-                label="Previous baseline"
-                value={previousBaselineMs === null ? 'none yet' : formatTarget(previousBaselineMs)}
-              />
-              <Stat
-                label="Delta"
+                label="Relaxation"
                 value={
-                  deltaMs === null
-                    ? 'n/a'
-                    : `${deltaMs >= 0 ? '+' : '-'}${formatTarget(Math.abs(deltaMs))}`
+                  session.summaryRatings.controlRating
+                    ? `${session.summaryRatings.controlRating}/5`
+                    : 'not rated'
                 }
               />
-              <Stat label="Current target" value={formatTarget(targetMs)} />
-              <Stat
-                label="Ended by"
-                value={
-                  session.baselineEndReason === 'ejaculation'
-                    ? 'natural endpoint'
-                    : session.baselineEndReason === 'full_stop'
-                      ? 'full stop'
-                      : 'not recorded'
-                }
-              />
-            </>
-          )}
-          {sessionType === 'reset' && (
-            <Stat label="Completed" value={formatTarget(session.elapsedMainMs)} />
-          )}
-          {sessionType === 'easy' && (
-            <>
-              <Stat label="Practice time" value={formatTarget(session.mainActiveMs)} />
+            )}
+            {sessionType === 'easy' && (
               <Stat label="Rescue stops" value={`${session.rescueStopCount}`} />
-            </>
-          )}
-          {sessionType === 'transfer' && (
-            <>
+            )}
+            {sessionType === 'transfer' && (
               <Stat label="Suggested device target" value={formatTarget(targetMs)} />
-              <Stat
-                label="Longest continuous block"
-                value={formatTarget(session.longestContinuousBlockMs)}
-              />
-            </>
-          )}
+            )}
+          </dl>
         </CardContent>
       </Card>
 
@@ -277,7 +303,7 @@ export function SessionSummaryV2({
         <Card
           className={cn(
             result.advanced || result.gate.maintenanceReached || result.targetPassed
-              ? 'border-emerald-500/30'
+              ? 'border-primary/40'
               : undefined
           )}
         >

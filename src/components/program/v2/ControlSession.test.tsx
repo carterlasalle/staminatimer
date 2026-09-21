@@ -113,7 +113,10 @@ describe('ControlSession guided states', () => {
     act(() => controller.requestReset())
     advance(92_000)
 
-    expect(screen.getByText(/Recovery elapsed: 1:32/)).toBeTruthy()
+    // The elapsed clock is its own element now, so assert the value and the
+    // explanatory label separately.
+    expect(screen.getByText('1:32')).toBeTruthy()
+    expect(screen.getByText(/Recovery elapsed/)).toBeTruthy()
   })
 
   it('ends the structured block and explains the rescue loop instead of inviting a retry', () => {
