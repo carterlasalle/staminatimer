@@ -2748,11 +2748,56 @@ device and says so in the footer.
   defines. Applying that migration there would need a reconciliation first.
 - GitHub reports pre-existing high Dependabot alerts on the default branch.
 
+## Agent discovery (RFC 8288 / RFC 9727 / Content Signals)
+
+- `next.config.js` sends `Link: rel="api-catalog"` on every response, pointing at
+  `src/app/.well-known/api-catalog/route.ts` (an RFC 9727 linkset). `.well-known`
+  is force-marked public in the middleware — it is not under `/api/`, so without
+  that entry it redirects to `/login`.
+- `robots.txt` is a route handler (`src/app/robots.txt/route.ts`), not
+  `MetadataRoute.Robots`: the metadata route cannot emit `Content-Signal`.
+- Markdown negotiation: policy in `src/lib/agent-discovery.ts`, rewrite in the
+  middleware, HTML→markdown in `src/app/api/markdown/route.ts` (turndown). The
+  eligible pages are exactly the robots-allowed set, so nothing behind auth can
+  be rendered as markdown.
+- The markdown variant is `private, no-store`, deliberately. Next replaces `Vary`
+  when it serves a prerendered page, so a shared cache cannot be trusted to keep
+  the HTML and markdown variants of one URL apart.
+- DNS-AID records are **not** published. They need registrar (Spaceship) access.
+  DNSSEC is already enabled and validating (`ad` flag set, DS present in `.com`),
+  which is the part usually missed.
+
+## Next.js landmines
+
+- **Never gate `children` on a client-side loading flag.** `AuthProvider` was
+  `{!loading && children}`, and `loading` starts true while effects never run
+  during SSR — so every one of the 81 pages shipped an empty `<body>`. That
+  silently disabled server rendering site-wide: no content for crawlers, and
+  nothing for markdown negotiation to convert. Removing the gate then exposed a
+  second bug the gate had been masking: `window.location` read at render time in
+  `login/page.tsx`, which crashes the production build.
+- **A middleware rewrite drops a query string set on the rewrite URL.** With
+  `url.search = '?path=…'` the handler always saw the default, so every page
+  negotiated to the homepage's markdown. Pass the value as a request header.
+- **Next replaces `Vary` on prerendered pages.** Adding it through
+  `next.config.js` `headers()` works on dynamic routes and is overwritten on
+  static ones. Other middleware-set headers survive.
+
+## Content claims in structured data
+
+Fabricated `aggregateRating` ("4.9", "1250" ratings) lived in
+`src/components/seo/JsonLd.tsx` and shipped in the server-rendered `<head>` of
+every page — including 60+ guide pages — long after the visible landing-page copy
+was cleaned up. Invented ratings are a structured-data violation as well as a
+claim the product cannot support. When removing invented social proof from a
+page, check the JSON-LD too; it is rendered from a different file.
+
 ## Last maintenance review
 
 Date: 2026-09-21
 Reviewed: palette/motion rebuild, Guided Program V2, page-by-page slop audit,
-CSP/eval, auth lock, Docker recovery.
+CSP/eval, auth lock, Docker recovery, agent discovery (Link headers, Content
+Signals, markdown negotiation), SSR regression from the auth gate.
 </repository_memory>
 
 - # </agents_md>

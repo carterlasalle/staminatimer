@@ -60,6 +60,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "turndown": "^7.2.4",
     "zod": "^4.3.5"
   },
   "devDependencies": {
@@ -73,6 +74,7 @@
     "@types/node": "^24.10.9",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
+    "@types/turndown": "^5.0.6",
     "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.23",
     "babel-plugin-react-compiler": "^1.0.0",

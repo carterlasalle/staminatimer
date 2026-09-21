@@ -3,6 +3,7 @@ import type { CookieOptions } from '@supabase/ssr'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { API_CONSTANTS } from '@/lib/constants'
+import { isMarkdownNegotiable, MARKDOWN_PATH_HEADER, wantsMarkdown } from '@/lib/agent-discovery'
 
 // Rate limiting is handled by Redis when available (see lib/security/ratelimit.ts)
 // This middleware provides fallback cookie-based rate limiting and authentication
@@ -108,6 +109,24 @@ export async function proxy(req: NextRequest) {
     })
   }
 
+  // "Markdown for Agents": an agent asking for markdown gets a markdown
+  // rendering of the same crawlable page. Placed after the rate limit so this
+  // route is throttled like any other, and before the session refresh because
+  // only signed-out pages are eligible.
+  if (wantsMarkdown(req.headers.get('accept')) && isMarkdownNegotiable(pathname)) {
+    const url = req.nextUrl.clone()
+    const headers = new Headers(req.headers)
+
+    url.pathname = '/api/markdown'
+    url.search = ''
+
+    // Sent as a request header rather than a query parameter: the rewritten
+    // target does not carry a query string set on the rewrite URL.
+    headers.set(MARKDOWN_PATH_HEADER, pathname)
+
+    return NextResponse.rewrite(url, { request: { headers } })
+  }
+
   let supabaseResponse = NextResponse.next({
     request: {
       headers: req.headers,
@@ -159,6 +178,7 @@ export async function proxy(req: NextRequest) {
 
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
+    pathname.startsWith('/.well-known/') ||
     pathname.startsWith('/share/') ||
     pathname.startsWith('/guides/') ||
     pathname === '/offline.html' ||

@@ -25,6 +25,47 @@ AI/API rate limiting uses Upstash when configured and must fail in the behavior 
 
 Do not log complete IP addresses alongside health/training data. If abuse telemetry needs an address-derived key, hash or truncate it and retain it only as long as operationally necessary.
 
+## Agent discovery
+
+Four machine-readable surfaces are served by the application and can be checked
+against any deployment:
+
+| Surface                   | Check                                                                       |
+| ------------------------- | --------------------------------------------------------------------------- |
+| `Link` headers (RFC 8288) | `curl -sSI https://www.staminatimer.com/ \| grep -i '^link:'`               |
+| Content Signals           | `curl -sS https://www.staminatimer.com/robots.txt \| grep Content-Signal`   |
+| API catalog (RFC 9727)    | `curl -sS https://www.staminatimer.com/.well-known/api-catalog`             |
+| Markdown negotiation      | `curl -sS -H 'Accept: text/markdown' https://www.staminatimer.com/ \| head` |
+
+Markdown negotiation renders the pages a browser would get, restricted to the
+set robots.txt allows, and is served `private, no-store` so a shared cache cannot
+return it to a browser.
+
+### DNS for AI Discovery (DNS-AID) — blocked on registrar access
+
+Not published, and it cannot be published from this repository. The domain is
+served by Spaceship (`launch1.spaceship.net`, `launch2.spaceship.net`), so the
+records have to be created in that DNS panel:
+
+```dns
+_index._agents.staminatimer.com. 3600 IN SVCB 1 staminatimer.com. alpn="h2" port=443
+```
+
+This advertises the site as the discovery entry point. There is currently **no
+A2A or MCP agent endpoint** to point at — do not publish an `_a2a` record until
+one actually exists, or the record will advertise something that is not there.
+
+DNSSEC is already enabled and validating (`dig +dnssec staminatimer.com` sets the
+`ad` flag and a DS record exists in `.com`), so a published record is
+authenticated without further work.
+
+Verify over DNS-over-HTTPS, which is how the scanner resolves it:
+
+```bash
+curl -sS 'https://cloudflare-dns.com/dns-query?name=_index._agents.staminatimer.com&type=SVCB' \
+  -H 'accept: application/dns-json'
+```
+
 ## CI release gates
 
 Every pull request is expected to pass:

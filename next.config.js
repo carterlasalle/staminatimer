@@ -88,6 +88,19 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Link headers for agent discovery (RFC 8288). Relative targets resolve
+        // against whichever host served the request, so this is correct on the
+        // apex, on www, and on preview deployments alike.
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Link',
+            value:
+              '</.well-known/api-catalog>; rel="api-catalog", </guides>; rel="service-doc", </license>; rel="license"',
+          },
+        ],
+      },
+      {
         // Apply security headers to all routes
         source: '/:path*',
         headers: [
