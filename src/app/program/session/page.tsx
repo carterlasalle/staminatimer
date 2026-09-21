@@ -2,13 +2,13 @@
 
 export const dynamic = 'force-dynamic'
 
-import { ActiveSession } from '@/components/program/ActiveSession'
 import { AppNavigation } from '@/components/AppNavigation'
+import { SessionRunnerV2 } from '@/components/program/v2/SessionRunnerV2'
 
 export default function ProgramSessionPage() {
   return (
     <AppNavigation>
-      <ActiveSession />
+      <SessionRunnerV2 />
     </AppNavigation>
   )
 }

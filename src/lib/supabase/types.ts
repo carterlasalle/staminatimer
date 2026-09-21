@@ -316,6 +316,204 @@ export type Database = {
         }
         Relationships: []
       }
+      program_v2_progress: {
+        Row: {
+          id: string
+          user_id: string
+          protocol_version: number
+          current_target_ms: number
+          status: 'active' | 'maintenance'
+          initial_baseline_bucket: 'under_2' | '2_3' | '3_5' | '5_plus' | 'unknown' | null
+          program_started_at: string
+          target_started_at: string
+          last_session_at: string | null
+          last_ejaculation_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          protocol_version?: number
+          current_target_ms?: number
+          status?: 'active' | 'maintenance'
+          initial_baseline_bucket?: 'under_2' | '2_3' | '3_5' | '5_plus' | 'unknown' | null
+          program_started_at?: string
+          target_started_at?: string
+          last_session_at?: string | null
+          last_ejaculation_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          protocol_version?: number
+          current_target_ms?: number
+          status?: 'active' | 'maintenance'
+          initial_baseline_bucket?: 'under_2' | '2_3' | '3_5' | '5_plus' | 'unknown' | null
+          program_started_at?: string
+          target_started_at?: string
+          last_session_at?: string | null
+          last_ejaculation_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'program_v2_progress_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      program_v2_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          session_type: 'control' | 'reset' | 'endurance' | 'easy' | 'baseline' | 'transfer'
+          scheduled_local_date: string
+          started_at: string
+          completed_at: string | null
+          target_duration_ms: number | null
+          main_training_duration_ms: number | null
+          continuous_attempt_ms: number | null
+          longest_continuous_block_ms: number | null
+          rescue_stop_count: number
+          rescue_stop_total_ms: number
+          time_in_target_range_ms: number | null
+          highest_arousal_reached: number | null
+          standardized: boolean
+          progression_eligible: boolean
+          target_passed: boolean
+          anti_loop_terminated: boolean
+          completed_protocol: boolean
+          stimulus_type: 'hand' | 'sleeve'
+          lube_used: boolean | null
+          porn_used: boolean | null
+          ejaculation_outcome: 'none' | 'during_training' | 'intentional_after' | null
+          days_since_last_ejaculation: number | null
+          control_rating: number | null
+          breathing_maintained: 'yes' | 'mostly' | 'no' | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          session_type: 'control' | 'reset' | 'endurance' | 'easy' | 'baseline' | 'transfer'
+          scheduled_local_date: string
+          started_at: string
+          completed_at?: string | null
+          target_duration_ms?: number | null
+          main_training_duration_ms?: number | null
+          continuous_attempt_ms?: number | null
+          longest_continuous_block_ms?: number | null
+          rescue_stop_count?: number
+          rescue_stop_total_ms?: number
+          time_in_target_range_ms?: number | null
+          highest_arousal_reached?: number | null
+          standardized?: boolean
+          progression_eligible?: boolean
+          target_passed?: boolean
+          anti_loop_terminated?: boolean
+          completed_protocol?: boolean
+          stimulus_type?: 'hand' | 'sleeve'
+          lube_used?: boolean | null
+          porn_used?: boolean | null
+          ejaculation_outcome?: 'none' | 'during_training' | 'intentional_after' | null
+          days_since_last_ejaculation?: number | null
+          control_rating?: number | null
+          breathing_maintained?: 'yes' | 'mostly' | 'no' | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          session_type?: 'control' | 'reset' | 'endurance' | 'easy' | 'baseline' | 'transfer'
+          scheduled_local_date?: string
+          started_at?: string
+          completed_at?: string | null
+          target_duration_ms?: number | null
+          main_training_duration_ms?: number | null
+          continuous_attempt_ms?: number | null
+          longest_continuous_block_ms?: number | null
+          rescue_stop_count?: number
+          rescue_stop_total_ms?: number
+          time_in_target_range_ms?: number | null
+          highest_arousal_reached?: number | null
+          standardized?: boolean
+          progression_eligible?: boolean
+          target_passed?: boolean
+          anti_loop_terminated?: boolean
+          completed_protocol?: boolean
+          stimulus_type?: 'hand' | 'sleeve'
+          lube_used?: boolean | null
+          porn_used?: boolean | null
+          ejaculation_outcome?: 'none' | 'during_training' | 'intentional_after' | null
+          days_since_last_ejaculation?: number | null
+          control_rating?: number | null
+          breathing_maintained?: 'yes' | 'mostly' | 'no' | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'program_v2_sessions_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      program_v2_rescue_events: {
+        Row: {
+          id: string
+          session_id: string
+          user_id: string
+          started_offset_ms: number
+          ended_offset_ms: number | null
+          duration_ms: number | null
+          arousal_before: number | null
+          arousal_after: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_id: string
+          started_offset_ms: number
+          ended_offset_ms?: number | null
+          duration_ms?: number | null
+          arousal_before?: number | null
+          arousal_after?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_id?: string
+          started_offset_ms?: number
+          ended_offset_ms?: number | null
+          duration_ms?: number | null
+          arousal_before?: number | null
+          arousal_after?: number | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'program_v2_rescue_events_session_id_fkey'
+            columns: ['session_id']
+            isOneToOne: false
+            referencedRelation: 'program_v2_sessions'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -351,6 +549,18 @@ export type Database = {
           advanced_to_phase: number | null
           previous_phase: number | null
         }[]
+      }
+      initialize_program_v2: {
+        Args: {
+          p_bucket?: 'under_2' | '2_3' | '3_5' | '5_plus' | 'unknown'
+        }
+        Returns: Json
+      }
+      record_program_v2_session: {
+        Args: {
+          p_payload: Json
+        }
+        Returns: Json
       }
     }
     Enums: {

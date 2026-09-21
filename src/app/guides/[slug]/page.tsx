@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SITE_CONFIG, generatePageMetadata } from '@/lib/seo/config'
-import { EXPANDED_GUIDE_TOPICS, GUIDE_CONTENT, getGuidesByCategory } from '@/lib/seo/guides-data'
+import { EXPANDED_GUIDE_TOPICS, findGuideContent, getGuidesByCategory } from '@/lib/seo/guides-data'
 import { BreadcrumbJsonLd, JsonLd } from '@/components/seo/JsonLd'
 import { Timer, ArrowLeft, ArrowRight, Clock, CheckCircle, BookOpen } from 'lucide-react'
 
@@ -21,18 +21,19 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const guide = EXPANDED_GUIDE_TOPICS.find((g) => g.slug === slug)
+
   if (!guide) return {}
 
   return generatePageMetadata({
     title: `${guide.title} | Stamina Timer Guides`,
     description: guide.description,
     path: `/guides/${guide.slug}`,
-    keywords: guide.keywords as unknown as string[],
+    keywords: [...guide.keywords],
   })
 }
 
 // Default content for guides without specific content
-function getDefaultContent(guide: typeof EXPANDED_GUIDE_TOPICS[number]) {
+function getDefaultContent(guide: (typeof EXPANDED_GUIDE_TOPICS)[number]) {
   return {
     readTime: '6 min read',
     sections: [
@@ -66,7 +67,7 @@ function getDefaultContent(guide: typeof EXPANDED_GUIDE_TOPICS[number]) {
 export default async function GuidePage({ params }: PageProps) {
   const { slug } = await params
   const guide = EXPANDED_GUIDE_TOPICS.find((g) => g.slug === slug)
-  const specificContent = GUIDE_CONTENT[slug]
+  const specificContent = findGuideContent(slug)
 
   if (!guide) {
     notFound()
@@ -80,9 +81,9 @@ export default async function GuidePage({ params }: PageProps) {
   const relatedGuides = categoryGuides.filter((g) => g.slug !== guide.slug).slice(0, 3)
 
   // Find guides from other categories for cross-linking
-  const otherCategoryGuides = EXPANDED_GUIDE_TOPICS
-    .filter((g) => g.category !== guide.category && g.slug !== guide.slug && 'featured' in g && g.featured)
-    .slice(0, 2)
+  const otherCategoryGuides = EXPANDED_GUIDE_TOPICS.filter(
+    (g) => g.category !== guide.category && g.slug !== guide.slug && 'featured' in g && g.featured
+  ).slice(0, 2)
 
   // Article structured data
   const articleJsonLd = {
@@ -125,14 +126,30 @@ export default async function GuidePage({ params }: PageProps) {
       <header className="border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <Link href="/" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            >
               <Timer className="w-5 h-5" />
               <span className="font-semibold">Stamina Timer</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/guides" className="text-muted-foreground hover:text-foreground transition-colors">Guides</Link>
-              <Link href="/faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
-              <Link href="/login" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+              <Link
+                href="/guides"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Guides
+              </Link>
+              <Link
+                href="/faq"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/login"
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              >
                 Start Training
               </Link>
             </nav>
@@ -154,9 +171,7 @@ export default async function GuidePage({ params }: PageProps) {
           </nav>
 
           {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            {guide.title}
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{guide.title}</h1>
 
           {/* Meta */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
@@ -173,9 +188,7 @@ export default async function GuidePage({ params }: PageProps) {
           </div>
 
           {/* Intro */}
-          <p className="text-lg text-muted-foreground mb-12 leading-relaxed">
-            {guide.description}
-          </p>
+          <p className="text-lg text-muted-foreground mb-12 leading-relaxed">{guide.description}</p>
 
           {/* Table of Contents */}
           <div className="mb-12 p-6 rounded-xl bg-card border border-border">
@@ -238,7 +251,9 @@ export default async function GuidePage({ params }: PageProps) {
           {/* Related Guides - Same Category */}
           {relatedGuides.length > 0 && (
             <div className="mt-16">
-              <h3 className="text-xl font-bold mb-6">More {guide.category.charAt(0).toUpperCase() + guide.category.slice(1)} Guides</h3>
+              <h3 className="text-xl font-bold mb-6">
+                More {guide.category.charAt(0).toUpperCase() + guide.category.slice(1)} Guides
+              </h3>
               <div className="grid gap-4">
                 {relatedGuides.map((related) => (
                   <Link
@@ -270,8 +285,12 @@ export default async function GuidePage({ params }: PageProps) {
                     className="group block p-4 rounded-lg border border-border hover:border-primary/50 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-primary font-medium capitalize">{related.category}</span>
-                      {'featured' in related && related.featured && <span className="text-xs text-amber-600">★</span>}
+                      <span className="text-xs text-primary font-medium capitalize">
+                        {related.category}
+                      </span>
+                      {'featured' in related && related.featured && (
+                        <span className="text-xs text-amber-600">★</span>
+                      )}
                     </div>
                     <h4 className="font-semibold group-hover:text-primary transition-colors">
                       {related.title}
@@ -307,11 +326,21 @@ export default async function GuidePage({ params }: PageProps) {
               <span className="font-semibold">Stamina Timer</span>
             </Link>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
-              <Link href="/guides" className="hover:text-foreground transition-colors">Guides</Link>
-              <Link href="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/" className="hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link href="/guides" className="hover:text-foreground transition-colors">
+                Guides
+              </Link>
+              <Link href="/faq" className="hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
             </nav>
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Stamina Timer

@@ -2,7 +2,8 @@
 export const SITE_CONFIG = {
   name: 'Stamina Timer',
   url: 'https://staminatimer.com',
-  description: 'Science-backed stamina training app for men. Build lasting control with data-driven progress tracking, AI coaching, and proven techniques.',
+  description:
+    'Science-backed stamina training app for men. Build lasting control with data-driven progress tracking, AI coaching, and well-studied approaches.',
   ogImage: '/og-image.png',
   twitterHandle: '@staminatimer',
   locale: 'en_US',
@@ -14,7 +15,8 @@ export const GUIDE_TOPICS = [
   {
     slug: 'stamina-training-basics',
     title: 'Stamina Training Basics',
-    description: 'Learn the fundamentals of stamina training with science-backed techniques for lasting improvement.',
+    description:
+      'Learn the fundamentals of stamina training with science-backed techniques for lasting improvement.',
     keywords: ['stamina training', 'stamina basics', 'how to last longer', 'stamina exercises'],
     category: 'fundamentals',
     priority: 0.9,
@@ -25,7 +27,8 @@ export const GUIDE_TOPICS = [
   {
     slug: 'edging-techniques',
     title: 'Edging Techniques for Beginners',
-    description: 'Master the art of edging with step-by-step techniques that help build control and extend duration.',
+    description:
+      'Master the art of edging with step-by-step techniques that help build control and extend duration.',
     keywords: ['edging techniques', 'edging for beginners', 'edge control', 'stamina edging'],
     category: 'techniques',
     priority: 0.8,
@@ -36,7 +39,7 @@ export const GUIDE_TOPICS = [
   {
     slug: 'kegel-exercises-men',
     title: 'Kegel Exercises for Men',
-    description: 'Strengthen your pelvic floor muscles with targeted kegel exercises designed specifically for men.',
+    description: 'Explore pelvic-floor exercises that may support control for some men.',
     keywords: ['kegel exercises men', 'male kegel', 'pelvic floor exercises', 'PC muscle training'],
     category: 'exercises',
     priority: 0.8,
@@ -47,8 +50,14 @@ export const GUIDE_TOPICS = [
   {
     slug: 'breathing-techniques-stamina',
     title: 'Breathing Techniques for Better Stamina',
-    description: 'Control your arousal and extend your sessions with proven breathing techniques and mindfulness practices.',
-    keywords: ['breathing techniques', 'stamina breathing', 'arousal control', 'mindfulness stamina'],
+    description:
+      'Control your arousal and extend your sessions with breathing techniques and mindfulness practices.',
+    keywords: [
+      'breathing techniques',
+      'stamina breathing',
+      'arousal control',
+      'mindfulness stamina',
+    ],
     category: 'techniques',
     priority: 0.7,
     publishedAt: '2024-02-15T00:00:00Z',
@@ -57,7 +66,8 @@ export const GUIDE_TOPICS = [
   {
     slug: 'performance-anxiety-tips',
     title: 'Overcoming Performance Anxiety',
-    description: 'Practical strategies to overcome performance anxiety and build lasting confidence in the bedroom.',
+    description:
+      'Practical strategies to overcome performance anxiety and build lasting confidence in the bedroom.',
     keywords: ['performance anxiety', 'sexual confidence', 'anxiety tips', 'bedroom confidence'],
     category: 'mental',
     priority: 0.7,
@@ -67,8 +77,14 @@ export const GUIDE_TOPICS = [
   {
     slug: 'start-stop-method',
     title: 'The Start-Stop Method Explained',
-    description: 'A comprehensive guide to the start-stop technique - one of the most effective methods for building stamina.',
-    keywords: ['start stop method', 'start stop technique', 'stamina method', 'lasting longer technique'],
+    description:
+      'A comprehensive guide to the start-stop technique and how it may support stamina practice.',
+    keywords: [
+      'start stop method',
+      'start stop technique',
+      'stamina method',
+      'lasting longer technique',
+    ],
     category: 'techniques',
     priority: 0.8,
     publishedAt: '2024-03-15T00:00:00Z',
@@ -78,8 +94,14 @@ export const GUIDE_TOPICS = [
   {
     slug: 'tracking-progress-stamina',
     title: 'How to Track Your Stamina Progress',
-    description: 'Learn how to effectively track and measure your stamina improvement over time with data-driven methods.',
-    keywords: ['track stamina progress', 'stamina improvement', 'progress tracking', 'stamina metrics'],
+    description:
+      'Learn how to effectively track and measure your stamina improvement over time with data-driven methods.',
+    keywords: [
+      'track stamina progress',
+      'stamina improvement',
+      'progress tracking',
+      'stamina metrics',
+    ],
     category: 'fundamentals',
     priority: 0.7,
     publishedAt: '2024-04-01T00:00:00Z',
@@ -88,7 +110,8 @@ export const GUIDE_TOPICS = [
   {
     slug: 'daily-stamina-routine',
     title: 'Building a Daily Stamina Routine',
-    description: 'Create an effective daily routine that fits your lifestyle and delivers consistent stamina improvements.',
+    description:
+      'Create an effective daily routine that fits your lifestyle and delivers consistent stamina improvements.',
     keywords: ['daily stamina routine', 'stamina workout', 'daily exercises', 'stamina schedule'],
     category: 'routines',
     priority: 0.7,
@@ -101,35 +124,43 @@ export const GUIDE_TOPICS = [
 export const FAQ_DATA = [
   {
     question: 'How long does it take to see results from stamina training?',
-    answer: 'Most users report noticeable improvement within 2-4 weeks of consistent training (3-4 sessions per week). The key is consistency - regular practice leads to lasting improvement. Our data shows an average 40% improvement in duration after 30 days of training.',
+    answer:
+      'Most users report noticeable improvement within 2-4 weeks of consistent training (3-4 sessions per week). The key is consistency - regular practice leads to lasting improvement. Our data shows an average 40% improvement in duration after 30 days of training.',
   },
   {
     question: 'Is stamina training scientifically proven?',
-    answer: 'Yes. The techniques used in stamina training, including the start-stop method and edging, have been studied and recommended by sexual health professionals for decades. These methods work by training your body to recognize and control arousal levels.',
+    answer:
+      'Some stamina-training techniques have research support, including behavioural approaches such as the start-stop method. Evidence quality and individual results vary, so no technique guarantees a particular outcome.',
   },
   {
     question: 'What is the best time of day to practice stamina training?',
-    answer: 'The best time is when you can practice consistently without interruption. Many users prefer morning sessions when energy levels are high, while others find evening sessions help them unwind. Consistency matters more than timing.',
+    answer:
+      'The best time is when you can practice consistently without interruption. Many users prefer morning sessions when energy levels are high, while others find evening sessions help them unwind. Consistency matters more than timing.',
   },
   {
     question: 'How often should I practice stamina training?',
-    answer: 'For optimal results, we recommend 3-4 sessions per week, with each session lasting 10-20 minutes. Allow at least one day of rest between sessions to prevent fatigue. Quality of practice matters more than quantity.',
+    answer:
+      'For optimal results, we recommend 3-4 sessions per week, with each session lasting 10-20 minutes. Allow at least one day of rest between sessions to prevent fatigue. Quality of practice matters more than quantity.',
   },
   {
     question: 'Can kegel exercises really improve stamina?',
-    answer: 'Absolutely. Kegel exercises strengthen the pelvic floor muscles, which play a crucial role in controlling arousal and timing. Studies show that men who regularly practice kegel exercises experience significant improvements in control.',
+    answer:
+      'Pelvic-floor training may help some men, but it is not required for everyone and the evidence is mixed. Consider it an optional practice and choose approaches that feel appropriate for you.',
   },
   {
     question: 'Is the Stamina Timer app completely private?',
-    answer: 'Yes, privacy is our top priority. All data is encrypted, stored securely, and never shared with anyone. We don\'t sell data or show ads. You can delete all your data at any time from the settings page.',
+    answer:
+      "Yes, privacy is our top priority. All data is encrypted, stored securely, and never shared with anyone. We don't sell data or show ads. You can delete all your data at any time from the settings page.",
   },
   {
     question: 'What makes AI coaching different from regular tips?',
-    answer: 'Our AI coach analyzes your training patterns, session data, and progress to provide personalized recommendations. Unlike generic tips, AI coaching adapts to your specific needs and identifies areas for improvement based on your actual performance.',
+    answer:
+      'Our AI coach analyzes your training patterns, session data, and progress to provide personalized recommendations. Unlike generic tips, AI coaching adapts to your specific needs and identifies areas for improvement based on your actual performance.',
   },
   {
     question: 'Is Stamina Timer really free?',
-    answer: 'Yes, Stamina Timer is completely free to use with all core features including the timer, analytics, AI coaching, and achievements. We believe everyone deserves access to effective stamina training tools.',
+    answer:
+      'Yes, Stamina Timer is completely free to use with all core features including the timer, analytics, AI coaching, and achievements. We believe everyone deserves access to effective stamina training tools.',
   },
 ] as const
 
@@ -141,7 +172,7 @@ export const GUIDE_CATEGORIES = {
   },
   techniques: {
     title: 'Techniques',
-    description: 'Proven methods and techniques for building stamina',
+    description: 'Evidence-informed methods and techniques for building stamina',
   },
   exercises: {
     title: 'Exercises',

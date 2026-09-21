@@ -2,13 +2,13 @@
 
 export const dynamic = 'force-dynamic'
 
-import { ProgramDashboard } from '@/components/program/ProgramDashboard'
 import { AppNavigation } from '@/components/AppNavigation'
+import { ProgramDashboardV2 } from '@/components/program/v2/ProgramDashboardV2'
 
 export default function ProgramPage() {
   return (
     <AppNavigation>
-      <ProgramDashboard />
+      <ProgramDashboardV2 />
     </AppNavigation>
   )
 }

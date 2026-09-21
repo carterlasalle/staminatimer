@@ -12,8 +12,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useEffect, useMemo, useState } from 'react'
+import { z } from 'zod'
 
-type EncounterDurationBucket = 'under-2' | '2-5' | '5-10' | '10-20' | '20-plus'
+const durationBucketSchema = z.enum(['under-2', '2-5', '5-10', '10-20', '20-plus'])
+
+const condomSchema = z.enum(['yes', 'no'])
+
+type EncounterDurationBucket = z.infer<typeof durationBucketSchema>
+
+type CondomChoice = z.infer<typeof condomSchema>
 
 type EncounterLogEntry = {
   id: string
@@ -21,7 +28,27 @@ type EncounterLogEntry = {
   durationBucket: EncounterDurationBucket
   controlRating: number
   notes: string
-  usedCondom: 'yes' | 'no'
+  usedCondom: CondomChoice
+}
+
+/** Local browser storage is an I/O boundary, so stored entries are parsed, not asserted. */
+const encounterEntrySchema = z.object({
+  id: z.string(),
+  createdAt: z.string(),
+  durationBucket: durationBucketSchema,
+  controlRating: z.number(),
+  notes: z.string(),
+  usedCondom: condomSchema,
+})
+
+const storedEntriesSchema = z.array(encounterEntrySchema)
+
+function isEncounterDurationBucket(value: string): value is EncounterDurationBucket {
+  return durationBucketSchema.safeParse(value).success
+}
+
+function isCondomChoice(value: string): value is CondomChoice {
+  return condomSchema.safeParse(value).success
 }
 
 const STORAGE_KEY = 'program_encounter_logs'
@@ -38,6 +65,7 @@ function createEntryId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID()
   }
+
   return `enc-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
@@ -51,11 +79,13 @@ export function EncounterLog() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
+
       if (!raw) {
         return
       }
-      const parsed = JSON.parse(raw) as EncounterLogEntry[]
-      setEntries(Array.isArray(parsed) ? parsed : [])
+
+      const parsed = storedEntriesSchema.safeParse(JSON.parse(raw))
+      setEntries(parsed.success ? parsed.data : [])
     } catch {
       setEntries([])
     }
@@ -69,7 +99,10 @@ export function EncounterLog() {
     }
   }, [entries])
 
-  const recentEntries = useMemo(() => entries.slice().sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)), [entries])
+  const recentEntries = useMemo(
+    () => entries.slice().sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
+    [entries]
+  )
 
   const addEntry = () => {
     const entry: EncounterLogEntry = {
@@ -80,6 +113,7 @@ export function EncounterLog() {
       notes: notes.trim(),
       usedCondom,
     }
+
     setEntries((prev) => [entry, ...prev])
     setNotes('')
     setDurationBucket('2-5')
@@ -90,7 +124,7 @@ export function EncounterLog() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Phase 8 Real Encounter Log (Local Only)</CardTitle>
+        <CardTitle className="text-base">Partnered Encounter Log (Local Only)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
@@ -102,7 +136,11 @@ export function EncounterLog() {
             <Label>Approximate duration of penetrative sex</Label>
             <Select
               value={durationBucket}
-              onValueChange={(value) => setDurationBucket(value as EncounterDurationBucket)}
+              onValueChange={(value) => {
+                if (isEncounterDurationBucket(value)) {
+                  setDurationBucket(value)
+                }
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -134,7 +172,14 @@ export function EncounterLog() {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label>Did you use a condom?</Label>
-            <Select value={usedCondom} onValueChange={(value) => setUsedCondom(value as 'yes' | 'no')}>
+            <Select
+              value={usedCondom}
+              onValueChange={(value) => {
+                if (isCondomChoice(value)) {
+                  setUsedCondom(value)
+                }
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -4,7 +4,9 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 const INHALE_MS = 4_000
+
 const EXHALE_MS = 6_000
+
 const CYCLE_MS = INHALE_MS + EXHALE_MS
 
 export function BreathingPacer() {

@@ -22,7 +22,7 @@ import {
   BarChart3,
   Zap,
   Heart,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react'
 
 const ONBOARDING_KEY = 'stamina-timer-onboarding-completed'
@@ -73,6 +73,7 @@ function TimerDemo() {
     const seconds = Math.floor(ms / 1000)
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
+
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
@@ -129,6 +130,7 @@ function StatsDemo() {
     const interval = duration / steps
 
     let step = 0
+
     const timer = setInterval(() => {
       step++
       const progress = step / steps
@@ -137,6 +139,7 @@ function StatsDemo() {
         streak: Math.round(targets.streak * progress),
         level: Math.round(targets.level * progress),
       })
+
       if (step >= steps) clearInterval(timer)
     }, interval)
 
@@ -191,22 +194,29 @@ function AIChatDemo() {
 
     const sequence = [
       { delay: 500, role: 'user' as const, text: 'How can I improve my stamina?' },
-      { delay: 1500, role: 'ai' as const, text: 'Great question! Based on your training data, I recommend focusing on breathing techniques and gradually increasing session duration...' },
+      {
+        delay: 1500,
+        role: 'ai' as const,
+        text: 'Great question! Based on your training data, I recommend focusing on breathing techniques and gradually increasing session duration...',
+      },
     ]
 
     sequence.forEach(({ delay, role, text }) => {
       const timeout = setTimeout(() => {
         if (role === 'ai') {
           setTyping(true)
+
           const typingTimeout = setTimeout(() => {
             setTyping(false)
             setMessages((m) => [...m, { role, text }])
           }, 800)
+
           timeoutsRef.current.push(typingTimeout)
         } else {
           setMessages((m) => [...m, { role, text }])
         }
       }, delay)
+
       timeoutsRef.current.push(timeout)
     })
 
@@ -234,9 +244,7 @@ function AIChatDemo() {
           >
             <div
               className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${
-                msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
+                msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}
             >
               {msg.text}
@@ -277,9 +285,24 @@ function TrainingMethodsDemo() {
       className="grid grid-cols-3 gap-3"
     >
       {[
-        { icon: Timer, label: 'Timer', color: 'from-blue-500/20 to-blue-500/5 border-blue-500/20', iconColor: 'text-blue-500' },
-        { icon: Dumbbell, label: 'Kegels', color: 'from-orange-500/20 to-orange-500/5 border-orange-500/20', iconColor: 'text-orange-500' },
-        { icon: Brain, label: 'Mental', color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20', iconColor: 'text-purple-500' },
+        {
+          icon: Timer,
+          label: 'Timer',
+          color: 'from-blue-500/20 to-blue-500/5 border-blue-500/20',
+          iconColor: 'text-blue-500',
+        },
+        {
+          icon: Dumbbell,
+          label: 'Kegels',
+          color: 'from-orange-500/20 to-orange-500/5 border-orange-500/20',
+          iconColor: 'text-orange-500',
+        },
+        {
+          icon: Brain,
+          label: 'Mental',
+          color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20',
+          iconColor: 'text-purple-500',
+        },
       ].map((item, i) => (
         <motion.div
           key={item.label}
@@ -302,7 +325,8 @@ const slides: OnboardingSlide[] = [
     id: 'welcome',
     title: 'Welcome to Stamina Timer',
     subtitle: "Let's get you started",
-    description: 'Your personal training companion for building control and improving stamina through structured practice.',
+    description:
+      'Your personal training companion for building control and improving stamina through structured practice.',
     icon: <Sparkles className="h-12 w-12" />,
     color: 'from-primary/30 to-primary/10',
     features: [
@@ -315,7 +339,8 @@ const slides: OnboardingSlide[] = [
     id: 'training',
     title: 'Training Hub',
     subtitle: 'Your practice center',
-    description: 'Access all your training tools in one place. Start timed sessions, do kegel exercises, or practice mental techniques.',
+    description:
+      'Access all your training tools in one place. Start timed sessions, try optional pelvic-floor exercises, or practice mental techniques.',
     icon: <Timer className="h-12 w-12" />,
     color: 'from-blue-500/30 to-blue-500/10',
     demo: <TrainingMethodsDemo />,
@@ -324,7 +349,8 @@ const slides: OnboardingSlide[] = [
     id: 'timer',
     title: 'Session Timer',
     subtitle: 'Track every moment',
-    description: 'Use the precision timer to track your sessions. Log edge events to understand your patterns and build endurance over time.',
+    description:
+      'Use the precision timer to track your sessions. Log edge events to understand your patterns and build endurance over time.',
     icon: <Zap className="h-12 w-12" />,
     color: 'from-yellow-500/30 to-yellow-500/10',
     demo: <TimerDemo />,
@@ -333,11 +359,12 @@ const slides: OnboardingSlide[] = [
     id: 'exercises',
     title: 'Kegels & Mental Training',
     subtitle: 'Build strength & control',
-    description: 'Strengthen your pelvic floor with guided kegel exercises, and develop mental control through breathing and visualization techniques.',
+    description:
+      'Practise optional pelvic-floor awareness, and develop mental control through breathing and relaxation techniques.',
     icon: <Heart className="h-12 w-12" />,
     color: 'from-pink-500/30 to-pink-500/10',
     features: [
-      { icon: <Dumbbell className="h-4 w-4" />, text: 'Progressive kegel routines' },
+      { icon: <Dumbbell className="h-4 w-4" />, text: 'Optional pelvic-floor exercises' },
       { icon: <Brain className="h-4 w-4" />, text: 'Breathing exercises' },
       { icon: <Target className="h-4 w-4" />, text: 'Visualization techniques' },
     ],
@@ -346,7 +373,8 @@ const slides: OnboardingSlide[] = [
     id: 'progress',
     title: 'Track Your Progress',
     subtitle: 'See how far you have come',
-    description: 'View detailed analytics, set personal goals, and celebrate achievements. Your data helps you understand and improve.',
+    description:
+      'View detailed analytics, set personal goals, and celebrate achievements. Your data helps you understand and improve.',
     icon: <TrendingUp className="h-12 w-12" />,
     color: 'from-green-500/30 to-green-500/10',
     demo: <StatsDemo />,
@@ -355,7 +383,8 @@ const slides: OnboardingSlide[] = [
     id: 'ai-coach',
     title: 'AI Coach',
     subtitle: 'Personalized guidance',
-    description: 'Get tailored advice based on your training data. Ask questions, receive tips, and accelerate your progress with AI assistance.',
+    description:
+      'Get tailored advice based on your training data. Ask questions, receive tips, and accelerate your progress with AI assistance.',
     icon: <Bot className="h-12 w-12" />,
     color: 'from-emerald-500/30 to-emerald-500/10',
     demo: <AIChatDemo />,
@@ -364,7 +393,8 @@ const slides: OnboardingSlide[] = [
     id: 'ready',
     title: 'You Are All Set!',
     subtitle: 'Start your journey',
-    description: 'Everything is ready. Begin your first session and start building the control and stamina you desire.',
+    description:
+      'Everything is ready. Begin your first session and start building the control and stamina you desire.',
     icon: <CheckCircle2 className="h-12 w-12" />,
     color: 'from-primary/30 to-primary/10',
     features: [
@@ -456,7 +486,9 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
         {/* Progress */}
         <div className="px-6 pt-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-            <span>Step {currentSlide + 1} of {slides.length}</span>
+            <span>
+              Step {currentSlide + 1} of {slides.length}
+            </span>
             <span>{Math.round(progress)}% complete</span>
           </div>
           <Progress value={progress} className="h-1.5" />
@@ -538,7 +570,7 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
                 </motion.div>
               )}
 
-              {slide.demo && slide.demo}
+              {slide.demo}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -592,9 +624,11 @@ export function useOnboarding() {
 
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY)
+
     if (!completed) {
       setShowOnboarding(true)
     }
+
     setHasChecked(true)
   }, [])
 

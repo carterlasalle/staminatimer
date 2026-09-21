@@ -88,7 +88,7 @@ Never prefix `GEMINI_API_KEY`, `CSRF_SECRET`, Upstash credentials, or a Supabase
 
 `supabase/config.toml` defines the reproducible local stack. Existing environments should apply every migration under `supabase/migrations/` in timestamp order. `yarn dlx supabase@2.114.0 db reset` rebuilds a local database from those migrations and the configured achievement seed; `yarn dlx supabase@2.114.0 test db` then proves the RLS/privacy boundaries.
 
-The migration `20260711000000_secure_shared_sessions.sql` removes anonymous table reads and exposes public shares only through `get_shared_session(uuid)`.
+The migration `20260711000000_secure_shared_sessions.sql` removes anonymous table reads and exposes public shares only through `get_shared_session(uuid)`. The migration `20260920000000_program_v2.sql` adds the Guided Program V2 tables and the authoritative `record_program_v2_session(payload)` / `initialize_program_v2(bucket)` functions; those tables are read-only to clients and all advancement is decided server-side.
 
 ## PWA
 
