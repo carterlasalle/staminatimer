@@ -76,32 +76,30 @@ export function GamifiedHud() {
   }, [level.level])
 
   const getLevelIcon = () => {
-    if (level.level >= 20) return <Crown className="h-6 w-6 text-purple-400" />
+    if (level.level >= 20) return <Crown className="h-6 w-6 text-accent" />
 
-    if (level.level >= 10) return <Award className="h-6 w-6 text-blue-400" />
+    if (level.level >= 10) return <Award className="h-6 w-6 text-info" />
 
-    return <Star className="h-6 w-6 text-yellow-400" />
+    return <Star className="h-6 w-6 text-accent" />
   }
 
   const getStreakColor = () => {
-    if (streakCount >= 10) return 'text-purple-500'
+    if (streakCount >= 10) return 'text-accent'
 
-    if (streakCount >= 5) return 'text-orange-500'
+    if (streakCount >= 5) return 'text-warning'
 
-    return 'text-orange-400'
+    return 'text-warning'
   }
 
   const getGoalStatus = () => {
     if (goalPct >= 100)
-      return { color: 'text-green-500', bg: 'bg-green-500', message: 'Goal Achieved! 🎉' }
+      return { color: 'text-primary', bg: 'bg-primary', message: 'Goal Achieved! 🎉' }
 
-    if (goalPct >= 75)
-      return { color: 'text-blue-500', bg: 'bg-blue-500', message: 'Almost there!' }
+    if (goalPct >= 75) return { color: 'text-info', bg: 'bg-info', message: 'Almost there!' }
 
-    if (goalPct >= 50)
-      return { color: 'text-yellow-500', bg: 'bg-yellow-500', message: 'Halfway there!' }
+    if (goalPct >= 50) return { color: 'text-accent', bg: 'bg-accent', message: 'Halfway there!' }
 
-    return { color: 'text-gray-500', bg: 'bg-gray-500', message: 'Keep going!' }
+    return { color: 'text-muted-foreground', bg: 'bg-muted', message: 'Keep going!' }
   }
 
   const goalStatus = getGoalStatus()
@@ -111,10 +109,10 @@ export function GamifiedHud() {
       {/* Level Up Animation */}
       {showLevelUpAnimation && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
-          <div className="bg-card p-8 rounded-2xl border border-yellow-400/50 shadow-2xl animate-bounce">
+          <div className="rounded-lg border border-accent/50 bg-card p-8 shadow-lg">
             <div className="text-center space-y-4">
-              <Crown className="h-16 w-16 text-yellow-400 mx-auto animate-pulse" />
-              <h2 className="text-3xl font-bold text-yellow-400">LEVEL UP!</h2>
+              <Crown className="h-16 w-16 text-accent mx-auto animate-pulse" />
+              <h2 className="text-3xl font-bold text-accent">LEVEL UP!</h2>
               <p className="text-xl">You've reached Level {level.level}!</p>
             </div>
           </div>
@@ -125,7 +123,6 @@ export function GamifiedHud() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Level Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-linear-to-br from-yellow-500/10 via-transparent to-yellow-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -136,15 +133,12 @@ export function GamifiedHud() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-yellow-400">{points} XP</div>
+                <div className="text-sm font-medium text-accent">{points} XP</div>
                 <div className="text-xs text-muted-foreground">Total Points</div>
               </div>
             </div>
             <div className="space-y-2">
-              <Progress
-                value={level.progressPct}
-                className="h-2 bg-yellow-100 dark:bg-yellow-900/20"
-              />
+              <Progress value={level.progressPct} className="h-2 bg-accent dark:bg-accent/20" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{level.currentLevelXp} XP</span>
                 <span>
@@ -157,7 +151,6 @@ export function GamifiedHud() {
 
         {/* Streak Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-linear-to-br from-orange-500/10 via-transparent to-orange-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -180,11 +173,10 @@ export function GamifiedHud() {
 
         {/* Daily Goal Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-transparent to-blue-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <Target className="h-6 w-6 text-blue-500" />
+                <Target className="h-6 w-6 text-info" />
                 <div>
                   <div className="font-bold text-lg">Daily Goal</div>
                   <div className="text-xs text-muted-foreground">
@@ -230,18 +222,17 @@ export function GamifiedHud() {
 
         {/* Achievements Card */}
         <Card className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
-          <div className="absolute inset-0 bg-linear-to-br from-green-500/10 via-transparent to-green-500/5" />
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <Trophy className="h-6 w-6 text-green-500" />
+                <Trophy className="h-6 w-6 text-primary" />
                 <div>
                   <div className="font-bold text-lg">Trophies</div>
                   <div className="text-xs text-muted-foreground">Achievements</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-lg font-bold text-green-500">
+                <div className="text-lg font-bold text-primary">
                   {unlockedAchievements}/{totalAchievements}
                 </div>
                 <div className="text-xs text-muted-foreground">Unlocked</div>
@@ -259,7 +250,6 @@ export function GamifiedHud() {
 
       {/* Today's Progress Summary */}
       <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-transparent to-primary/5" />
         <CardContent className="pt-6 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">

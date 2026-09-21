@@ -87,23 +87,25 @@ export async function proxy(req: NextRequest) {
   } = checkRateLimitCookie(timestamps, maxRequests)
 
   if (!allowed) {
-    const response = new NextResponse(
-      JSON.stringify({
-        error: 'Too many requests. Please wait a moment before trying again.',
-        retryAfter: 60,
-      }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-RateLimit-Limit': String(maxRequests),
-          'X-RateLimit-Remaining': '0',
-          'Retry-After': '60',
-        },
-      }
-    )
+    const wantsHtml = (req.headers.get('accept') ?? '').includes('text/html')
 
-    return response
+    // A page navigation should not drop the visitor onto a raw JSON blob.
+    const body = wantsHtml
+      ? `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Slow down for a moment</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#111518;color:#e6ecee;font:16px/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem}h1{font-size:1.375rem;margin:0 0 .75rem}p{margin:0 0 .5rem;color:#a3b0b6}</style></head><body><main><h1>Slow down for a moment</h1><p>You have made a lot of requests in a short time. Please try again in about a minute.</p><p>Nothing was lost.</p></main></body></html>`
+      : JSON.stringify({
+          error: 'Too many requests. Please wait a moment before trying again.',
+          retryAfter: 60,
+        })
+
+    return new NextResponse(body, {
+      status: 429,
+      headers: {
+        'Content-Type': wantsHtml ? 'text/html; charset=utf-8' : 'application/json',
+        'X-RateLimit-Limit': String(maxRequests),
+        'X-RateLimit-Remaining': '0',
+        'Retry-After': '60',
+      },
+    })
   }
 
   let supabaseResponse = NextResponse.next({

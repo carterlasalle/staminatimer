@@ -88,6 +88,7 @@ export function ProgramDashboardV2() {
 
   return (
     <div className="entrance mx-auto max-w-6xl space-y-8 p-4 pt-6 md:p-8 md:pt-10">
+      <h1 className="sr-only">Guided Program</h1>
       <TodaysPractice sessionType={todayType} currentTargetMs={currentTargetMs} status={status} />
 
       {error && (

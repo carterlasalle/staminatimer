@@ -2,7 +2,7 @@
 
 import { Analytics } from '@/components/Analytics'
 import { Charts } from '@/components/Charts'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
@@ -42,8 +42,13 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
   if (unavailable || !sharedData)
     return (
-      <div className="container mx-auto py-8 text-center text-destructive" role="status">
-        Shared link unavailable, not found, or expired.
+      <div className="container mx-auto py-8 text-center" role="status">
+        <h1 className="font-display text-xl font-semibold text-foreground">
+          Shared link unavailable
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This link was not found, has expired, or was removed by its owner.
+        </p>
       </div>
     )
 
@@ -51,7 +56,9 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
     <div className="container max-w-7xl mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Shared Training Data</CardTitle>
+          <h1 className="font-display text-xl font-semibold tracking-tight">
+            Shared Training Data
+          </h1>
         </CardHeader>
         <CardContent>
           <Charts data={sharedData} />

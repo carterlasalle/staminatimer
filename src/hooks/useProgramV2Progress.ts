@@ -17,7 +17,7 @@ import {
   type ProgramStatus,
 } from '@/lib/program/protocol-v2'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 export type ProgramV2ProgressRow = Database['public']['Tables']['program_v2_progress']['Row']
 

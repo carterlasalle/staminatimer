@@ -50,7 +50,7 @@ test('authenticated timer lifecycle persists and progress remains reachable', as
 
 test('unknown or expired share IDs never expose session data', async ({ page }) => {
   await page.goto('/share/00000000-0000-0000-0000-000000000001')
-  await expect(page.getByText(/not found|expired|unavailable/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /unavailable/i })).toBeVisible()
 })
 
 test('guided program v2 onboarding, control session, rescue and summary persist', async ({

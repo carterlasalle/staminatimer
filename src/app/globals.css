@@ -37,6 +37,9 @@
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
 
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
 
@@ -130,6 +133,8 @@
     --muted-foreground: 195 11% 65%;
     --accent: 34 52% 60%;
     --accent-foreground: 200 26% 8%;
+    --info: 205 45% 62%;
+    --info-foreground: 205 40% 10%;
     --warning: 34 58% 63%;
     --warning-foreground: 200 26% 8%;
     --destructive: 8 55% 60%;
@@ -162,6 +167,8 @@
     --muted-foreground: 200 12% 38%;
     --accent: 30 55% 42%;
     --accent-foreground: 195 28% 98%;
+    --info: 205 55% 36%;
+    --info-foreground: 195 28% 98%;
     --warning: 30 60% 38%;
     --warning-foreground: 195 28% 98%;
     --destructive: 8 60% 43%;
@@ -210,10 +217,6 @@
   }
 }
 
-@utility rise-in {
-  animation: rise-in 0.5s var(--ease-out-expo) both;
-}
-
 /* Staggered entrance for a column of sections. Keep the list short: this is a
    page-load orchestration, not a per-element effect. */
 @utility entrance {
@@ -245,17 +248,6 @@
 }
 
 /* Progress/timer ticks: nudge without moving layout. */
-@keyframes tick-pulse {
-  0% {
-    opacity: 0.35;
-    transform: scale(0.94);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.06);
-  }
-}
-
 /* 4s inhale, 6s exhale in a single 10s cycle. Transform and opacity only, so it
    stays on the compositor and cannot burn paint while a session runs. */
 @keyframes breathe {
@@ -293,199 +285,6 @@
   animation: breathe-halo 10s var(--ease-out-quart) infinite;
 }
 
-/* ===== BRAND SURFACES (marketing page) ===== */
-@keyframes beam-rotate {
-  to {
-    --beam-angle: 360deg;
-  }
-}
-
-@utility border-beam {
-  @property --beam-angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: conic-gradient(
-      from var(--beam-angle),
-      transparent 0%,
-      hsl(var(--primary)) 10%,
-      hsl(var(--accent)) 20%,
-      transparent 30%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 200ms var(--ease-out-quart);
-  }
-
-  &:hover::before {
-    opacity: 1;
-    animation: beam-rotate 3s linear infinite;
-  }
-}
-
-@utility flashlight-card {
-  position: relative;
-  overflow: hidden;
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      hsla(var(--primary) / 0.12),
-      transparent 40%
-    );
-    opacity: 0;
-    transition: opacity 240ms var(--ease-out-quart);
-    pointer-events: none;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: radial-gradient(
-      400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      hsla(var(--primary) / 0.35),
-      transparent 40%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 240ms var(--ease-out-quart);
-    pointer-events: none;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-}
-
-@utility grid-pattern {
-  background-image:
-    linear-gradient(hsla(var(--foreground) / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(var(--foreground) / 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-@utility glow-teal {
-  box-shadow: 0 0 44px -14px hsla(var(--primary) / 0.45);
-}
-
-@utility glass {
-  backdrop-filter: blur(18px) saturate(150%);
-  background-color: hsla(var(--card) / 0.72);
-  border: 1px solid hsla(var(--border) / 0.6);
-}
-
-@utility text-gradient {
-  /* Reserved for single brand moments on the marketing page, never for metrics
-     or data. */
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ===== MARQUEE (marketing page) ===== */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
-  }
-}
-
-@utility marquee {
-  --gap: 2rem;
-  display: flex;
-  gap: var(--gap);
-  overflow: hidden;
-  user-select: none;
-
-  &:hover .marquee-content {
-    animation-play-state: paused;
-  }
-}
-
-@utility marquee-content {
-  flex-shrink: 0;
-  display: flex;
-  gap: var(--gap);
-  min-width: 100%;
-  animation: marquee 44s linear infinite;
-
-  .marquee:hover & {
-    animation-play-state: paused;
-  }
-}
-
-@utility marquee-mask {
-  -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
-  mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
-}
-
-@keyframes scroll-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-}
-
-@utility scroll-indicator {
-  animation: scroll-bounce 2.4s ease-in-out infinite;
-}
-
-@utility counter {
-  @property --num {
-    syntax: '<integer>';
-    initial-value: 0;
-    inherits: false;
-  }
-  transition: --num 2s var(--ease-out-quart);
-  counter-reset: num var(--num);
-
-  &::after {
-    content: counter(num);
-  }
-}
-
 /* ===== AUTH UI ===== */
 @utility auth-container {
   @apply space-y-4;
@@ -521,12 +320,58 @@
 @utility touch-manipulation {
   touch-action: manipulation;
 }
-@utility no-tap-highlight {
-  -webkit-tap-highlight-color: transparent;
-}
 @utility touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* Long-form reading: a constrained measure with a real vertical rhythm. Kept here
+   rather than adding @tailwindcss/typography as a dependency. */
+@utility content-prose {
+  max-width: 68ch;
+
+  & p {
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+
+  & h2 {
+    margin-top: 2.25rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  & ul,
+  & ol {
+    margin-bottom: 1rem;
+    padding-left: 1.25rem;
+  }
+
+  & ul {
+    list-style: disc;
+  }
+
+  & ol {
+    list-style: decimal;
+  }
+
+  & li {
+    margin-bottom: 0.375rem;
+    line-height: 1.7;
+  }
+
+  & a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  & strong {
+    font-weight: 600;
+  }
 }
 
 @utility scrollbar-hide {

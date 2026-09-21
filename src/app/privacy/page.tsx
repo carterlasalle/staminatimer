@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
 export default function PrivacyPage() {
@@ -15,10 +15,10 @@ export default function PrivacyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Privacy Policy</CardTitle>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground">Effective Date: January 20, 2025</p>
         </CardHeader>
-        <CardContent className="prose dark:prose-invert max-w-none">
+        <CardContent className="content-prose">
           <p>
             Welcome to Stamina Timer. This Privacy Policy explains how we collect, use, disclose,
             and safeguard your information when you use our application and website (the

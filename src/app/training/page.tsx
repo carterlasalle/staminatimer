@@ -300,13 +300,13 @@ export default function TrainingPage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'beginner':
-        return 'bg-green-500/10 text-green-600'
+        return 'bg-primary/10 text-primary'
       case 'intermediate':
-        return 'bg-yellow-500/10 text-yellow-600'
+        return 'bg-accent/10 text-accent'
       case 'advanced':
-        return 'bg-red-500/10 text-red-600'
+        return 'bg-destructive/10 text-destructive'
       default:
-        return 'bg-gray-500/10 text-gray-600'
+        return 'bg-muted/10 text-muted-foreground'
     }
   }
 
@@ -326,6 +326,7 @@ export default function TrainingPage() {
   return (
     <AppNavigation>
       <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+        <h1 className="sr-only">Training timer</h1>
         <Tabs defaultValue="timer" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="timer" className="gap-2">
@@ -363,24 +364,24 @@ export default function TrainingPage() {
               {showGuidance && (
                 <CardContent className="pt-0">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="p-3 bg-blue-500/10 rounded-lg">
-                      <h4 className="font-semibold text-blue-600 mb-2">Before</h4>
+                    <div className="p-3 bg-info/10 rounded-lg">
+                      <h4 className="font-semibold text-info mb-2">Before</h4>
                       <ul className="space-y-1 text-muted-foreground text-xs">
                         <li>• Find a private space</li>
                         <li>• Take deep breaths</li>
                         <li>• Set a time goal</li>
                       </ul>
                     </div>
-                    <div className="p-3 bg-orange-500/10 rounded-lg">
-                      <h4 className="font-semibold text-orange-600 mb-2">During</h4>
+                    <div className="p-3 bg-warning/10 rounded-lg">
+                      <h4 className="font-semibold text-warning mb-2">During</h4>
                       <ul className="space-y-1 text-muted-foreground text-xs">
                         <li>• Focus on breathing</li>
                         <li>• Relax muscles</li>
                         <li>• Stay mindful</li>
                       </ul>
                     </div>
-                    <div className="p-3 bg-green-500/10 rounded-lg">
-                      <h4 className="font-semibold text-green-600 mb-2">After</h4>
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <h4 className="font-semibold text-primary mb-2">After</h4>
                       <ul className="space-y-1 text-muted-foreground text-xs">
                         <li>• Review progress</li>
                         <li>• Note what worked</li>
@@ -432,7 +433,7 @@ export default function TrainingPage() {
                       {formatTime(kegelWorkout.timeRemaining)}
                     </div>
                     <div
-                      className={`text-lg font-medium ${kegelWorkout.isHolding ? 'text-orange-500' : 'text-green-500'}`}
+                      className={`text-lg font-medium ${kegelWorkout.isHolding ? 'text-warning' : 'text-primary'}`}
                     >
                       {kegelWorkout.isHolding ? 'HOLD' : 'REST'}
                     </div>

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 const durationBucketSchema = z.enum(['under-2', '2-5', '5-10', '10-20', '20-plus'])
 

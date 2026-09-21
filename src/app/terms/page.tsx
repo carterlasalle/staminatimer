@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -15,10 +15,10 @@ export default function TermsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Terms of Service</CardTitle>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Terms of Service</h1>
           <p className="text-sm text-muted-foreground">Effective Date: January 20, 2025</p>
         </CardHeader>
-        <CardContent className="prose dark:prose-invert max-w-none">
+        <CardContent className="content-prose">
           <p>
             Welcome to Stamina Timer. These Terms of Service (&quot;Terms&quot;) govern your access
             to and use of the Stamina Timer application and website (collectively, the

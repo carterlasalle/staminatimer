@@ -4,45 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart } from '@/components/LazyChart'
 import { getRollingTrend, type TrendPoint } from '@/lib/program/protocol-v2'
 import type { ProgramV2SessionRow } from '@/hooks/useProgramV2Progress'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useChartColors, type ChartColors } from '@/hooks/useChartColors'
 import type { ChartData, ChartOptions } from 'chart.js'
 
 type TrendsV2Props = {
   baselines: ProgramV2SessionRow[]
   controlSessions: ProgramV2SessionRow[]
-}
-
-type ChartTheme = {
-  series: [string, string]
-  tick: string
-  grid: string
-}
-
-const FALLBACK_THEME: ChartTheme = {
-  series: ['hsl(166 46% 47%)', 'hsl(200 38% 60%)'],
-  tick: 'hsl(195 11% 65%)',
-  grid: 'hsl(200 13% 20%)',
-}
-
-/** Chart.js needs concrete colours, so resolve the design tokens from the DOM and
- * re-resolve whenever the theme changes. */
-function useChartTheme(): ChartTheme {
-  const { theme } = useTheme()
-  const [chartTheme, setChartTheme] = useState<ChartTheme>(FALLBACK_THEME)
-
-  useEffect(() => {
-    const styles = getComputedStyle(document.documentElement)
-    const token = (name: string) => styles.getPropertyValue(name).trim()
-
-    setChartTheme({
-      series: [`hsl(${token('--primary')})`, `hsl(${token('--chart-3')})`],
-      tick: `hsl(${token('--muted-foreground')})`,
-      grid: `hsl(${token('--border')} / 0.6)`,
-    })
-  }, [theme])
-
-  return chartTheme
 }
 
 function toChartData(points: TrendPoint[], label: string, color: string): ChartData<'line'> {
@@ -65,7 +32,7 @@ function toChartData(points: TrendPoint[], label: string, color: string): ChartD
   }
 }
 
-function buildOptions(chartTheme: ChartTheme): ChartOptions<'line'> {
+function buildOptions(colors: ChartColors): ChartOptions<'line'> {
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -74,14 +41,14 @@ function buildOptions(chartTheme: ChartTheme): ChartOptions<'line'> {
     scales: {
       x: {
         grid: { display: false },
-        border: { color: chartTheme.grid },
-        ticks: { color: chartTheme.tick, maxRotation: 0, autoSkipPadding: 12 },
+        border: { color: colors.grid },
+        ticks: { color: colors.tick, maxRotation: 0, autoSkipPadding: 12 },
       },
       y: {
         beginAtZero: true,
-        grid: { color: chartTheme.grid },
+        grid: { color: colors.grid },
         border: { display: false },
-        ticks: { color: chartTheme.tick, maxTicksLimit: 5 },
+        ticks: { color: colors.tick, maxTicksLimit: 5 },
       },
     },
   }
@@ -89,7 +56,7 @@ function buildOptions(chartTheme: ChartTheme): ChartOptions<'line'> {
 
 /** Charts that answer a single question: is continuous control actually improving? */
 export function TrendsV2({ baselines, controlSessions }: TrendsV2Props) {
-  const chartTheme = useChartTheme()
+  const colors = useChartColors()
 
   const baselinePoints: TrendPoint[] = baselines
     .slice()
@@ -110,7 +77,7 @@ export function TrendsV2({ baselines, controlSessions }: TrendsV2Props) {
   const recentControl = controlSessions.slice(0, 10)
   const recentRescueCounts = recentControl.map((session) => session.rescue_stop_count)
   const rescueTrend = getRollingTrend(recentRescueCounts.map((count) => -count))
-  const options = buildOptions(chartTheme)
+  const options = buildOptions(colors)
 
   const seriesLabel = (
     points: TrendPoint[],
@@ -170,7 +137,7 @@ export function TrendsV2({ baselines, controlSessions }: TrendsV2Props) {
             </div>
             <div className="h-[220px]">
               <LineChart
-                data={toChartData(baselinePoints, 'Baseline', chartTheme.series[0])}
+                data={toChartData(baselinePoints, 'Baseline', colors.primary)}
                 options={options}
               />
             </div>
@@ -188,7 +155,7 @@ export function TrendsV2({ baselines, controlSessions }: TrendsV2Props) {
             </div>
             <div className="h-[220px]">
               <LineChart
-                data={toChartData(blockPoints, 'Longest block', chartTheme.series[1])}
+                data={toChartData(blockPoints, 'Longest block', colors.info)}
                 options={options}
               />
             </div>

@@ -297,13 +297,13 @@ export default function ProgressPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-500/10 text-red-600 border-red-500/20'
+        return 'bg-destructive/10 text-destructive border-destructive/20'
       case 'medium':
-        return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+        return 'bg-accent/10 text-accent border-accent/20'
       case 'low':
-        return 'bg-green-500/10 text-green-600 border-green-500/20'
+        return 'bg-primary/10 text-primary border-primary/20'
       default:
-        return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
+        return 'bg-muted/10 text-muted-foreground border-border/20'
     }
   }
 
@@ -363,28 +363,28 @@ export default function ProgressPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
-              <Activity className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+              <Activity className="h-6 w-6 mx-auto mb-2 text-info" />
               <div className="text-2xl font-light">{stats.totalSessions}</div>
               <div className="text-xs text-muted-foreground">Total Sessions</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <Clock className="h-6 w-6 mx-auto mb-2 text-green-500" />
+              <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
               <div className="text-2xl font-light">{formatDuration(stats.totalTime)}</div>
               <div className="text-xs text-muted-foreground">Total Time</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <Target className="h-6 w-6 mx-auto mb-2 text-orange-500" />
+              <Target className="h-6 w-6 mx-auto mb-2 text-warning" />
               <div className="text-2xl font-light">{formatDuration(stats.averageSession)}</div>
               <div className="text-xs text-muted-foreground">Avg Session</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <Flame className="h-6 w-6 mx-auto mb-2 text-red-500" />
+              <Flame className="h-6 w-6 mx-auto mb-2 text-destructive" />
               <div className="text-2xl font-light">{streakCount}</div>
               <div className="text-xs text-muted-foreground">Day Streak</div>
             </CardContent>
@@ -560,8 +560,8 @@ export default function ProgressPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-orange-500/10 flex items-center justify-center">
-                  <Flame className="h-5 w-5 text-orange-500" />
+                <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
+                  <Flame className="h-5 w-5 text-warning" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
@@ -579,8 +579,8 @@ export default function ProgressPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-green-500" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">

@@ -115,26 +115,26 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
     if (analytics.improvementRate >= 10)
       return {
         icon: <TrendingUp className="h-5 w-5" />,
-        color: 'text-green-500',
-        bgColor: 'bg-green-500/10',
-        borderColor: 'border-green-500/20',
+        color: 'text-primary',
+        bgColor: 'bg-primary/10',
+        borderColor: 'border-primary/20',
         label: 'Excellent Progress!',
       }
 
     if (analytics.improvementRate >= 0)
       return {
         icon: <TrendingUp className="h-5 w-5" />,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/10',
-        borderColor: 'border-blue-500/20',
+        color: 'text-info',
+        bgColor: 'bg-info/10',
+        borderColor: 'border-info/20',
         label: 'Steady Improvement',
       }
 
     return {
       icon: <TrendingDown className="h-5 w-5" />,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-500/10',
-      borderColor: 'border-orange-500/20',
+      color: 'text-warning',
+      bgColor: 'bg-warning/10',
+      borderColor: 'border-warning/20',
       label: 'Focus Needed',
     }
   }
@@ -165,14 +165,14 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Average Session Duration */}
-          <div className="p-4 bg-linear-to-br from-blue-500/5 to-blue-500/10 rounded-lg border border-blue-500/10">
+          <div className="rounded-lg border border-info/40 bg-info/10 p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-500/10 rounded-full">
-                <Clock className="h-4 w-4 text-blue-500" />
+              <div className="p-2 bg-info/10 rounded-full">
+                <Clock className="h-4 w-4 text-info" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Avg Session</p>
-                <p className="text-lg font-bold text-blue-600">
+                <p className="text-lg font-bold text-info">
                   {formatDuration(analytics.averageSessionDuration)}
                 </p>
               </div>
@@ -180,14 +180,14 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           </div>
 
           {/* Average Edge Duration */}
-          <div className="p-4 bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10">
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-orange-500/10 rounded-full">
-                <Zap className="h-4 w-4 text-orange-500" />
+              <div className="p-2 bg-warning/10 rounded-full">
+                <Zap className="h-4 w-4 text-warning" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Avg Edge</p>
-                <p className="text-lg font-bold text-orange-600">
+                <p className="text-lg font-bold text-warning">
                   {formatDuration(analytics.averageEdgeDuration)}
                 </p>
               </div>
@@ -195,14 +195,14 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           </div>
 
           {/* Time Between Edges */}
-          <div className="p-4 bg-linear-to-br from-purple-500/5 to-purple-500/10 rounded-lg border border-purple-500/10">
+          <div className="rounded-lg border border-accent/40 bg-accent/10 p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-purple-500/10 rounded-full">
-                <Timer className="h-4 w-4 text-purple-500" />
+              <div className="p-2 bg-accent/10 rounded-full">
+                <Timer className="h-4 w-4 text-accent" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Between Edges</p>
-                <p className="text-lg font-bold text-purple-600">
+                <p className="text-lg font-bold text-accent">
                   {formatDuration(analytics.averageTimeBetweenEdges)}
                 </p>
               </div>
@@ -212,7 +212,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           {/* Improvement Rate */}
           <div
             className={cn(
-              'p-4 rounded-lg border transition-all duration-300',
+              'p-4 rounded-lg border transition-[color,background-color,border-color,box-shadow,transform] duration-300',
               improvementStatus.bgColor,
               improvementStatus.borderColor
             )}
@@ -277,7 +277,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
               <div className="text-xs text-muted-foreground">Sessions</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-green-500">
+              <div className="text-2xl font-bold text-primary">
                 {analytics.averageTimeBetweenEdges > 0
                   ? Math.round(analytics.averageSessionDuration / analytics.averageTimeBetweenEdges)
                   : 0}

@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import { processLock, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './types'
 
 // Get environment variables
@@ -71,7 +71,16 @@ function createSupabaseClient(): SupabaseClient<Database> {
     return createNoOpClient()
   }
 
-  return createBrowserClient<Database>(url, anon)
+  return createBrowserClient<Database>(url, anon, {
+    auth: {
+      // The default navigator lock fails immediately (rather than queueing) when
+      // several components read auth state at once, which surfaced as an
+      // uncaught "Acquiring an exclusive Navigator LockManager lock ... failed".
+      // Auth calls all originate in this one page, so an in-process lock is
+      // sufficient and cannot fail that way.
+      lock: processLock,
+    },
+  })
 }
 
 // Use createBrowserClient for client-side components

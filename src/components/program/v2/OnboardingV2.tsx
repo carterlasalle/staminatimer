@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   formatTarget,
   getInitialTargetForBucket,
@@ -42,7 +42,9 @@ export function OnboardingV2({ saving, onInitialize }: OnboardingV2Props) {
         <p className="text-xs font-medium uppercase tracking-wider text-primary">
           Guided Program V2
         </p>
-        <CardTitle className="text-2xl">Where are you starting from?</CardTitle>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">
+          Where are you starting from?
+        </h1>
         <p className="text-sm text-muted-foreground">
           Roughly how long can you last with no porn, using your normal comfortable technique, in
           one continuous stretch? This only sets your first target. Your first standardized Baseline

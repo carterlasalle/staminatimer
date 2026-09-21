@@ -4,93 +4,104 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
 import { LineChart } from '@/components/LazyChart'
 import { useGlobal } from '@/contexts/GlobalContext'
+import { useChartColors } from '@/hooks/useChartColors'
 import type { DBSession } from '@/lib/types'
-import type { ChartOptions } from 'chart.js'
-import { useTheme } from 'next-themes'
-import { useCallback, useEffect, useState } from 'react'
+import type { ChartData, ChartOptions } from 'chart.js'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 type ChartsProps = {
   data?: DBSession[]
 }
 
-type LineChartData = {
-  labels: string[]
-  datasets: {
-    label: string
-    data: number[]
-    borderColor: string
-    backgroundColor: string
-    tension: number
-  }[]
+function minutes(ms: number | null): number {
+  return ms ? Math.round((ms / 1000 / 60) * 100) / 100 : 0
 }
 
 export function Charts({ data: externalData }: ChartsProps = {}) {
-  const [chartData, setChartData] = useState<LineChartData | null>(null)
-  const { theme } = useTheme()
+  const [chartData, setChartData] = useState<ChartData<'line'> | null>(null)
+  const colors = useChartColors()
   const { loading: globalLoading, recentSessions } = useGlobal()
 
   const isLoading = externalData === undefined && globalLoading
 
-  const processSessionsForChart = useCallback(
-    (sessions: DBSession[]): LineChartData => {
-      const sortedSessions = [...sessions].sort(
+  const buildChartData = useCallback(
+    (sessions: DBSession[]): ChartData<'line'> => {
+      const sorted = [...sessions].sort(
         (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       )
 
       return {
-        labels: sortedSessions.map((s) => new Date(s.created_at).toLocaleTimeString()),
+        labels: sorted.map((session) => new Date(session.created_at).toLocaleDateString()),
         datasets: [
           {
-            label: 'Total Duration',
-            data: sortedSessions.map((s) =>
-              s.total_duration ? Math.round((s.total_duration / 1000 / 60) * 100) / 100 : 0
-            ),
-            borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
-            backgroundColor:
-              theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
-            tension: 0.1,
+            label: 'Total duration',
+            data: sorted.map((session) => minutes(session.total_duration)),
+            borderColor: colors.primary,
+            backgroundColor: colors.primary,
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 2.5,
+            pointHoverRadius: 5,
           },
           {
-            label: 'Edge Duration',
-            data: sortedSessions.map((s) =>
-              s.edge_duration ? Math.round((s.edge_duration / 1000 / 60) * 100) / 100 : 0
-            ),
-            borderColor: theme === 'dark' ? 'rgb(251, 113, 133)' : 'rgb(239, 68, 68)',
-            backgroundColor:
-              theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-            tension: 0.1,
+            label: 'Edge duration',
+            data: sorted.map((session) => minutes(session.edge_duration)),
+            borderColor: colors.warning,
+            backgroundColor: colors.warning,
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 2.5,
+            pointHoverRadius: 5,
           },
         ],
       }
     },
-    [theme]
+    [colors]
   )
 
   useEffect(() => {
-    let sessionsToProcess: DBSession[] | undefined
+    const sessions = externalData ?? (globalLoading ? undefined : recentSessions)
 
-    if (externalData) {
-      sessionsToProcess = externalData
-    } else if (!globalLoading && recentSessions) {
-      sessionsToProcess = recentSessions
-    } else {
-      setChartData(null)
+    setChartData(sessions && sessions.length > 0 ? buildChartData(sessions) : null)
+  }, [externalData, recentSessions, globalLoading, buildChartData])
 
-      return
-    }
-
-    if (!sessionsToProcess || sessionsToProcess.length === 0) {
-      setChartData(null)
-    } else {
-      setChartData(processSessionsForChart(sessionsToProcess))
-    }
-  }, [theme, externalData, recentSessions, globalLoading, processSessionsForChart])
+  const chartOptions = useMemo<ChartOptions<'line'>>(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 420 },
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: colors.grid },
+          border: { display: false },
+          title: { display: true, text: 'Minutes', color: colors.tick },
+          ticks: { color: colors.tick, maxTicksLimit: 5 },
+        },
+        x: {
+          grid: { display: false },
+          border: { color: colors.grid },
+          ticks: { color: colors.tick, maxRotation: 0, autoSkipPadding: 12 },
+        },
+      },
+      plugins: {
+        legend: { position: 'top', labels: { color: colors.tick, boxWidth: 12, boxHeight: 2 } },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.dataset.label}: ${context.parsed.y} min`,
+          },
+        },
+      },
+    }),
+    [colors]
+  )
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-4xl mx-auto mt-8">
+      <Card>
         <CardHeader>
-          <CardTitle>Progress Over Time (Minutes)</CardTitle>
+          <CardTitle className="text-base">Session duration over time</CardTitle>
         </CardHeader>
         <CardContent>
           <Loading text="Loading chart..." className="h-[300px]" />
@@ -99,77 +110,34 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
     )
   }
 
-  if (!chartData || chartData.labels.length === 0) {
+  if (!chartData) {
     return (
-      <Card className="w-full max-w-4xl mx-auto mt-8">
-        <CardHeader>
-          <CardTitle>Progress Over Time (Minutes)</CardTitle>
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-base">Session duration over time</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Total and edge duration per session, in minutes.
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No sessions recorded yet. Start a session to see your progress!
-          </div>
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            No sessions yet. Your first recorded session will appear here.
+          </p>
         </CardContent>
       </Card>
     )
   }
 
-  const chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Duration (minutes)',
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
-        },
-        ticks: {
-          callback: (value) => `${value}m`,
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
-        },
-        grid: {
-          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        },
-      },
-      x: {
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45,
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
-        },
-        grid: {
-          display: false,
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: theme === 'dark' ? '#e2e8f0' : '#1e293b',
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => `${context.dataset.label}: ${context.parsed.y}m`,
-        },
-      },
-    },
-  }
-
   return (
-    <Card className="w-full max-w-4xl mx-auto mt-8">
-      <CardHeader>
-        <CardTitle>Progress Over Time (Minutes)</CardTitle>
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-base">Session duration over time</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Total and edge duration per session, in minutes.
+        </p>
       </CardHeader>
       <CardContent>
-        <div className="w-full aspect-2/1 relative">
+        <div className="h-[300px]">
           <LineChart data={chartData} options={chartOptions} />
         </div>
       </CardContent>

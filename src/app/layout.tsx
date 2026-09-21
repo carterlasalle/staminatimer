@@ -16,10 +16,14 @@ import { Metadata, Viewport } from 'next'
 import { Toaster } from 'sonner'
 import './globals.css'
 
+/** Vercel's analytics scripts only resolve when those products are enabled for the
+ * deployment; render them only when explicitly switched on. */
+const VERCEL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === 'true'
+
 const siteConfig = {
   name: 'Stamina Timer',
   description:
-    'The science-backed training app that helps men build lasting stamina and control. Track your progress, understand your patterns, and see real improvement in weeks.',
+    'A private training app for building lasting control. Follow a measured guided program, track your progress, and see how each session compares with your own baseline.',
   url: 'https://staminatimer.com',
   ogImage: '/og-image.png',
   keywords: [
@@ -28,12 +32,10 @@ const siteConfig = {
     'endurance training',
     'performance improvement',
     'stamina control',
-    'edging timer',
     'stamina tracker',
     'male stamina',
     'lasting longer',
     'sexual health',
-    'performance anxiety',
     'stamina exercises',
   ],
 }
@@ -45,8 +47,9 @@ export const viewport: Viewport = {
   userScalable: true, // Enable pinch-to-zoom for accessibility
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+    // Matches --background in each theme.
+    { media: '(prefers-color-scheme: light)', color: '#f6f8f9' },
+    { media: '(prefers-color-scheme: dark)', color: '#111518' },
   ],
 }
 
@@ -187,8 +190,14 @@ export default function RootLayout({
                 <div className="relative z-10">
                   {children}
                   <Toaster />
-                  <SpeedInsights />
-                  <Analytics />
+                  {/* Both scripts 404 unless Web Analytics / Speed Insights are enabled
+                      for the deployment, so they only render when explicitly turned on. */}
+                  {VERCEL_ANALYTICS_ENABLED && (
+                    <>
+                      <SpeedInsights />
+                      <Analytics />
+                    </>
+                  )}
                   <ClarityAnalytics />
                   <ServiceWorkerRegistrar />
                   <PWAInstallPrompt />

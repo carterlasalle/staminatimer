@@ -33,7 +33,6 @@ type OnboardingSlide = {
   subtitle: string
   description: string
   icon: React.ReactNode
-  color: string
   features?: { icon: React.ReactNode; text: string }[]
   demo?: React.ReactNode
 }
@@ -82,7 +81,7 @@ function TimerDemo() {
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="bg-linear-to-br from-primary/20 to-primary/5 rounded-2xl p-6 border border-primary/20"
+      className="bg-primary/20 rounded-lg p-6 border border-primary/20"
     >
       <div className="text-center space-y-4">
         <motion.div
@@ -154,26 +153,26 @@ function StatsDemo() {
       className="grid grid-cols-3 gap-3"
     >
       <motion.div
-        className="bg-linear-to-br from-blue-500/20 to-blue-500/5 rounded-xl p-4 text-center border border-blue-500/20"
+        className="rounded-lg border border-info/40 bg-info/10 p-4 text-center"
         whileHover={{ scale: 1.05 }}
       >
-        <BarChart3 className="h-5 w-5 mx-auto mb-2 text-blue-500" />
+        <BarChart3 className="h-5 w-5 mx-auto mb-2 text-info" />
         <div className="text-2xl font-bold">{animatedStats.sessions}</div>
         <div className="text-xs text-muted-foreground">Sessions</div>
       </motion.div>
       <motion.div
-        className="bg-linear-to-br from-orange-500/20 to-orange-500/5 rounded-xl p-4 text-center border border-orange-500/20"
+        className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-center"
         whileHover={{ scale: 1.05 }}
       >
-        <Flame className="h-5 w-5 mx-auto mb-2 text-orange-500" />
+        <Flame className="h-5 w-5 mx-auto mb-2 text-warning" />
         <div className="text-2xl font-bold">{animatedStats.streak}</div>
         <div className="text-xs text-muted-foreground">Day Streak</div>
       </motion.div>
       <motion.div
-        className="bg-linear-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-4 text-center border border-purple-500/20"
+        className="rounded-lg border border-accent/40 bg-accent/10 p-4 text-center"
         whileHover={{ scale: 1.05 }}
       >
-        <Trophy className="h-5 w-5 mx-auto mb-2 text-purple-500" />
+        <Trophy className="h-5 w-5 mx-auto mb-2 text-accent" />
         <div className="text-2xl font-bold">{animatedStats.level}</div>
         <div className="text-xs text-muted-foreground">Level</div>
       </motion.div>
@@ -232,7 +231,7 @@ function AIChatDemo() {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="bg-linear-to-br from-green-500/10 to-emerald-500/5 rounded-2xl p-4 border border-green-500/20 space-y-3"
+      className="space-y-3 rounded-lg border border-primary/40 bg-primary/10 p-4"
     >
       <AnimatePresence>
         {messages.map((msg, i) => (
@@ -288,20 +287,17 @@ function TrainingMethodsDemo() {
         {
           icon: Timer,
           label: 'Timer',
-          color: 'from-blue-500/20 to-blue-500/5 border-blue-500/20',
-          iconColor: 'text-blue-500',
+          iconColor: 'text-info',
         },
         {
           icon: Dumbbell,
           label: 'Kegels',
-          color: 'from-orange-500/20 to-orange-500/5 border-orange-500/20',
-          iconColor: 'text-orange-500',
+          iconColor: 'text-warning',
         },
         {
           icon: Brain,
           label: 'Mental',
-          color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20',
-          iconColor: 'text-purple-500',
+          iconColor: 'text-accent',
         },
       ].map((item, i) => (
         <motion.div
@@ -310,7 +306,7 @@ function TrainingMethodsDemo() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.4 + i * 0.1 }}
           whileHover={{ scale: 1.05, y: -2 }}
-          className={`bg-linear-to-br ${item.color} rounded-xl p-4 text-center border cursor-pointer`}
+          className="cursor-pointer rounded-lg border border-border p-4 text-center transition-colors duration-150 ease-out-quart hover:border-primary/40 hover:bg-primary/10"
         >
           <item.icon className={`h-6 w-6 mx-auto mb-2 ${item.iconColor}`} />
           <div className="text-sm font-medium">{item.label}</div>
@@ -328,7 +324,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Your personal training companion for building control and improving stamina through structured practice.',
     icon: <Sparkles className="h-12 w-12" />,
-    color: 'from-primary/30 to-primary/10',
     features: [
       { icon: <Timer className="h-4 w-4" />, text: 'Precise session timing' },
       { icon: <TrendingUp className="h-4 w-4" />, text: 'Track your progress' },
@@ -342,7 +337,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Access all your training tools in one place. Start timed sessions, try optional pelvic-floor exercises, or practice mental techniques.',
     icon: <Timer className="h-12 w-12" />,
-    color: 'from-blue-500/30 to-blue-500/10',
     demo: <TrainingMethodsDemo />,
   },
   {
@@ -352,7 +346,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Use the precision timer to track your sessions. Log edge events to understand your patterns and build endurance over time.',
     icon: <Zap className="h-12 w-12" />,
-    color: 'from-yellow-500/30 to-yellow-500/10',
     demo: <TimerDemo />,
   },
   {
@@ -362,7 +355,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Practise optional pelvic-floor awareness, and develop mental control through breathing and relaxation techniques.',
     icon: <Heart className="h-12 w-12" />,
-    color: 'from-pink-500/30 to-pink-500/10',
     features: [
       { icon: <Dumbbell className="h-4 w-4" />, text: 'Optional pelvic-floor exercises' },
       { icon: <Brain className="h-4 w-4" />, text: 'Breathing exercises' },
@@ -376,7 +368,6 @@ const slides: OnboardingSlide[] = [
     description:
       'View detailed analytics, set personal goals, and celebrate achievements. Your data helps you understand and improve.',
     icon: <TrendingUp className="h-12 w-12" />,
-    color: 'from-green-500/30 to-green-500/10',
     demo: <StatsDemo />,
   },
   {
@@ -386,7 +377,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Get tailored advice based on your training data. Ask questions, receive tips, and accelerate your progress with AI assistance.',
     icon: <Bot className="h-12 w-12" />,
-    color: 'from-emerald-500/30 to-emerald-500/10',
     demo: <AIChatDemo />,
   },
   {
@@ -396,7 +386,6 @@ const slides: OnboardingSlide[] = [
     description:
       'Everything is ready. Begin your first session and start building the control and stamina you desire.',
     icon: <CheckCircle2 className="h-12 w-12" />,
-    color: 'from-primary/30 to-primary/10',
     features: [
       { icon: <Timer className="h-4 w-4" />, text: 'Start your first session' },
       { icon: <Target className="h-4 w-4" />, text: 'Set personal goals' },
@@ -469,8 +458,8 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', damping: 25 }}
-        className="w-full max-w-lg bg-card rounded-3xl shadow-2xl border overflow-hidden"
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-lg bg-card rounded-lg shadow-lg border overflow-hidden"
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between border-b">
@@ -504,15 +493,15 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="p-6 space-y-6"
             >
               {/* Icon with gradient background */}
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 15, delay: 0.1 }}
-                className={`w-20 h-20 mx-auto rounded-2xl bg-linear-to-br ${slide.color} flex items-center justify-center`}
+                transition={{ delay: 0.1 }}
+                className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-primary/15 text-primary"
               >
                 <div className="text-foreground">{slide.icon}</div>
               </motion.div>
@@ -591,7 +580,7 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
             {slides.map((_, i) => (
               <motion.div
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-1.5 rounded-full transition-[color,background-color,border-color,box-shadow,transform] duration-300 ${
                   i === currentSlide ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/30'
                 }`}
                 animate={{ scale: i === currentSlide ? 1.1 : 1 }}

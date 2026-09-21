@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 
 export default function LicensePage() {
@@ -15,10 +15,10 @@ export default function LicensePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Software License</CardTitle>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Software License</h1>
           <p className="text-sm text-muted-foreground">MIT License</p>
         </CardHeader>
-        <CardContent className="prose dark:prose-invert max-w-none">
+        <CardContent className="content-prose">
           <div className="bg-muted p-6 rounded-lg font-mono text-sm">
             <p className="font-bold mb-4">MIT License</p>
             <p className="mb-4">Copyright (c) 2024-2025 Carter LaSalle</p>

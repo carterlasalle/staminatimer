@@ -156,13 +156,13 @@ export default function GuidesPage() {
                 <Link
                   key={guide.slug}
                   href={`/guides/${guide.slug}`}
-                  className="group block p-6 rounded-xl border border-primary/20 bg-primary/5 hover:border-primary/50 hover:shadow-lg transition-all"
+                  className="group block p-6 rounded-xl border border-primary/20 bg-primary/5 hover:border-primary/50 hover:shadow-lg transition-[color,background-color,border-color,box-shadow,transform]"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-medium text-primary px-2 py-0.5 bg-primary/10 rounded capitalize">
                       {guide.category}
                     </span>
-                    <span className="text-xs text-amber-600 font-medium">★ Featured</span>
+                    <span className="text-xs text-accent font-medium">★ Featured</span>
                   </div>
                   <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                     {guide.title}
@@ -226,14 +226,14 @@ export default function GuidesPage() {
                     <Link
                       key={guide.slug}
                       href={`/guides/${guide.slug}`}
-                      className="group block p-5 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
+                      className="group block p-5 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-[color,background-color,border-color,box-shadow,transform]"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-base font-semibold group-hover:text-primary transition-colors line-clamp-1">
                           {guide.title}
                         </h3>
                         {'featured' in guide && guide.featured && (
-                          <span className="text-xs text-amber-600 font-medium">★</span>
+                          <span className="text-xs text-accent font-medium">★</span>
                         )}
                       </div>
                       <p className="text-muted-foreground text-sm mb-3 line-clamp-2">

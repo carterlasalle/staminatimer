@@ -1,61 +1,66 @@
 'use client'
 
+import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useRef } from 'react'
 
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID
+const CLARITY_ENABLED = Boolean(CLARITY_PROJECT_ID) && process.env.NODE_ENV === 'production'
 
+/**
+ * Optional session analytics.
+ *
+ * Identity comes from `AuthContext` rather than a direct `supabase.auth.getUser()`
+ * call: that call was one of several concurrent auth reads competing for the same
+ * navigator lock on every page load, and each one cost a round trip to the auth
+ * server. There is one source of auth state in this app, so this consumes it.
+ */
 export function ClarityAnalytics() {
+  const { user } = useAuth()
   const initialized = useRef(false)
 
   useEffect(() => {
-    // Only initialize in production with a valid project ID
-    if (!CLARITY_PROJECT_ID || process.env.NODE_ENV !== 'production') {
+    const projectId = CLARITY_PROJECT_ID
+
+    if (!CLARITY_ENABLED || !projectId || initialized.current) {
       return
     }
-
-    // Prevent double initialization
-    if (initialized.current) return
     initialized.current = true
 
-    // Defer Clarity initialization until after page is interactive
-    // This prevents blocking the main thread during initial render
-    const initClarity = async () => {
-      // Dynamically import Clarity and Supabase only when needed
-      const [{ default: Clarity }, { supabase }] = await Promise.all([
-        import('@microsoft/clarity'),
-        import('@/lib/supabase/client'),
-      ])
-
-      // Initialize Clarity
-      Clarity.init(CLARITY_PROJECT_ID)
-
-      // Identify user if logged in (without exposing PII)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (user?.id) {
-        // Use hashed user ID for privacy - Clarity will hash this again
-        Clarity.identify(user.id)
-      }
-
-      // Listen for auth changes to update identity
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session?.user?.id) {
-          Clarity.identify(session.user.id)
-        }
-      })
+    const loadClarity = async () => {
+      const { default: Clarity } = await import('@microsoft/clarity')
+      Clarity.init(projectId)
     }
 
-    // Use requestIdleCallback if available, otherwise setTimeout
-    // This ensures Clarity loads after the main thread is idle
+    // Load after the page is interactive so it never competes with first paint.
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => initClarity(), { timeout: 3000 })
+      requestIdleCallback(() => void loadClarity(), { timeout: 3000 })
     } else {
-      setTimeout(initClarity, 2000)
+      setTimeout(() => void loadClarity(), 2000)
     }
   }, [])
 
-  // This component doesn't render anything
+  useEffect(() => {
+    if (!CLARITY_ENABLED || !user?.id) {
+      return
+    }
+
+    let cancelled = false
+
+    const identify = async () => {
+      const { default: Clarity } = await import('@microsoft/clarity')
+      if (!cancelled) {
+        // Clarity hashes whatever it is given; we pass the opaque auth id, never
+        // an email or any training content.
+        Clarity.identify(user.id)
+      }
+    }
+
+    void identify()
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
+
   return null
 }

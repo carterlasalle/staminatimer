@@ -14,8 +14,10 @@ import { toast } from 'sonner'
 import { Timer as TimerIcon, Zap, TrendingUp, Users, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Loading } from '@/components/ui/loading'
+import { useTheme } from 'next-themes'
 
 export default function LoginPage() {
+  const { resolvedTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
@@ -75,6 +77,10 @@ export default function LoginPage() {
     }
   }
 
+  // The embedded auth UI ships its own light/dark variable sets, so it has to
+  // follow the app theme instead of being pinned to dark.
+  const authUiTheme = resolvedTheme === 'light' ? 'light' : 'dark'
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -87,7 +93,6 @@ export default function LoginPage() {
     <div className="flex min-h-screen safe-area-top safe-area-bottom">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-12 xl:px-16 relative">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-primary/5 to-transparent" />
         <div className="relative z-10">
           <div className="flex items-center mb-8">
             <TimerIcon className="h-12 w-12 text-primary" />
@@ -105,7 +110,7 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-1 gap-6 mb-8">
             <div className="flex items-center space-x-4">
-              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
                 <Zap className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -117,7 +122,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -129,7 +134,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -141,9 +146,9 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center text-sm text-muted-foreground">
-            <span>Trusted by thousands for personal wellness goals</span>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            No ads, no data selling. Your records stay in your account.
+          </p>
         </div>
       </div>
 
@@ -156,25 +161,23 @@ export default function LoginPage() {
               href="/"
               className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity"
             >
-              <div className="h-10 w-10 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center mr-2">
+              <div className="mr-2 grid h-10 w-10 place-items-center rounded-lg bg-primary text-primary-foreground">
                 <TimerIcon className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold">Stamina Timer</span>
             </Link>
           </div>
 
-          <Card className="border-none shadow-2xl">
+          <Card>
             <CardHeader className="space-y-1 pb-6">
               <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-              <p className="text-center text-muted-foreground">
-                Sign in to continue your training journey
-              </p>
+              <p className="text-center text-muted-foreground">Sign in to continue training</p>
             </CardHeader>
 
             <CardContent className="space-y-6">
               <Button
                 variant="outline"
-                className="w-full h-12 text-base font-medium border-2 hover:bg-accent hover:border-primary/50 transition-all duration-200"
+                className="h-12 w-full text-base font-medium transition-[color,background-color,border-color] duration-150 ease-out-quart"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading}
               >
@@ -238,15 +241,17 @@ export default function LoginPage() {
                     },
                     className: {
                       container: 'auth-container',
-                      button: 'auth-button transition-all duration-200',
-                      input: 'auth-input transition-all duration-200',
+                      button:
+                        'auth-button transition-[color,background-color,border-color,box-shadow,transform] duration-200',
+                      input:
+                        'auth-input transition-[color,background-color,border-color,box-shadow,transform] duration-200',
                       label: 'auth-label font-medium',
                       message: 'auth-message',
                     },
                   }}
                   providers={[]}
                   redirectTo={`${window.location.origin}/auth/callback`}
-                  theme="dark"
+                  theme={authUiTheme}
                   localization={{
                     variables: {
                       sign_in: {

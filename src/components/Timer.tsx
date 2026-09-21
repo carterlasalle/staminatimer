@@ -111,36 +111,36 @@ export function Timer() {
           title: 'Ready to Begin',
           subtitle: 'Start your stamina training session',
           icon: <Play className="h-6 w-6" />,
-          color: 'text-blue-500',
-          bgColor: 'bg-blue-500/10',
-          borderColor: 'border-blue-500/20',
+          color: 'text-info',
+          bgColor: 'bg-info/10',
+          borderColor: 'border-info/20',
         }
       case 'active':
         return {
           title: 'Session Active',
           subtitle: 'Focus on control, edge when ready',
           icon: <Zap className="h-6 w-6" />,
-          color: 'text-green-500',
-          bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/20',
+          color: 'text-primary',
+          bgColor: 'bg-primary/10',
+          borderColor: 'border-primary/20',
         }
       case 'edging':
         return {
           title: 'Edge Zone',
           subtitle: 'Hold the line, master your control',
           icon: <Square className="h-6 w-6" />,
-          color: 'text-orange-500',
-          bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/20',
+          color: 'text-warning',
+          bgColor: 'bg-warning/10',
+          borderColor: 'border-warning/20',
         }
       case 'finished':
         return {
           title: 'Session Complete!',
           subtitle: 'Excellent work, review your performance',
           icon: <CheckCircle className="h-6 w-6" />,
-          color: 'text-emerald-500',
-          bgColor: 'bg-emerald-500/10',
-          borderColor: 'border-emerald-500/20',
+          color: 'text-primary',
+          bgColor: 'bg-primary/10',
+          borderColor: 'border-primary/20',
         }
     }
   }
@@ -153,7 +153,7 @@ export function Timer() {
     <div className="space-y-6">
       <Card
         className={cn(
-          'w-full transition-all duration-300 hover:shadow-lg',
+          'w-full transition-[color,background-color,border-color,box-shadow,transform] duration-300 hover:shadow-lg',
           stateConfig.borderColor,
           pulseAnimation && 'animate-pulse'
         )}
@@ -163,7 +163,7 @@ export function Timer() {
             <CardTitle className="flex items-center gap-2 md:gap-3">
               <div
                 className={cn(
-                  'p-1.5 md:p-2 rounded-full transition-all duration-300 shrink-0',
+                  'p-1.5 md:p-2 rounded-full transition-[color,background-color,border-color,box-shadow,transform] duration-300 shrink-0',
                   stateConfig.bgColor
                 )}
               >
@@ -206,29 +206,29 @@ export function Timer() {
         <CardContent className="space-y-4 md:space-y-6">
           {/* Enhanced Time Display */}
           <div className="grid grid-cols-3 gap-2 md:gap-4">
-            <div className="text-center p-3 md:p-6 bg-linear-to-br from-primary/5 to-primary/10 rounded-lg md:rounded-xl border border-primary/10">
+            <div className="rounded-lg border border-border/60 bg-card p-3 text-center md:p-6">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
                 Total
               </p>
-              <p className="text-lg md:text-3xl font-bold text-primary">
+              <p className="font-display text-lg tabular-nums md:text-3xl">
                 {formatDuration(totalTime)}
               </p>
             </div>
 
-            <div className="text-center p-3 md:p-6 bg-linear-to-br from-green-500/5 to-green-500/10 rounded-lg md:rounded-xl border border-green-500/10">
+            <div className="rounded-lg border border-info/30 bg-info/10 p-3 text-center md:p-6">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
                 Active
               </p>
-              <p className="text-lg md:text-3xl font-bold text-green-600">
+              <p className="font-display text-lg tabular-nums text-info md:text-3xl">
                 {formatDuration(activeTime)}
               </p>
             </div>
 
-            <div className="text-center p-3 md:p-6 bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg md:rounded-xl border border-orange-500/10">
+            <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-center md:p-6">
               <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
                 Edge
               </p>
-              <p className="text-lg md:text-3xl font-bold text-orange-600">
+              <p className="font-display text-lg tabular-nums text-warning md:text-3xl">
                 {formatDuration(edgeTime)}
               </p>
             </div>
@@ -253,24 +253,24 @@ export function Timer() {
           {edgeLaps.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Square className="h-5 w-5 text-orange-500" />
+                <Square className="h-5 w-5 text-warning" />
                 Edge Laps ({edgeLaps.length})
               </h3>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {edgeLaps.map((lap, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center p-3 bg-linear-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10 hover:border-orange-500/20 transition-colors"
+                    className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 p-3 hover:border-warning/20 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-orange-500" />
+                      <div className="w-2 h-2 rounded-full bg-warning" />
                       <span className="font-medium">Edge {index + 1}</span>
                     </div>
                     <span className="font-mono text-sm">
                       {lap.duration ? (
                         formatDuration(lap.duration)
                       ) : (
-                        <span className="text-orange-500 animate-pulse">In Progress...</span>
+                        <span className="text-warning animate-pulse">In Progress...</span>
                       )}
                     </span>
                   </div>
@@ -321,7 +321,7 @@ export function Timer() {
                 onClick={startEdge}
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold border-orange-500 text-orange-600 hover:bg-orange-500/10 hover:scale-105 transition-all"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold border-warning text-warning hover:bg-warning/10 hover:scale-105 transition-[color,background-color,border-color,box-shadow,transform]"
                 title="Shortcut: E"
               >
                 <Square className="mr-2 h-4 w-4 md:h-5 md:w-5" />
@@ -333,7 +333,7 @@ export function Timer() {
               <Button
                 onClick={endEdge}
                 size="lg"
-                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold bg-orange-500 hover:bg-orange-600 hover:scale-105 transition-all"
+                className="w-full sm:w-auto px-6 md:px-8 text-sm md:text-base font-semibold bg-warning hover:bg-warning hover:scale-105 transition-[color,background-color,border-color,box-shadow,transform]"
                 title="Shortcut: X"
               >
                 <Square className="mr-2 h-4 w-4 md:h-5 md:w-5" />
@@ -377,7 +377,7 @@ export function Timer() {
         <DialogContent className="sm:max-w-md" role="alertdialog">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-accent" />
               Finish Session?
             </DialogTitle>
             <DialogDescription>
@@ -393,11 +393,11 @@ export function Timer() {
                 <div className="text-xs text-muted-foreground">Total</div>
               </div>
               <div className="p-2 bg-muted rounded-lg">
-                <div className="font-medium text-green-600">{formatDuration(activeTime)}</div>
+                <div className="font-medium text-primary">{formatDuration(activeTime)}</div>
                 <div className="text-xs text-muted-foreground">Active</div>
               </div>
               <div className="p-2 bg-muted rounded-lg">
-                <div className="font-medium text-orange-600">{formatDuration(edgeTime)}</div>
+                <div className="font-medium text-warning">{formatDuration(edgeTime)}</div>
                 <div className="text-xs text-muted-foreground">Edge</div>
               </div>
             </div>

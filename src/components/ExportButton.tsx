@@ -44,7 +44,7 @@ export function ExportButton() {
       if (error) throw error
 
       if (!sessions || sessions.length === 0) {
-        toast.error('No sessions to export. Start training to generate data!')
+        toast.error('No sessions to export yet.')
 
         return
       }
@@ -81,7 +81,7 @@ export function ExportButton() {
       if (error) throw error
 
       if (!sessions || sessions.length === 0) {
-        toast.error('No sessions to share. Start training first!')
+        toast.error('No sessions to share yet.')
 
         return
       }

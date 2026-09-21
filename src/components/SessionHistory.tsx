@@ -116,7 +116,7 @@ export function SessionHistory() {
     <Card className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Recent Sessions</CardTitle>
+          <CardTitle className="text-base">Recent sessions</CardTitle>
           <Button variant="outline" size="sm" onClick={fetchSessions}>
             <RefreshCw className="h-3 w-3" />
           </Button>
@@ -211,8 +211,8 @@ export function SessionHistory() {
                         <div
                           className={`px-2 py-0.5 rounded text-xs ${
                             session.finished_during_edge
-                              ? 'bg-orange-500/20 text-orange-400'
-                              : 'bg-green-500/20 text-green-400'
+                              ? 'bg-warning/20 text-warning'
+                              : 'bg-primary/20 text-primary'
                           }`}
                         >
                           {session.finished_during_edge ? 'Edge Finish' : 'Complete'}

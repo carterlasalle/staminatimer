@@ -183,7 +183,7 @@ export default async function GuidePage({ params }: PageProps) {
               {guide.category}
             </span>
             {'featured' in guide && guide.featured && (
-              <span className="text-amber-600 font-medium">★ Featured</span>
+              <span className="text-accent font-medium">★ Featured</span>
             )}
           </div>
 
@@ -289,7 +289,7 @@ export default async function GuidePage({ params }: PageProps) {
                         {related.category}
                       </span>
                       {'featured' in related && related.featured && (
-                        <span className="text-xs text-amber-600">★</span>
+                        <span className="text-xs text-accent">★</span>
                       )}
                     </div>
                     <h4 className="font-semibold group-hover:text-primary transition-colors">

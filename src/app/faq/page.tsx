@@ -58,7 +58,7 @@ export default function FAQPage() {
       {/* Hero */}
       <section className="py-16 md:py-20 border-b border-border">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <HelpCircle className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>

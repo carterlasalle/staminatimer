@@ -83,3 +83,8 @@ dist
 .env
 
 package-lock.json
+
+# Playwright and Lighthouse run artifacts
+test-results/
+playwright-report/
+.lighthouseci/

@@ -68,7 +68,7 @@ export function AICoachChat() {
         <div className="flex-1 p-6 overflow-y-auto">
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center space-y-6">
-              <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div className="grid h-16 w-16 place-items-center rounded-full bg-info/15 text-info">
                 <Brain className="h-8 w-8 text-white" />
               </div>
               <div className="text-center space-y-2">
@@ -108,7 +108,7 @@ export function AICoachChat() {
               }`}
             >
               {message.role === 'assistant' && (
-                <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shrink-0">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-info/15 text-info">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
               )}
@@ -134,7 +134,7 @@ export function AICoachChat() {
                   {message.role === 'user' ? (
                     <p className="text-sm">{message.content}</p>
                   ) : (
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <div className="content-prose text-sm">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -188,7 +188,7 @@ export function AICoachChat() {
 
           {isLoading && (
             <div className="flex gap-4 mb-8">
-              <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-info/15 text-info">
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div className="max-w-[85%]">

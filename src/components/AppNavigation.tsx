@@ -87,10 +87,12 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 href="/dashboard"
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <div className="h-8 w-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
                   <Timer className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <h1 className="font-semibold text-lg">Stamina Timer</h1>
+                <span className="font-display text-lg font-semibold tracking-tight">
+                  Stamina Timer
+                </span>
               </Link>
               {/* Close button for mobile */}
               <Button

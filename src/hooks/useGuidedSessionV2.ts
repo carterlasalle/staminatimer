@@ -9,7 +9,7 @@ import {
 } from '@/lib/program/protocol-v2'
 import type { ProgramV2SessionInput, RescueEventInput } from '@/hooks/useProgramV2Progress'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 export type BlockClose = {
   longestContinuousBlockMs: number

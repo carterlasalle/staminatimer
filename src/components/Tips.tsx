@@ -4,33 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lightbulb } from 'lucide-react'
 import { useMemo } from 'react'
 
+/**
+ * One rotating reminder, aligned with the Guided Program V2 protocol: continuous
+ * stimulation around moderate arousal, slowing before stopping, and honest data.
+ */
 const TIPS = [
-  'Deep, slow breathing during edges helps maintain control.',
-  'Track time between edges to find your optimal patterns.',
-  'Aim for gradual weekly improvements, not dramatic changes.',
-  'Consistency in practice leads to better long-term results.',
-  'Use the Finish button honestly to keep analytics meaningful.',
+  'Long, slow exhales are the brake. Keep breathing through the whole block.',
+  'Stay around 4-6/10. Time near the top of the scale is not the goal.',
+  'When arousal climbs, slow down by roughly 30-50% and keep going.',
+  'A full stop is a reset, not a technique. Resume once you are genuinely back around 3-4/10.',
+  'Track your longest continuous block rather than how often you stopped.',
+  'One shorter session does not change the trend. Look at the last few together.',
 ]
 
 export function Tips() {
   const tip = useMemo(() => {
-    const idx = new Date().getDay() % TIPS.length
+    const index = new Date().getDay() % TIPS.length
 
-    return TIPS[idx]
+    return TIPS[index]
   }, [])
 
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Lightbulb className="h-4 w-4 text-amber-400" />
-          Daily Tip
+          <Lightbulb className="h-4 w-4 text-accent" aria-hidden />
+          Today&apos;s reminder
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-          <p className="text-sm text-foreground">{tip}</p>
-        </div>
+      <CardContent>
+        <p className="text-sm text-foreground">{tip}</p>
       </CardContent>
     </Card>
   )

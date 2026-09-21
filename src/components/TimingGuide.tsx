@@ -59,19 +59,19 @@ export function TimingGuide() {
         return {
           label: 'Beginner',
           description: '3 up, 3 down (~6s per stroke)',
-          color: 'text-green-600',
+          color: 'text-primary',
         }
       case 'intermediate':
         return {
           label: 'Intermediate',
           description: '2 up, 2 down (~4s per stroke)',
-          color: 'text-orange-600',
+          color: 'text-warning',
         }
       case 'advanced':
         return {
           label: 'Advanced',
           description: '1 up, 1 down (~2s per stroke)',
-          color: 'text-red-600',
+          color: 'text-destructive',
         }
     }
   }
@@ -81,7 +81,7 @@ export function TimingGuide() {
       {/* Stroke Timing Guide */}
       <Card
         className={cn(
-          'transition-all duration-300',
+          'transition-[color,background-color,border-color,box-shadow,transform] duration-300',
           isStrokeGuideEnabled && 'ring-2 ring-primary/20 bg-primary/5'
         )}
       >
@@ -140,13 +140,13 @@ export function TimingGuide() {
 
           {/* Active Timing Display */}
           {isStrokeGuideEnabled && (
-            <div className="space-y-4 p-4 bg-linear-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+            <div className="space-y-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   {strokePhase.phase === 'up' ? (
-                    <ArrowUp className="h-8 w-8 text-green-500" />
+                    <ArrowUp className="h-8 w-8 text-primary" />
                   ) : (
-                    <ArrowDown className="h-8 w-8 text-blue-500" />
+                    <ArrowDown className="h-8 w-8 text-info" />
                   )}
                   <div className="text-3xl font-bold text-primary">{strokePhase.instruction}</div>
                 </div>
@@ -172,8 +172,8 @@ export function TimingGuide() {
       {/* Guided Session Intervals */}
       <Card
         className={cn(
-          'transition-all duration-300',
-          isGuidedSessionEnabled && 'ring-2 ring-orange-500/20 bg-orange-500/5'
+          'transition-[color,background-color,border-color,box-shadow,transform] duration-300',
+          isGuidedSessionEnabled && 'ring-2 ring-warning/20 bg-warning/5'
         )}
       >
         <CardHeader>
@@ -222,27 +222,27 @@ export function TimingGuide() {
 
           {/* Current Pattern Display */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <div className="text-lg font-bold text-green-600">{sessionConfig.onDuration}s</div>
+            <div className="text-center p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="text-lg font-bold text-primary">{sessionConfig.onDuration}s</div>
               <div className="text-xs text-muted-foreground">Active Time</div>
             </div>
-            <div className="text-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <div className="text-lg font-bold text-blue-600">{sessionConfig.offDuration}s</div>
+            <div className="text-center p-3 bg-info/10 border border-info/20 rounded-lg">
+              <div className="text-lg font-bold text-info">{sessionConfig.offDuration}s</div>
               <div className="text-xs text-muted-foreground">Rest Time</div>
             </div>
           </div>
 
           {/* Active Session Display */}
           {isGuidedSessionEnabled && (
-            <div className="space-y-4 p-4 bg-linear-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/20">
+            <div className="space-y-4 rounded-lg border border-warning/40 bg-warning/10 p-4">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   {sessionPhase === 'on' ? (
-                    <Play className="h-8 w-8 text-green-500" />
+                    <Play className="h-8 w-8 text-primary" />
                   ) : (
-                    <Pause className="h-8 w-8 text-blue-500" />
+                    <Pause className="h-8 w-8 text-info" />
                   )}
-                  <div className="text-3xl font-bold text-orange-600">
+                  <div className="text-3xl font-bold text-warning">
                     {sessionPhase === 'on' ? 'ACTIVE' : 'REST'}
                   </div>
                 </div>

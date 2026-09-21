@@ -63,13 +63,13 @@ export function Achievements() {
             <div className="text-muted-foreground">Level</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-green-500">
+            <div className="font-semibold text-primary">
               {user.filter((u) => u.progress === 100).length}
             </div>
             <div className="text-muted-foreground">Unlocked</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-yellow-500">{points}</div>
+            <div className="font-semibold text-accent">{points}</div>
             <div className="text-muted-foreground">XP</div>
           </div>
         </div>
@@ -119,24 +119,24 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+      className={`flex items-center gap-3 p-3 rounded-lg border transition-[color,background-color,border-color,box-shadow,transform] duration-200 ${
         unlocked
-          ? 'bg-linear-to-r from-green-500/10 to-green-500/5 border-green-500/20'
+          ? 'border-primary/40 bg-primary/10'
           : 'bg-secondary/30 border-border hover:bg-secondary/50'
       }`}
     >
-      <div className={`rounded-full p-2 shrink-0 ${unlocked ? 'bg-green-500/20' : 'bg-secondary'}`}>
-        <Trophy className={`w-4 h-4 ${unlocked ? 'text-green-400' : 'text-muted-foreground'}`} />
+      <div className={`rounded-full p-2 shrink-0 ${unlocked ? 'bg-primary/20' : 'bg-secondary'}`}>
+        <Trophy className={`w-4 h-4 ${unlocked ? 'text-primary' : 'text-muted-foreground'}`} />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <h4
-            className={`text-sm font-medium truncate ${unlocked ? 'text-green-400' : 'text-foreground'}`}
+            className={`text-sm font-medium truncate ${unlocked ? 'text-primary' : 'text-foreground'}`}
           >
             {achievement.name}
           </h4>
-          {unlocked && <div className="text-xs text-green-400 font-medium ml-2">✓</div>}
+          {unlocked && <div className="text-xs text-primary font-medium ml-2">✓</div>}
         </div>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
           {achievement.description}
