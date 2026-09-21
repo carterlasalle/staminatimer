@@ -20,6 +20,9 @@ export default function LoginPage() {
   const { resolvedTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  // Resolved after mount: `window` does not exist while this page is rendered on
+  // the server, and Supabase needs an absolute redirect target.
+  const [redirectTo, setRedirectTo] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     let active = true
@@ -52,6 +55,10 @@ export default function LoginPage() {
       if (redirectTimer) clearTimeout(redirectTimer)
       subscription.unsubscribe()
     }
+  }, [])
+
+  useEffect(() => {
+    setRedirectTo(`${window.location.origin}/auth/callback`)
   }, [])
 
   const handleGoogleSignIn = async (): Promise<void> => {
@@ -250,7 +257,7 @@ export default function LoginPage() {
                     },
                   }}
                   providers={[]}
-                  redirectTo={`${window.location.origin}/auth/callback`}
+                  redirectTo={redirectTo}
                   theme={authUiTheme}
                   localization={{
                     variables: {

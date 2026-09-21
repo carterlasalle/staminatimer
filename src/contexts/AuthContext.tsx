@@ -37,9 +37,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, loading }}>{!loading && children}</AuthContext.Provider>
-  )
+  // `loading` starts true and effects do not run while rendering on the server,
+  // so gating `children` on it left every page with an empty <body>: no content
+  // for crawlers, and nothing for non-JS agents to read. Route protection is
+  // already enforced by the middleware, so there is nothing to withhold here.
+  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)
