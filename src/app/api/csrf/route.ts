@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     // Validate request origin
     if (!isAllowedRequestOrigin(request, ALLOWED_ORIGINS)) {
-      return NextResponse.json(
-        { error: 'Invalid request origin' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
     }
 
     // Generate a new CSRF token
@@ -28,9 +25,9 @@ export async function GET(request: NextRequest) {
         headers: {
           // Prevent caching of CSRF tokens
           'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        }
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       }
     )
 
@@ -45,9 +42,7 @@ export async function GET(request: NextRequest) {
     return response
   } catch (error: unknown) {
     console.error('CSRF token generation error:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate CSRF token' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ error: 'Failed to generate CSRF token' }, { status: 500 })
   }
 }

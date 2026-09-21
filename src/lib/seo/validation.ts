@@ -52,6 +52,7 @@ export const CONTENT_REQUIREMENTS: Record<string, ContentRequirements> = {
  */
 export function countWords(text: string): number {
   if (!text || typeof text !== 'string') return 0
+
   return text
     .trim()
     .split(/\s+/)
@@ -73,6 +74,7 @@ export function countSectionWords(sections: readonly ContentSection[]): number {
 export function countGuideWords(content: GuideContent): number {
   const sectionWords = countSectionWords(content.sections)
   const tipWords = content.tips.reduce((total, tip) => total + countWords(tip), 0)
+
   return sectionWords + tipWords
 }
 
@@ -100,11 +102,13 @@ export function validateGuideContent(
   // Check each section's word count
   content.sections.forEach((section, index) => {
     const sectionWords = countWords(section.content)
+
     if (sectionWords < requirements.minWordsPerSection) {
       errors.push(
         `Section ${index + 1} ("${section.title}") has ${sectionWords} words, minimum is ${requirements.minWordsPerSection}`
       )
     }
+
     if (sectionWords < requirements.minWordsPerSection * 1.5) {
       warnings.push(
         `Section ${index + 1} ("${section.title}") is thin at ${sectionWords} words, consider expanding`
@@ -121,17 +125,14 @@ export function validateGuideContent(
 
   // Check total word count
   const totalWords = countGuideWords(content)
+
   if (totalWords < requirements.minTotalWords) {
-    errors.push(
-      `Guide has ${totalWords} total words, minimum is ${requirements.minTotalWords}`
-    )
+    errors.push(`Guide has ${totalWords} total words, minimum is ${requirements.minTotalWords}`)
   }
 
   // Warn if content is borderline thin
   if (totalWords < requirements.minTotalWords * 1.5 && totalWords >= requirements.minTotalWords) {
-    warnings.push(
-      `Guide has only ${totalWords} words, consider adding more content for better SEO`
-    )
+    warnings.push(`Guide has only ${totalWords} words, consider adding more content for better SEO`)
   }
 
   return {
@@ -153,6 +154,7 @@ export function validateGuideTopic(topic: GuideTopic): ValidationResult {
   if (topic.title.length < 20) {
     errors.push(`Title "${topic.title}" is too short (${topic.title.length} chars), minimum 20`)
   }
+
   if (topic.title.length > 60) {
     warnings.push(`Title "${topic.title}" may be truncated in SERPs (${topic.title.length} chars)`)
   }
@@ -161,6 +163,7 @@ export function validateGuideTopic(topic: GuideTopic): ValidationResult {
   if (topic.description.length < 80) {
     errors.push(`Description is too short (${topic.description.length} chars), minimum 80`)
   }
+
   if (topic.description.length > 160) {
     warnings.push(`Description may be truncated in SERPs (${topic.description.length} chars)`)
   }
@@ -169,6 +172,7 @@ export function validateGuideTopic(topic: GuideTopic): ValidationResult {
   if (topic.keywords.length < 2) {
     errors.push(`Guide should have at least 2 keywords, found ${topic.keywords.length}`)
   }
+
   if (topic.keywords.length > 10) {
     warnings.push(`Too many keywords (${topic.keywords.length}), focus on 3-5 primary keywords`)
   }
@@ -213,6 +217,7 @@ export function calculateKeywordOverlap(
   })
 
   const maxPossible = Math.max(set1.size, set2.size)
+
   return maxPossible > 0 ? Math.min(overlap / maxPossible, 1) : 0
 }
 
@@ -226,6 +231,7 @@ export function checkCannibalization(
   threshold = 0.4 // 40% overlap triggers warning
 ): CannibalizationCheck {
   const currentGuide = guides.find((g) => g.slug === currentSlug)
+
   if (!currentGuide) {
     return { hasCannibalization: false, conflictingPages: [] }
   }
@@ -236,6 +242,7 @@ export function checkCannibalization(
     if (guide.slug === currentSlug) return
 
     const overlap = calculateKeywordOverlap(currentGuide.keywords, guide.keywords)
+
     if (overlap >= threshold) {
       // Find the specific conflicting keywords
       const conflictingKeywords = currentGuide.keywords.filter((k1) =>
@@ -271,9 +278,7 @@ export function checkCannibalization(
  * Validate all guides at build time
  * Use this in a build script to catch issues before deployment
  */
-export function validateAllGuides(
-  guides: readonly (GuideTopic & { content: GuideContent })[]
-): {
+export function validateAllGuides(guides: readonly (GuideTopic & { content: GuideContent })[]): {
   isValid: boolean
   results: Map<string, ValidationResult>
   cannibalization: CannibalizationCheck[]
@@ -295,6 +300,7 @@ export function validateAllGuides(
 
     // Check for cannibalization
     const cannibalization = checkCannibalization(guides, guide.slug)
+
     if (cannibalization.hasCannibalization) {
       cannibalizationResults.push(cannibalization)
     }

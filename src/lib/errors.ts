@@ -85,11 +85,7 @@ export class DatabaseError extends AppError {
  */
 export class ExternalServiceError extends AppError {
   constructor(service: string, message?: string) {
-    super(
-      message || `${service} service is temporarily unavailable`,
-      'EXTERNAL_SERVICE_ERROR',
-      503
-    )
+    super(message || `${service} service is temporarily unavailable`, 'EXTERNAL_SERVICE_ERROR', 503)
     this.name = 'ExternalServiceError'
   }
 }
@@ -130,5 +126,6 @@ export function isOperationalError(error: unknown): boolean {
   if (error instanceof AppError) {
     return error.isOperational
   }
+
   return false
 }

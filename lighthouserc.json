@@ -4,10 +4,7 @@
       "startServerCommand": "yarn start",
       "startServerReadyPattern": "Ready in|Local:",
       "startServerReadyTimeout": 120000,
-      "url": [
-        "http://127.0.0.1:3000/",
-        "http://127.0.0.1:3000/login"
-      ],
+      "url": ["http://127.0.0.1:3000/", "http://127.0.0.1:3000/login"],
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --headless=new"

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -21,15 +21,13 @@ export function useGlobalStats() {
     if (disabled) {
       setLoading(false)
       setSubscribeAllowed(false)
+
       return
     }
 
     async function fetchStats() {
       try {
-        const { data, error } = await supabase
-          .from('global_stats')
-          .select('*')
-          .single()
+        const { data, error } = await supabase.from('global_stats').select('*').single()
 
         if (error) throw error
         setStats(data)
@@ -44,7 +42,6 @@ export function useGlobalStats() {
     }
 
     fetchStats()
-
   }, [disabled])
 
   useEffect(() => {
@@ -73,4 +70,4 @@ export function useGlobalStats() {
   }, [disabled, subscribeAllowed])
 
   return { stats, loading }
-} 
+}

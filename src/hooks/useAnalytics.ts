@@ -14,10 +14,12 @@ export function useAnalytics() {
       try {
         const { data: sessions, error } = await supabase
           .from('sessions')
-          .select(`
+          .select(
+            `
             *,
             edge_events!fk_session (*)
-          `)
+          `
+          )
           .order('created_at', { ascending: false })
           .limit(20)
 
@@ -36,4 +38,4 @@ export function useAnalytics() {
   }, [])
 
   return { analytics, loading, error }
-} 
+}

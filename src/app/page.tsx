@@ -19,7 +19,7 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -40,7 +40,13 @@ function BeamButton({ children, className = '', ...props }: React.ComponentProps
 }
 
 // Flashlight Card with mouse tracking
-function FlashlightCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function FlashlightCard({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   const cardRef = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,8 +70,17 @@ function FlashlightCard({ children, className = '' }: { children: React.ReactNod
 }
 
 // Animated text reveal
-function AnimatedText({ text, className = '', delay = 0 }: { text: string; className?: string; delay?: number }) {
+function AnimatedText({
+  text,
+  className = '',
+  delay = 0,
+}: {
+  text: string
+  className?: string
+  delay?: number
+}) {
   const words = text.split(' ')
+
   return (
     <span className={className}>
       {words.map((word, i) => (
@@ -77,7 +92,7 @@ function AnimatedText({ text, className = '', delay = 0 }: { text: string; class
           transition={{
             duration: 0.5,
             delay: delay + i * 0.05,
-            ease: [0.16, 1, 0.3, 1]
+            ease: [0.16, 1, 0.3, 1],
           }}
         >
           {word}
@@ -88,7 +103,15 @@ function AnimatedText({ text, className = '', delay = 0 }: { text: string; class
 }
 
 // Scroll-triggered section with GPU-composited animations
-function ScrollSection({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
+function ScrollSection({
+  children,
+  className = '',
+  id,
+}: {
+  children: React.ReactNode
+  className?: string
+  id?: string
+}) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -110,31 +133,36 @@ function ScrollSection({ children, className = '', id }: { children: React.React
 // Feature Carousel
 function FeatureCarousel() {
   const [activeIndex, setActiveIndex] = useState(0)
+
   const features = [
     {
       icon: <Clock className="w-8 h-8" />,
       title: 'Precision Timer',
-      description: 'Track active time, edge duration, and rest periods with millisecond accuracy. Our intelligent timer adapts to your rhythm.',
-      color: 'from-emerald-500/20 to-teal-500/20'
+      description:
+        'Track active time, edge duration, and rest periods with millisecond accuracy. Our intelligent timer adapts to your rhythm.',
+      color: 'from-emerald-500/20 to-teal-500/20',
     },
     {
       icon: <Brain className="w-8 h-8" />,
       title: 'AI Coach',
-      description: 'Get personalized tips and recommendations powered by advanced AI that learns your patterns and optimizes your training.',
-      color: 'from-amber-500/20 to-orange-500/20'
+      description:
+        'Get personalized tips and recommendations powered by advanced AI that learns your patterns and optimizes your training.',
+      color: 'from-amber-500/20 to-orange-500/20',
     },
     {
       icon: <Trophy className="w-8 h-8" />,
       title: 'Achievements',
-      description: 'Stay motivated with gamified progress. Unlock badges, hit milestones, and watch your confidence grow with every session.',
-      color: 'from-violet-500/20 to-purple-500/20'
-    }
+      description:
+        'Stay motivated with gamified progress. Unlock badges, hit milestones, and watch your confidence grow with every session.',
+      color: 'from-violet-500/20 to-purple-500/20',
+    },
   ]
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % features.length)
     }, 5000)
+
     return () => clearInterval(interval)
   }, [features.length])
 
@@ -151,12 +179,16 @@ function FeatureCarousel() {
         >
           {features.map((feature, i) => (
             <div key={i} className="w-full shrink-0 p-8 md:p-12">
-              <div className={`bg-linear-to-br ${feature.color} rounded-2xl p-8 md:p-12 min-h-[300px] flex flex-col justify-center`}>
+              <div
+                className={`bg-linear-to-br ${feature.color} rounded-2xl p-8 md:p-12 min-h-[300px] flex flex-col justify-center`}
+              >
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
                   {feature.icon}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">{feature.title}</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">{feature.description}</p>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))}
@@ -202,12 +234,32 @@ function FeatureCarousel() {
 // Testimonials Marquee
 function TestimonialsMarquee() {
   const testimonials = [
-    { quote: "After 3 weeks, I noticed real improvement. The data tracking is incredible.", author: "Michael T.", rating: 5 },
-    { quote: "Finally, a scientific approach that actually works. Changed my life.", author: "James R.", rating: 5 },
-    { quote: "The AI coach gave me insights I never expected. Highly recommend.", author: "David K.", rating: 5 },
-    { quote: "Private, effective, and the progress charts keep me motivated.", author: "Chris M.", rating: 5 },
-    { quote: "Best investment in myself. Results speak for themselves.", author: "Alex P.", rating: 5 },
-    { quote: "The achievements system makes training actually fun.", author: "Ryan S.", rating: 5 },
+    {
+      quote: 'After 3 weeks, I noticed real improvement. The data tracking is incredible.',
+      author: 'Michael T.',
+      rating: 5,
+    },
+    {
+      quote: 'Finally, a scientific approach that actually works. Changed my life.',
+      author: 'James R.',
+      rating: 5,
+    },
+    {
+      quote: 'The AI coach gave me insights I never expected. Highly recommend.',
+      author: 'David K.',
+      rating: 5,
+    },
+    {
+      quote: 'Private, effective, and the progress charts keep me motivated.',
+      author: 'Chris M.',
+      rating: 5,
+    },
+    {
+      quote: 'Best investment in myself. Results speak for themselves.',
+      author: 'Alex P.',
+      rating: 5,
+    },
+    { quote: 'The achievements system makes training actually fun.', author: 'Ryan S.', rating: 5 },
   ]
 
   return (
@@ -243,7 +295,15 @@ function TestimonialsMarquee() {
 }
 
 // Stats counter
-function StatCounter({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
+function StatCounter({
+  value,
+  label,
+  suffix = '',
+}: {
+  value: number
+  label: string
+  suffix?: string
+}) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
   const [count, setCount] = useState(0)
@@ -254,8 +314,10 @@ function StatCounter({ value, label, suffix = '' }: { value: number; label: stri
       const steps = 60
       const increment = value / steps
       let current = 0
+
       const timer = setInterval(() => {
         current += increment
+
         if (current >= value) {
           setCount(value)
           clearInterval(timer)
@@ -263,6 +325,7 @@ function StatCounter({ value, label, suffix = '' }: { value: number; label: stri
           setCount(Math.floor(current))
         }
       }, duration / steps)
+
       return () => clearInterval(timer)
     }
   }, [isInView, value])
@@ -270,7 +333,8 @@ function StatCounter({ value, label, suffix = '' }: { value: number; label: stri
   return (
     <div ref={ref} className="text-center">
       <div className="text-4xl md:text-5xl font-bold text-gradient mb-2">
-        {count.toLocaleString()}{suffix}
+        {count.toLocaleString()}
+        {suffix}
       </div>
       <div className="text-muted-foreground">{label}</div>
     </div>
@@ -281,10 +345,12 @@ function StatCounter({ value, label, suffix = '' }: { value: number; label: stri
 export default function Home() {
   const router = useRouter()
   const heroRef = useRef(null)
+
   const { scrollYProgress } = useScroll({
     target: heroRef,
-    offset: ['start start', 'end start']
+    offset: ['start start', 'end start'],
   })
+
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
 
@@ -293,11 +359,15 @@ export default function Home() {
     // This prevents blocking initial render with Supabase initialization
     async function checkSession(): Promise<void> {
       const { supabase } = await import('@/lib/supabase/client')
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
       if (session) {
         router.push('/dashboard')
       }
     }
+
     // Use requestIdleCallback to defer session check until after paint
     if ('requestIdleCallback' in window) {
       requestIdleCallback(() => checkSession(), { timeout: 2000 })
@@ -343,16 +413,42 @@ export default function Home() {
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
-              <Link href="/guides" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Guides</Link>
-              <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
+              <a
+                href="#features"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#how-it-works"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                How It Works
+              </a>
+              <Link
+                href="/guides"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Guides
+              </Link>
+              <Link
+                href="/faq"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                FAQ
+              </Link>
             </div>
 
             <div className="flex items-center gap-3">
               <ModeToggle />
-              <Link href="/login" aria-label="Log in to your account" className="hidden sm:inline-flex">
-                <Button variant="ghost" size="sm">Log In</Button>
+              <Link
+                href="/login"
+                aria-label="Log in to your account"
+                className="hidden sm:inline-flex"
+              >
+                <Button variant="ghost" size="sm">
+                  Log In
+                </Button>
               </Link>
               <Link href="/login" aria-label="Get started with Stamina Timer">
                 <BeamButton size="sm">
@@ -403,8 +499,8 @@ export default function Home() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed"
           >
-            The training app that helps you build lasting control.
-            Track progress, understand patterns, see real improvement in weeks.
+            The training app that helps you build lasting control. Track progress, understand
+            patterns, see real improvement in weeks.
           </motion.p>
 
           <motion.div
@@ -478,9 +574,7 @@ export default function Home() {
       <ScrollSection id="features" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Everything You Need
-            </h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">Everything You Need</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Built with precision, designed for results
             </p>
@@ -488,12 +582,36 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: <Clock className="w-6 h-6" />, title: 'Precision Timer', description: 'Track every second with accuracy' },
-              { icon: <TrendingUp className="w-6 h-6" />, title: 'Analytics', description: 'Visualize your improvement' },
-              { icon: <Target className="w-6 h-6" />, title: 'Goals', description: 'Set and crush milestones' },
-              { icon: <Brain className="w-6 h-6" />, title: 'AI Coach', description: 'Personalized recommendations' },
-              { icon: <Trophy className="w-6 h-6" />, title: 'Achievements', description: 'Gamified motivation' },
-              { icon: <Lock className="w-6 h-6" />, title: 'Privacy First', description: 'Your data stays yours' },
+              {
+                icon: <Clock className="w-6 h-6" />,
+                title: 'Precision Timer',
+                description: 'Track every second with accuracy',
+              },
+              {
+                icon: <TrendingUp className="w-6 h-6" />,
+                title: 'Analytics',
+                description: 'Visualize your improvement',
+              },
+              {
+                icon: <Target className="w-6 h-6" />,
+                title: 'Goals',
+                description: 'Set and crush milestones',
+              },
+              {
+                icon: <Brain className="w-6 h-6" />,
+                title: 'AI Coach',
+                description: 'Personalized recommendations',
+              },
+              {
+                icon: <Trophy className="w-6 h-6" />,
+                title: 'Achievements',
+                description: 'Gamified motivation',
+              },
+              {
+                icon: <Lock className="w-6 h-6" />,
+                title: 'Privacy First',
+                description: 'Your data stays yours',
+              },
             ].map((feature, i) => (
               <FlashlightCard key={i} className="group">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -511,12 +629,8 @@ export default function Home() {
       <ScrollSection id="how-it-works" className="py-24 bg-card/50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              How It Works
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Three steps to lasting improvement
-            </p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">How It Works</h2>
+            <p className="text-xl text-muted-foreground">Three steps to lasting improvement</p>
           </div>
           <FeatureCarousel />
         </div>
@@ -525,9 +639,7 @@ export default function Home() {
       {/* Testimonials Section */}
       <ScrollSection id="testimonials" className="py-24">
         <div className="text-center mb-12 px-4">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Real Results
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">Real Results</h2>
           <p className="text-xl text-muted-foreground">
             Join thousands who transformed their confidence
           </p>
@@ -546,9 +658,7 @@ export default function Home() {
             <div className="absolute inset-0 grid-pattern opacity-50" />
             <div className="relative z-10">
               <Flame className="w-16 h-16 text-primary mx-auto mb-8" />
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Ready to Take Control?
-              </h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Take Control?</h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
                 Join thousands building lasting confidence. Free, private, 10 minutes a day.
               </p>
@@ -577,8 +687,8 @@ export default function Home() {
                 <span className="font-bold text-lg">Stamina Timer</span>
               </Link>
               <p className="text-sm text-muted-foreground max-w-sm">
-                Science-backed stamina training app for men. Build lasting control
-                with data-driven progress tracking and AI-powered coaching.
+                Science-backed stamina training app for men. Build lasting control with data-driven
+                progress tracking and AI-powered coaching.
               </p>
             </div>
 
@@ -586,13 +696,22 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-4">Resources</h3>
               <nav className="flex flex-col gap-2">
-                <Link href="/guides" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/guides"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Training Guides
                 </Link>
-                <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/faq"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   FAQ
                 </Link>
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/login"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Get Started
                 </Link>
               </nav>
@@ -602,13 +721,22 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <nav className="flex flex-col gap-2">
-                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/privacy"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Privacy Policy
                 </Link>
-                <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/terms"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Terms of Service
                 </Link>
-                <Link href="/license" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  href="/license"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   License
                 </Link>
               </nav>
@@ -620,9 +748,7 @@ export default function Home() {
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Stamina Timer. All rights reserved.
             </p>
-            <p className="text-sm text-muted-foreground">
-              100% Private • No Ads • No Data Selling
-            </p>
+            <p className="text-sm text-muted-foreground">100% Private • No Ads • No Data Selling</p>
           </div>
         </div>
       </footer>

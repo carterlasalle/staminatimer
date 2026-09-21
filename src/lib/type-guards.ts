@@ -45,6 +45,7 @@ export function isValidEdgeEvent(value: unknown): value is {
  */
 export function isDBSessionArray(value: unknown): value is DBSession[] {
   if (!Array.isArray(value)) return false
+
   return value.every(isDBSession)
 }
 
@@ -75,6 +76,7 @@ export function isNumber(value: unknown): value is number {
 export function isUUID(value: unknown): value is string {
   if (typeof value !== 'string') return false
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
   return uuidRegex.test(value)
 }
 
@@ -84,5 +86,6 @@ export function isUUID(value: unknown): value is string {
 export function isISODateString(value: unknown): value is string {
   if (typeof value !== 'string') return false
   const date = new Date(value)
+
   return !isNaN(date.getTime()) && value.includes('T')
 }

@@ -15,6 +15,7 @@ const TIPS = [
 export function Tips() {
   const tip = useMemo(() => {
     const idx = new Date().getDay() % TIPS.length
+
     return TIPS[idx]
   }, [])
 
@@ -22,7 +23,7 @@ export function Tips() {
     <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Lightbulb className="h-4 w-4 text-amber-400" /> 
+          <Lightbulb className="h-4 w-4 text-amber-400" />
           Daily Tip
         </CardTitle>
       </CardHeader>
@@ -34,4 +35,3 @@ export function Tips() {
     </Card>
   )
 }
-

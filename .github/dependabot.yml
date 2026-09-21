@@ -6,10 +6,10 @@
 version: 2
 
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "saturday"
-      time: "01:30"
-      timezone: "America/Los_Angeles"
+      interval: 'weekly'
+      day: 'saturday'
+      time: '01:30'
+      timezone: 'America/Los_Angeles'

@@ -22,7 +22,7 @@ import {
   Eye,
   Focus,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -48,7 +48,7 @@ const kegelExercises: KegelExercise[] = [
     rest_time: 3,
     reps: 10,
     sets: 3,
-    difficulty: 'beginner'
+    difficulty: 'beginner',
   },
   {
     id: 'quick_pulse',
@@ -58,7 +58,7 @@ const kegelExercises: KegelExercise[] = [
     rest_time: 1,
     reps: 20,
     sets: 2,
-    difficulty: 'beginner'
+    difficulty: 'beginner',
   },
   {
     id: 'endurance_hold',
@@ -68,7 +68,7 @@ const kegelExercises: KegelExercise[] = [
     rest_time: 10,
     reps: 5,
     sets: 3,
-    difficulty: 'intermediate'
+    difficulty: 'intermediate',
   },
   {
     id: 'elevator_exercise',
@@ -78,8 +78,8 @@ const kegelExercises: KegelExercise[] = [
     rest_time: 5,
     reps: 5,
     sets: 2,
-    difficulty: 'advanced'
-  }
+    difficulty: 'advanced',
+  },
 ]
 
 // Mental Exercises Data
@@ -107,8 +107,8 @@ const mentalExercises: MentalExercise[] = [
       'Hold your breath for 4 counts',
       'Exhale through your mouth for 4 counts',
       'Hold empty for 4 counts',
-      'Repeat this cycle'
-    ]
+      'Repeat this cycle',
+    ],
   },
   {
     id: 'body_scan',
@@ -123,8 +123,8 @@ const mentalExercises: MentalExercise[] = [
       'Start at the top of your head',
       'Slowly scan down through your body',
       'Notice any tension or sensations',
-      'Breathe into areas of tension'
-    ]
+      'Breathe into areas of tension',
+    ],
   },
   {
     id: 'controlled_breathing',
@@ -139,8 +139,8 @@ const mentalExercises: MentalExercise[] = [
       'Exhale slowly for 8 counts',
       'Pause briefly before the next inhale',
       'Focus on making the exhale smooth',
-      'Continue for the full duration'
-    ]
+      'Continue for the full duration',
+    ],
   },
   {
     id: 'control_visualization',
@@ -155,9 +155,9 @@ const mentalExercises: MentalExercise[] = [
       'See yourself remaining calm and in control',
       'Feel the sensations of mastery',
       'Practice pausing and breathing',
-      'Reinforce your mental strength'
-    ]
-  }
+      'Reinforce your mental strength',
+    ],
+  },
 ]
 
 // Kegel Workout State
@@ -192,7 +192,7 @@ export default function TrainingPage() {
     if (!kegelWorkout || !kegelRunning) return
 
     const timer = setInterval(() => {
-      setKegelWorkout(prev => {
+      setKegelWorkout((prev) => {
         if (!prev) return null
 
         if (prev.timeRemaining > 1) {
@@ -204,7 +204,7 @@ export default function TrainingPage() {
           return {
             ...prev,
             isHolding: false,
-            timeRemaining: prev.exercise.rest_time
+            timeRemaining: prev.exercise.rest_time,
           }
         } else {
           // Rest done, next rep or set
@@ -213,7 +213,7 @@ export default function TrainingPage() {
               ...prev,
               currentRep: prev.currentRep + 1,
               isHolding: true,
-              timeRemaining: prev.exercise.hold_time
+              timeRemaining: prev.exercise.hold_time,
             }
           } else if (prev.currentSet < prev.exercise.sets) {
             return {
@@ -221,12 +221,13 @@ export default function TrainingPage() {
               currentSet: prev.currentSet + 1,
               currentRep: 1,
               isHolding: true,
-              timeRemaining: prev.exercise.hold_time
+              timeRemaining: prev.exercise.hold_time,
             }
           } else {
             // Complete
             setKegelRunning(false)
             toast.success('Kegel workout complete!')
+
             return null
           }
         }
@@ -241,7 +242,7 @@ export default function TrainingPage() {
     if (!mentalSession || !mentalRunning) return
 
     const timer = setInterval(() => {
-      setMentalSession(prev => {
+      setMentalSession((prev) => {
         if (!prev) return null
 
         if (prev.timeRemaining > 1) {
@@ -250,15 +251,19 @@ export default function TrainingPage() {
 
         // Next step
         if (prev.currentStep < prev.exercise.instructions.length - 1) {
-          const timePerStep = Math.floor((prev.exercise.duration * 60) / prev.exercise.instructions.length)
+          const timePerStep = Math.floor(
+            (prev.exercise.duration * 60) / prev.exercise.instructions.length
+          )
+
           return {
             ...prev,
             currentStep: prev.currentStep + 1,
-            timeRemaining: timePerStep
+            timeRemaining: timePerStep,
           }
         } else {
           setMentalRunning(false)
           toast.success('Mental exercise complete!')
+
           return null
         }
       })
@@ -273,7 +278,7 @@ export default function TrainingPage() {
       currentSet: 1,
       currentRep: 1,
       isHolding: true,
-      timeRemaining: exercise.hold_time
+      timeRemaining: exercise.hold_time,
     })
     setKegelRunning(true)
   }
@@ -283,7 +288,7 @@ export default function TrainingPage() {
     setMentalSession({
       exercise,
       currentStep: 0,
-      timeRemaining: timePerStep
+      timeRemaining: timePerStep,
     })
     setMentalRunning(true)
   }
@@ -294,19 +299,27 @@ export default function TrainingPage() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-500/10 text-green-600'
-      case 'intermediate': return 'bg-yellow-500/10 text-yellow-600'
-      case 'advanced': return 'bg-red-500/10 text-red-600'
-      default: return 'bg-gray-500/10 text-gray-600'
+      case 'beginner':
+        return 'bg-green-500/10 text-green-600'
+      case 'intermediate':
+        return 'bg-yellow-500/10 text-yellow-600'
+      case 'advanced':
+        return 'bg-red-500/10 text-red-600'
+      default:
+        return 'bg-gray-500/10 text-gray-600'
     }
   }
 
   const getCategoryIcon = (category: MentalExercise['category']) => {
     switch (category) {
-      case 'breathing': return <Wind className="h-4 w-4" />
-      case 'mindfulness': return <Heart className="h-4 w-4" />
-      case 'visualization': return <Eye className="h-4 w-4" />
-      case 'focus': return <Focus className="h-4 w-4" />
+      case 'breathing':
+        return <Wind className="h-4 w-4" />
+      case 'mindfulness':
+        return <Heart className="h-4 w-4" />
+      case 'visualization':
+        return <Eye className="h-4 w-4" />
+      case 'focus':
+        return <Focus className="h-4 w-4" />
     }
   }
 
@@ -337,13 +350,14 @@ export default function TrainingPage() {
 
             {/* Collapsible Guidance */}
             <Card>
-              <CardHeader
-                className="cursor-pointer"
-                onClick={() => setShowGuidance(!showGuidance)}
-              >
+              <CardHeader className="cursor-pointer" onClick={() => setShowGuidance(!showGuidance)}>
                 <CardTitle className="flex items-center justify-between text-base">
                   <span>Session Guidance</span>
-                  {showGuidance ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {showGuidance ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </CardTitle>
               </CardHeader>
               {showGuidance && (
@@ -393,12 +407,19 @@ export default function TrainingPage() {
                         variant="outline"
                         onClick={() => setKegelRunning(!kegelRunning)}
                       >
-                        {kegelRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {kegelRunning ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => { setKegelWorkout(null); setKegelRunning(false) }}
+                        onClick={() => {
+                          setKegelWorkout(null)
+                          setKegelRunning(false)
+                        }}
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -407,13 +428,21 @@ export default function TrainingPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center space-y-4">
-                    <div className="text-5xl font-bold">{formatTime(kegelWorkout.timeRemaining)}</div>
-                    <div className={`text-lg font-medium ${kegelWorkout.isHolding ? 'text-orange-500' : 'text-green-500'}`}>
+                    <div className="text-5xl font-bold">
+                      {formatTime(kegelWorkout.timeRemaining)}
+                    </div>
+                    <div
+                      className={`text-lg font-medium ${kegelWorkout.isHolding ? 'text-orange-500' : 'text-green-500'}`}
+                    >
                       {kegelWorkout.isHolding ? 'HOLD' : 'REST'}
                     </div>
                     <div className="flex justify-center gap-8 text-sm text-muted-foreground">
-                      <div>Rep {kegelWorkout.currentRep}/{kegelWorkout.exercise.reps}</div>
-                      <div>Set {kegelWorkout.currentSet}/{kegelWorkout.exercise.sets}</div>
+                      <div>
+                        Rep {kegelWorkout.currentRep}/{kegelWorkout.exercise.reps}
+                      </div>
+                      <div>
+                        Set {kegelWorkout.currentSet}/{kegelWorkout.exercise.sets}
+                      </div>
                     </div>
                     <Progress
                       value={(kegelWorkout.currentRep / kegelWorkout.exercise.reps) * 100}
@@ -470,12 +499,19 @@ export default function TrainingPage() {
                         variant="outline"
                         onClick={() => setMentalRunning(!mentalRunning)}
                       >
-                        {mentalRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {mentalRunning ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => { setMentalSession(null); setMentalRunning(false) }}
+                        onClick={() => {
+                          setMentalSession(null)
+                          setMentalRunning(false)
+                        }}
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -484,16 +520,25 @@ export default function TrainingPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center space-y-4">
-                    <div className="text-5xl font-bold">{formatTime(mentalSession.timeRemaining)}</div>
+                    <div className="text-5xl font-bold">
+                      {formatTime(mentalSession.timeRemaining)}
+                    </div>
                     <div className="text-sm text-muted-foreground">
-                      Step {mentalSession.currentStep + 1} of {mentalSession.exercise.instructions.length}
+                      Step {mentalSession.currentStep + 1} of{' '}
+                      {mentalSession.exercise.instructions.length}
                     </div>
                     <Progress
-                      value={((mentalSession.currentStep + 1) / mentalSession.exercise.instructions.length) * 100}
+                      value={
+                        ((mentalSession.currentStep + 1) /
+                          mentalSession.exercise.instructions.length) *
+                        100
+                      }
                       className="h-2"
                     />
                     <div className="p-4 bg-primary/5 rounded-lg">
-                      <p className="text-sm">{mentalSession.exercise.instructions[mentalSession.currentStep]}</p>
+                      <p className="text-sm">
+                        {mentalSession.exercise.instructions[mentalSession.currentStep]}
+                      </p>
                     </div>
                   </div>
                 </CardContent>

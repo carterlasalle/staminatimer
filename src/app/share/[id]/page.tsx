@@ -27,6 +27,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
         if (error) console.error('Error fetching shared data:', error)
         setUnavailable(true)
         setLoading(false)
+
         return
       }
 
@@ -38,6 +39,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
   }, [id])
 
   if (loading) return <Loading text="Loading shared data..." fullScreen />
+
   if (unavailable || !sharedData)
     return (
       <div className="container mx-auto py-8 text-center text-destructive" role="status">

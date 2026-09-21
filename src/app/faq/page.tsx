@@ -6,9 +6,15 @@ import { Timer, ArrowRight, HelpCircle } from 'lucide-react'
 
 export const metadata: Metadata = generatePageMetadata({
   title: 'FAQ - Frequently Asked Questions About Stamina Training',
-  description: 'Get answers to common questions about stamina training, the Stamina Timer app, techniques, privacy, and how to see real results.',
+  description:
+    'Get answers to common questions about stamina training, the Stamina Timer app, techniques, privacy, and how to see real results.',
   path: '/faq',
-  keywords: ['stamina training faq', 'stamina questions', 'how to last longer faq', 'stamina timer help'],
+  keywords: [
+    'stamina training faq',
+    'stamina questions',
+    'how to last longer faq',
+    'stamina timer help',
+  ],
 })
 
 export default function FAQPage() {
@@ -39,7 +45,10 @@ export default function FAQPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-6">
-          <Link href="/" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+          >
             <Timer className="w-5 h-5" />
             <span className="font-semibold">Stamina Timer</span>
           </Link>
@@ -52,9 +61,7 @@ export default function FAQPage() {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <HelpCircle className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Frequently Asked Questions
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>
           <p className="text-xl text-muted-foreground max-w-xl mx-auto">
             Everything you need to know about stamina training and the Stamina Timer app.
           </p>
@@ -66,10 +73,7 @@ export default function FAQPage() {
         <div className="max-w-3xl mx-auto px-4">
           <div className="space-y-8">
             {FAQ_DATA.map((faq, i) => (
-              <div
-                key={i}
-                className="p-6 rounded-xl border border-border bg-card"
-              >
+              <div key={i} className="p-6 rounded-xl border border-border bg-card">
                 <h2 className="text-lg font-semibold mb-3">{faq.question}</h2>
                 <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
               </div>
@@ -110,11 +114,21 @@ export default function FAQPage() {
               <span className="font-semibold">Stamina Timer</span>
             </Link>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
-              <Link href="/guides" className="hover:text-foreground transition-colors">Guides</Link>
-              <Link href="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/" className="hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link href="/guides" className="hover:text-foreground transition-colors">
+                Guides
+              </Link>
+              <Link href="/faq" className="hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
             </nav>
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Stamina Timer

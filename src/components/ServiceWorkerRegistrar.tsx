@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 /**
  * ServiceWorkerRegistrar Component
@@ -13,13 +13,12 @@ import { useEffect } from 'react';
 export function ServiceWorkerRegistrar(): null {
   useEffect(() => {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register('/sw.js')
-        .catch(() => {
-          // Service worker registration failed silently in production
-          // Errors are expected when offline or in certain browser configurations
-        });
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // Service worker registration failed silently in production
+        // Errors are expected when offline or in certain browser configurations
+      })
     }
-  }, []);
+  }, [])
 
-  return null;
+  return null
 }

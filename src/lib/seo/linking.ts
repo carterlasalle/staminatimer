@@ -37,6 +37,7 @@ export function getHubForSpoke(spokeSlug: string): HubPage | null {
  */
 export function getSpokesForHub(hubSlug: string): string[] {
   const hub = HUB_PAGES.find((h) => h.slug === hubSlug)
+
   return hub?.spokes ? [...hub.spokes] : []
 }
 
@@ -47,11 +48,9 @@ export function getSpokesForHub(hubSlug: string): string[] {
 /**
  * Get related guides based on category and keyword overlap
  */
-export function getRelatedGuides(
-  currentSlug: string,
-  limit = 3
-): RelatedContent[] {
+export function getRelatedGuides(currentSlug: string, limit = 3): RelatedContent[] {
   const currentGuide = GUIDE_TOPICS.find((g) => g.slug === currentSlug)
+
   if (!currentGuide) return []
 
   const scored = GUIDE_TOPICS.filter((g) => g.slug !== currentSlug).map((guide) => {
@@ -64,9 +63,9 @@ export function getRelatedGuides(
 
     // Keyword overlap
     const currentKeywords = new Set(currentGuide.keywords.map((k) => k.toLowerCase()))
-    const matchingKeywords = guide.keywords.filter((k) =>
-      currentKeywords.has(k.toLowerCase())
-    )
+
+    const matchingKeywords = guide.keywords.filter((k) => currentKeywords.has(k.toLowerCase()))
+
     score += matchingKeywords.length * 0.2
 
     // Partial keyword matches
@@ -102,6 +101,7 @@ export function getRelatedGuides(
  */
 export function getSiblingGuides(currentSlug: string, limit = 4): GuideTopic[] {
   const currentGuide = GUIDE_TOPICS.find((g) => g.slug === currentSlug)
+
   if (!currentGuide) return []
 
   return GUIDE_TOPICS.filter(
@@ -114,19 +114,19 @@ export function getSiblingGuides(currentSlug: string, limit = 4): GuideTopic[] {
  */
 export function getCrossCategory(currentSlug: string, limit = 2): GuideTopic[] {
   const currentGuide = GUIDE_TOPICS.find((g) => g.slug === currentSlug)
+
   if (!currentGuide) return []
 
   // Get one guide from each different category
-  const categories = Object.keys(GUIDE_CATEGORIES).filter(
-    (c) => c !== currentGuide.category
-  )
+  const categories = Object.keys(GUIDE_CATEGORIES).filter((c) => c !== currentGuide.category)
 
   const guides: GuideTopic[] = []
+
   for (const category of categories) {
     if (guides.length >= limit) break
-    const guide = GUIDE_TOPICS.find(
-      (g) => g.category === category && g.slug !== currentSlug
-    )
+
+    const guide = GUIDE_TOPICS.find((g) => g.category === category && g.slug !== currentSlug)
+
     if (guide) guides.push(guide)
   }
 
@@ -150,6 +150,7 @@ export function buildLinkGraph(slug: string): LinkGraph {
 
   // Hub pages link to all guides
   const hub = getHubForSpoke(slug)
+
   if (hub) {
     inboundLinks.push(hub.slug)
   }
@@ -186,6 +187,7 @@ export function findOrphanPages(): string[] {
 
   GUIDE_TOPICS.forEach((guide) => {
     const graph = buildLinkGraph(guide.slug)
+
     if (graph.inboundLinks.length === 0) {
       orphans.push(guide.slug)
     }
@@ -242,8 +244,10 @@ export function getContextualLinks(currentPath: string): {
 
   if (currentPath.startsWith('/guides')) {
     breadcrumbs.push({ name: 'Guides', url: '/guides' })
+
     if (slug) {
       const guide = GUIDE_TOPICS.find((g) => g.slug === slug)
+
       if (guide) {
         breadcrumbs.push({ name: guide.title, url: currentPath })
       }
@@ -269,6 +273,7 @@ export function getGuidesByCategory(): Record<string, GuideTopic[]> {
     if (!grouped[guide.category]) {
       grouped[guide.category] = []
     }
+
     grouped[guide.category].push(guide)
   })
 

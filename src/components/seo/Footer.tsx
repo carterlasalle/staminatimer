@@ -41,8 +41,8 @@ export function SEOFooter({ maxWidth = '4xl' }: FooterProps) {
               <span className="font-bold text-lg">Stamina Timer</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Science-backed stamina training app for men. Build lasting control
-              with data-driven progress tracking.
+              Science-backed stamina training app for men. Build lasting control with data-driven
+              progress tracking.
             </p>
           </div>
 

@@ -8,17 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { useAICoach } from '@/hooks/useAICoach'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { 
-  Send, 
-  Brain,
-  RefreshCw,
-  User,
-  Bot,
-  Zap,
-  TrendingUp,
-  Target,
-  Activity
-} from 'lucide-react'
+import { Send, Brain, RefreshCw, User, Bot, Zap, TrendingUp, Target, Activity } from 'lucide-react'
 
 export function AICoachChat() {
   const { messages, isLoading, sendMessage, clearChat, generateInitialInsights } = useAICoach()
@@ -40,7 +30,7 @@ export function AICoachChat() {
 
   const handleSendMessage = () => {
     if (!inputValue.trim() || isLoading) return
-    
+
     sendMessage(inputValue.trim())
     setInputValue('')
   }
@@ -55,20 +45,20 @@ export function AICoachChat() {
   const suggestedQuestions = [
     {
       icon: TrendingUp,
-      text: "Analyze my performance patterns and suggest next steps",
+      text: 'Analyze my performance patterns and suggest next steps',
     },
     {
       icon: Target,
-      text: "What specific goals should I focus on based on my data?",
+      text: 'What specific goals should I focus on based on my data?',
     },
     {
       icon: Brain,
-      text: "Recommend training techniques for my current level",
+      text: 'Recommend training techniques for my current level',
     },
     {
       icon: Activity,
-      text: "How can I improve my consistency and frequency?",
-    }
+      text: 'How can I improve my consistency and frequency?',
+    },
   ]
 
   return (
@@ -87,12 +77,8 @@ export function AICoachChat() {
                   Get personalized training insights based on your complete session history
                 </p>
               </div>
-              
-              <Button 
-                onClick={generateInitialInsights}
-                size="lg"
-                disabled={isLoading}
-              >
+
+              <Button onClick={generateInitialInsights} size="lg" disabled={isLoading}>
                 <Zap className="h-4 w-4 mr-2" />
                 Analyze My Performance
               </Button>
@@ -126,42 +112,63 @@ export function AICoachChat() {
                   <Bot className="h-5 w-5 text-white" />
                 </div>
               )}
-              
+
               <div className={`max-w-[85%] ${message.role === 'user' ? 'order-1' : ''}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium">
                     {message.role === 'assistant' ? 'Performance Coach' : 'You'}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </span>
                 </div>
-                
+
                 <div
                   className={`rounded-lg p-4 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                   }`}
                 >
                   {message.role === 'user' ? (
                     <p className="text-sm">{message.content}</p>
                   ) : (
                     <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <ReactMarkdown 
+                      <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          h1: ({children}) => <h1 className="text-lg font-semibold mb-3">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-base font-semibold mb-2 mt-4">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-sm font-semibold mb-2 mt-3">{children}</h3>,
-                          p: ({children}) => <p className="mb-3 leading-relaxed text-sm">{children}</p>,
-                          ul: ({children}) => <ul className="mb-3 ml-4 space-y-1">{children}</ul>,
-                          ol: ({children}) => <ol className="mb-3 ml-4 space-y-1">{children}</ol>,
-                          li: ({children}) => <li className="text-sm leading-relaxed">{children}</li>,
-                          strong: ({children}) => <strong className="font-semibold text-foreground">{children}</strong>,
-                          em: ({children}) => <em className="italic">{children}</em>,
-                          code: ({children}) => <code className="bg-accent px-1 py-0.5 rounded text-xs">{children}</code>,
-                          blockquote: ({children}) => <blockquote className="border-l-4 border-primary pl-4 italic">{children}</blockquote>
+                          h1: ({ children }) => (
+                            <h1 className="text-lg font-semibold mb-3">{children}</h1>
+                          ),
+                          h2: ({ children }) => (
+                            <h2 className="text-base font-semibold mb-2 mt-4">{children}</h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-sm font-semibold mb-2 mt-3">{children}</h3>
+                          ),
+                          p: ({ children }) => (
+                            <p className="mb-3 leading-relaxed text-sm">{children}</p>
+                          ),
+                          ul: ({ children }) => <ul className="mb-3 ml-4 space-y-1">{children}</ul>,
+                          ol: ({ children }) => <ol className="mb-3 ml-4 space-y-1">{children}</ol>,
+                          li: ({ children }) => (
+                            <li className="text-sm leading-relaxed">{children}</li>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold text-foreground">{children}</strong>
+                          ),
+                          em: ({ children }) => <em className="italic">{children}</em>,
+                          code: ({ children }) => (
+                            <code className="bg-accent px-1 py-0.5 rounded text-xs">
+                              {children}
+                            </code>
+                          ),
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-4 border-primary pl-4 italic">
+                              {children}
+                            </blockquote>
+                          ),
                         }}
                       >
                         {message.content}
@@ -196,8 +203,14 @@ export function AICoachChat() {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      <div
+                        className="w-2 h-2 bg-current rounded-full animate-bounce"
+                        style={{ animationDelay: '0.1s' }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-current rounded-full animate-bounce"
+                        style={{ animationDelay: '0.2s' }}
+                      />
                     </div>
                     Processing your training data...
                   </div>
@@ -221,26 +234,21 @@ export function AICoachChat() {
               className="flex-1"
               disabled={isLoading}
             />
-            <Button 
-              onClick={handleSendMessage} 
+            <Button
+              onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="icon"
             >
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          
+
           {messages.length > 0 && (
             <div className="flex justify-between items-center mt-3">
               <div className="text-xs text-muted-foreground">
                 Powered by Gemini 2.5 Pro • {messages.length} messages
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearChat}
-                className="text-xs"
-              >
+              <Button variant="ghost" size="sm" onClick={clearChat} className="text-xs">
                 <RefreshCw className="h-3 w-3 mr-1" />
                 Clear
               </Button>

@@ -10,17 +10,20 @@ type StatCardProps = {
 
 export function StatCard({ number, label }: StatCardProps) {
   const { stats, loading } = useGlobalStats()
-  
+
   const formatNumber = (n: number): string => {
     if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M+`
+
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k+`
+
     return n.toString()
   }
 
   const getDisplayNumber = (): string => {
     if (loading) return '-'
+
     if (!stats) return number
-    
+
     switch (label) {
       case 'Active Users':
         return formatNumber(stats.active_users_count)

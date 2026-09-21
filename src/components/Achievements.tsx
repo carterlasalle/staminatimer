@@ -16,23 +16,26 @@ export function Achievements() {
   const { points, level } = useGamification()
 
   useEffect(() => {
-    async function fetchAchievements(): Promise<void> { 
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser()
-      
+    async function fetchAchievements(): Promise<void> {
+      setLoading(true)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
-         setAll([])
-         setUser([])
-         setLoading(false);
-         return; 
+        setAll([])
+        setUser([])
+        setLoading(false)
+
+        return
       }
-      
-      const [{ data: defs }, { data: mine, error } ] = await Promise.all([
+
+      const [{ data: defs }, { data: mine, error }] = await Promise.all([
         supabase.from('achievements').select('*'),
         supabase
           .from('user_achievements')
           .select(`*, achievement:achievements(*)`)
-          .eq('user_id', user.id)
+          .eq('user_id', user.id),
       ])
 
       if (error) {
@@ -41,6 +44,7 @@ export function Achievements() {
         setAll((defs as Achievement[]) || [])
         setUser((mine as UserAchievement[]) || [])
       }
+
       setLoading(false)
     }
 
@@ -59,7 +63,9 @@ export function Achievements() {
             <div className="text-muted-foreground">Level</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-green-500">{user.filter(u => u.progress === 100).length}</div>
+            <div className="font-semibold text-green-500">
+              {user.filter((u) => u.progress === 100).length}
+            </div>
             <div className="text-muted-foreground">Unlocked</div>
           </div>
           <div className="text-center">
@@ -89,13 +95,13 @@ export function Achievements() {
             </TabsTrigger>
           </TabsList>
 
-          {(['endurance', 'control', 'progress', 'special'] as const).map(category => (
+          {(['endurance', 'control', 'progress', 'special'] as const).map((category) => (
             <TabsContent key={category} value={category} className="mt-3">
               <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
                 {mergeAllWithUser(all, user)
-                  .filter(a => a.achievement.category === category)
+                  .filter((a) => a.achievement.category === category)
                   .slice(0, 6) // Limit to 6 most relevant achievements
-                  .map(u => (
+                  .map((u) => (
                     <AchievementCard key={u.achievement.id} userAchievement={u} />
                   ))}
               </div>
@@ -112,30 +118,30 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
   const unlocked = progress === 100
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-      unlocked 
-        ? 'bg-linear-to-r from-green-500/10 to-green-500/5 border-green-500/20' 
-        : 'bg-secondary/30 border-border hover:bg-secondary/50'
-    }`}>
-      <div className={`rounded-full p-2 shrink-0 ${
-        unlocked ? 'bg-green-500/20' : 'bg-secondary'
-      }`}>
+    <div
+      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+        unlocked
+          ? 'bg-linear-to-r from-green-500/10 to-green-500/5 border-green-500/20'
+          : 'bg-secondary/30 border-border hover:bg-secondary/50'
+      }`}
+    >
+      <div className={`rounded-full p-2 shrink-0 ${unlocked ? 'bg-green-500/20' : 'bg-secondary'}`}>
         <Trophy className={`w-4 h-4 ${unlocked ? 'text-green-400' : 'text-muted-foreground'}`} />
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <h4 className={`text-sm font-medium truncate ${unlocked ? 'text-green-400' : 'text-foreground'}`}>
+          <h4
+            className={`text-sm font-medium truncate ${unlocked ? 'text-green-400' : 'text-foreground'}`}
+          >
             {achievement.name}
           </h4>
-          {unlocked && (
-            <div className="text-xs text-green-400 font-medium ml-2">✓</div>
-          )}
+          {unlocked && <div className="text-xs text-green-400 font-medium ml-2">✓</div>}
         </div>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
           {achievement.description}
         </p>
-        
+
         {!unlocked && progress > 0 && (
           <div className="mt-2">
             <div className="flex justify-between text-xs mb-1">
@@ -145,7 +151,7 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
             <Progress value={progress} className="h-1" />
           </div>
         )}
-        
+
         {unlocked && unlocked_at && (
           <div className="text-xs text-muted-foreground mt-1">
             {new Date(unlocked_at).toLocaleDateString()}
@@ -157,17 +163,20 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
 }
 
 function mergeAllWithUser(all: Achievement[], user: UserAchievement[]): UserAchievement[] {
-  const byId = new Map(user.map(u => [u.achievement_id, u]))
-  return all.map(a => {
+  const byId = new Map(user.map((u) => [u.achievement_id, u]))
+
+  return all.map((a) => {
     const existing = byId.get(a.id)
+
     if (existing) return existing
+
     return {
       id: a.id,
       user_id: '',
       achievement_id: a.id,
       unlocked_at: '',
       progress: 0,
-      achievement: a
+      achievement: a,
     } as UserAchievement
   })
 }

@@ -18,7 +18,7 @@ export async function generateShareableLink(
   duration: ShareDuration
 ): Promise<string> {
   // Extract only session IDs - server will verify ownership and fetch full data
-  const sessionIds = sessions.map(s => s.id)
+  const sessionIds = sessions.map((s) => s.id)
 
   // Get CSRF token for the request
   const csrfToken = await getCSRFToken()
@@ -46,6 +46,7 @@ export async function generateShareableLink(
       if (errorData.error?.includes('CSRF')) {
         throw new Error('Security validation failed. Please try again.')
       }
+
       throw new Error('You do not have permission to share these sessions.')
     }
 

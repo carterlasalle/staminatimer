@@ -26,14 +26,16 @@ export const storage = {
   loadSession(): StorageSession | null {
     try {
       const data = localStorage.getItem('current-session')
+
       return data ? JSON.parse(data) : null
     } catch (error) {
       console.error('Error loading from localStorage:', error)
+
       return null
     }
   },
 
   clearSession() {
     localStorage.removeItem('current-session')
-  }
-} 
+  },
+}

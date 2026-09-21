@@ -45,7 +45,7 @@ import {
   Dumbbell,
   Trash2,
   Trophy,
-  Flame
+  Flame,
 } from 'lucide-react'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -75,10 +75,14 @@ export default function ProgressPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [newGoalTitle, setNewGoalTitle] = useState('')
   const [newGoalDescription, setNewGoalDescription] = useState('')
-  const [newGoalType, setNewGoalType] = useState<'duration' | 'frequency' | 'streak' | 'skill'>('duration')
+  const [newGoalType, setNewGoalType] = useState<'duration' | 'frequency' | 'streak' | 'skill'>(
+    'duration'
+  )
   const [newGoalTarget, setNewGoalTarget] = useState('')
   const [newGoalPriority, setNewGoalPriority] = useState<'low' | 'medium' | 'high'>('medium')
-  const [newGoalCategory, setNewGoalCategory] = useState<'stamina' | 'mental' | 'kegels' | 'overall'>('stamina')
+  const [newGoalCategory, setNewGoalCategory] = useState<
+    'stamina' | 'mental' | 'kegels' | 'overall'
+  >('stamina')
   const [newGoalDays, setNewGoalDays] = useState('30')
   const [customGoals, setCustomGoals] = useState<Goal[]>([])
 
@@ -86,12 +90,15 @@ export default function ProgressPage() {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(CUSTOM_GOALS_KEY)
+
       if (stored) {
         const parsed = JSON.parse(stored)
+
         const goalsWithDates = parsed.map((g: Goal) => ({
           ...g,
-          deadline: new Date(g.deadline)
+          deadline: new Date(g.deadline),
         }))
+
         setCustomGoals(goalsWithDates)
       }
     } catch {
@@ -110,17 +117,23 @@ export default function ProgressPage() {
 
   const getUnitForType = (type: string) => {
     switch (type) {
-      case 'duration': return 'minutes'
-      case 'frequency': return 'sessions'
-      case 'streak': return 'days'
-      case 'skill': return 'points'
-      default: return 'units'
+      case 'duration':
+        return 'minutes'
+      case 'frequency':
+        return 'sessions'
+      case 'streak':
+        return 'days'
+      case 'skill':
+        return 'points'
+      default:
+        return 'units'
     }
   }
 
   const handleCreateGoal = () => {
     if (!newGoalTitle.trim() || !newGoalTarget) {
       toast.error('Please fill in title and target')
+
       return
     }
 
@@ -138,7 +151,7 @@ export default function ProgressPage() {
       deadline,
       priority: newGoalPriority,
       category: newGoalCategory,
-      isCustom: true
+      isCustom: true,
     }
 
     saveCustomGoals([...customGoals, newGoal])
@@ -155,7 +168,7 @@ export default function ProgressPage() {
   }
 
   const handleDeleteGoal = (goalId: string) => {
-    const updated = customGoals.filter(g => g.id !== goalId)
+    const updated = customGoals.filter((g) => g.id !== goalId)
     saveCustomGoals(updated)
     toast.success('Goal deleted')
   }
@@ -171,13 +184,13 @@ export default function ProgressPage() {
 
     const weekStart = new Date()
     weekStart.setDate(weekStart.getDate() - 7)
-    const weekSessions = recentSessions.filter(s => new Date(s.created_at) >= weekStart).length
+    const weekSessions = recentSessions.filter((s) => new Date(s.created_at) >= weekStart).length
 
     return {
       totalSessions: analytics.totalSessions,
       totalTime,
       averageSession,
-      weekSessions
+      weekSessions,
     }
   }, [analytics, recentSessions])
 
@@ -200,7 +213,7 @@ export default function ProgressPage() {
       unit: 'days',
       deadline: new Date(now.getTime() + (streakTarget - streakCount) * 24 * 60 * 60 * 1000),
       priority: 'high',
-      category: 'overall'
+      category: 'overall',
     })
 
     // Duration goal
@@ -216,7 +229,7 @@ export default function ProgressPage() {
       unit: 'minutes',
       deadline: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
       priority: 'medium',
-      category: 'stamina'
+      category: 'stamina',
     })
 
     // Level goal
@@ -230,72 +243,90 @@ export default function ProgressPage() {
       unit: 'XP',
       deadline: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000),
       priority: 'low',
-      category: 'overall'
+      category: 'overall',
     })
 
     return goals
   }, [analytics, recentSessions, streakCount, level])
 
   // Calculate current progress for custom goals based on their type
-  const calculateGoalProgress = useCallback((goal: Goal): number => {
-    switch (goal.type) {
-      case 'duration':
-        // Total minutes trained (all sessions)
-        const totalMinutes = recentSessions.reduce(
-          (acc, s) => acc + (s.total_duration || 0) / 60000,
-          0
-        )
-        return Math.round(totalMinutes * 10) / 10
+  const calculateGoalProgress = useCallback(
+    (goal: Goal): number => {
+      switch (goal.type) {
+        case 'duration':
+          // Total minutes trained (all sessions)
+          const totalMinutes = recentSessions.reduce(
+            (acc, s) => acc + (s.total_duration || 0) / 60000,
+            0
+          )
 
-      case 'frequency':
-        // Number of sessions
-        return recentSessions.length
+          return Math.round(totalMinutes * 10) / 10
 
-      case 'streak':
-        // Current streak (reuse existing logic from gamification)
-        return streakCount
+        case 'frequency':
+          // Number of sessions
+          return recentSessions.length
 
-      case 'skill':
-        // XP/points earned
-        return level.currentLevelXp + (level.level - 1) * 100
+        case 'streak':
+          // Current streak (reuse existing logic from gamification)
+          return streakCount
 
-      default:
-        return 0
-    }
-  }, [recentSessions, streakCount, level])
+        case 'skill':
+          // XP/points earned
+          return level.currentLevelXp + (level.level - 1) * 100
+
+        default:
+          return 0
+      }
+    },
+    [recentSessions, streakCount, level]
+  )
 
   // Update custom goals with calculated progress
   const customGoalsWithProgress = useMemo(() => {
-    return customGoals.map(goal => ({
+    return customGoals.map((goal) => ({
       ...goal,
-      current: calculateGoalProgress(goal)
+      current: calculateGoalProgress(goal),
     }))
   }, [customGoals, calculateGoalProgress])
 
-  const allGoals = useMemo(() => [...dynamicGoals, ...customGoalsWithProgress], [dynamicGoals, customGoalsWithProgress])
+  const allGoals = useMemo(
+    () => [...dynamicGoals, ...customGoalsWithProgress],
+    [dynamicGoals, customGoalsWithProgress]
+  )
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-500/10 text-red-600 border-red-500/20'
-      case 'medium': return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
-      case 'low': return 'bg-green-500/10 text-green-600 border-green-500/20'
-      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
+      case 'high':
+        return 'bg-red-500/10 text-red-600 border-red-500/20'
+      case 'medium':
+        return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+      case 'low':
+        return 'bg-green-500/10 text-green-600 border-green-500/20'
+      default:
+        return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
     }
   }
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'stamina': return <Zap className="h-4 w-4" />
-      case 'mental': return <Brain className="h-4 w-4" />
-      case 'kegels': return <Dumbbell className="h-4 w-4" />
-      default: return <Target className="h-4 w-4" />
+      case 'stamina':
+        return <Zap className="h-4 w-4" />
+      case 'mental':
+        return <Brain className="h-4 w-4" />
+      case 'kegels':
+        return <Dumbbell className="h-4 w-4" />
+      default:
+        return <Target className="h-4 w-4" />
     }
   }
 
   const formatDeadline = (date: Date) => {
     const days = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+
     if (days <= 0) return 'Due today'
+
     if (days === 1) return '1 day left'
+
     return `${days} days left`
   }
 
@@ -306,7 +337,9 @@ export default function ProgressPage() {
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-muted rounded w-1/3" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-muted rounded" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-24 bg-muted rounded" />
+              ))}
             </div>
           </div>
         </div>
@@ -397,8 +430,13 @@ export default function ProgressPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
                       <Label>Type</Label>
-                      <Select value={newGoalType} onValueChange={(v) => setNewGoalType(v as typeof newGoalType)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={newGoalType}
+                        onValueChange={(v) => setNewGoalType(v as typeof newGoalType)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="duration">Duration</SelectItem>
                           <SelectItem value="frequency">Frequency</SelectItem>
@@ -421,8 +459,13 @@ export default function ProgressPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
                       <Label>Priority</Label>
-                      <Select value={newGoalPriority} onValueChange={(v) => setNewGoalPriority(v as typeof newGoalPriority)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={newGoalPriority}
+                        onValueChange={(v) => setNewGoalPriority(v as typeof newGoalPriority)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="low">Low</SelectItem>
                           <SelectItem value="medium">Medium</SelectItem>
@@ -442,7 +485,9 @@ export default function ProgressPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    Cancel
+                  </Button>
                   <Button onClick={handleCreateGoal}>Create</Button>
                 </DialogFooter>
               </DialogContent>
@@ -475,9 +520,14 @@ export default function ProgressPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Progress value={Math.min(100, (goal.current / goal.target) * 100)} className="h-1.5" />
+                    <Progress
+                      value={Math.min(100, (goal.current / goal.target) * 100)}
+                      className="h-1.5"
+                    />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{Math.round(goal.current)}/{goal.target} {goal.unit}</span>
+                      <span>
+                        {Math.round(goal.current)}/{goal.target} {goal.unit}
+                      </span>
                       <span>{formatDeadline(goal.deadline)}</span>
                     </div>
                   </div>
@@ -498,7 +548,9 @@ export default function ProgressPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Level {level.level}</span>
-                    <span className="text-xs text-muted-foreground">{level.currentLevelXp}/100 XP</span>
+                    <span className="text-xs text-muted-foreground">
+                      {level.currentLevelXp}/100 XP
+                    </span>
                   </div>
                   <Progress value={level.progressPct} className="h-1.5 mt-1" />
                 </div>
@@ -516,7 +568,10 @@ export default function ProgressPage() {
                     <span className="text-sm font-medium">{streakCount} Day Streak</span>
                     <span className="text-xs text-muted-foreground">Goal: 30</span>
                   </div>
-                  <Progress value={Math.min(100, (streakCount / 30) * 100)} className="h-1.5 mt-1" />
+                  <Progress
+                    value={Math.min(100, (streakCount / 30) * 100)}
+                    className="h-1.5 mt-1"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -532,7 +587,10 @@ export default function ProgressPage() {
                     <span className="text-sm font-medium">{stats.weekSessions} This Week</span>
                     <span className="text-xs text-muted-foreground">Goal: 5</span>
                   </div>
-                  <Progress value={Math.min(100, (stats.weekSessions / 5) * 100)} className="h-1.5 mt-1" />
+                  <Progress
+                    value={Math.min(100, (stats.weekSessions / 5) * 100)}
+                    className="h-1.5 mt-1"
+                  />
                 </div>
               </div>
             </CardContent>

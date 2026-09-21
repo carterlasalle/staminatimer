@@ -30,7 +30,10 @@ export function ClarityAnalytics() {
       Clarity.init(CLARITY_PROJECT_ID)
 
       // Identify user if logged in (without exposing PII)
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (user?.id) {
         // Use hashed user ID for privacy - Clarity will hash this again
         Clarity.identify(user.id)

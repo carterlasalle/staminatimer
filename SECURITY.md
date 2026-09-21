@@ -9,6 +9,7 @@ Security fixes are applied to the `main` branch.
 Please report vulnerabilities privately by emailing `security@staminatimer.app`.
 
 Include:
+
 - A clear description of the issue
 - Reproduction steps or proof of concept
 - Potential impact

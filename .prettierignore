@@ -1,0 +1,15 @@
+# Vendored anti-slop plugin: repository-owned upstream code, not application
+# source. It travels from dmmulroy/anti-slop and is excluded from formatting the
+# same way eslint.config.mjs and tsconfig.json exclude it from lint/typecheck.
+tools/oxlint/anti-slop/
+
+# Installed agent skills and generated agent configuration.
+.agents/
+.claude/
+.omp/
+
+# Local Supabase stack artifacts (`supabase start` writes generated code here).
+supabase/.temp/
+
+# Skills CLI lockfile.
+skills-lock.json

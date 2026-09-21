@@ -25,10 +25,7 @@ export function useSession() {
       })
 
       // Save to Supabase
-      const { error } = await supabase
-        .from('sessions')
-        .update(sessionData)
-        .eq('id', sessionData.id)
+      const { error } = await supabase.from('sessions').update(sessionData).eq('id', sessionData.id)
 
       if (error) throw error
 
@@ -42,7 +39,7 @@ export function useSession() {
         lastActiveStart: null,
         sessionId: sessionData.id ?? null,
         finishedDuringEdge: sessionData.finished_during_edge ?? false,
-        edgeLaps: []
+        edgeLaps: [],
       })
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to save session'))
@@ -57,10 +54,7 @@ export function useSession() {
     setError(null)
 
     try {
-      const { error } = await supabase
-        .from('sessions')
-        .delete()
-        .eq('id', sessionId)
+      const { error } = await supabase.from('sessions').delete().eq('id', sessionId)
 
       if (error) throw error
     } catch (err) {
@@ -75,6 +69,6 @@ export function useSession() {
     loading,
     error,
     saveSession,
-    deleteSession
+    deleteSession,
   }
-} 
+}

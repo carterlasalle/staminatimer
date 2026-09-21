@@ -35,7 +35,9 @@ export default function LoginPage() {
       if (session) redirectToDashboard()
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       if (session) {
         toast.success('Welcome back!')
         redirectToDashboard()
@@ -44,6 +46,7 @@ export default function LoginPage() {
 
     return () => {
       active = false
+
       if (redirectTimer) clearTimeout(redirectTimer)
       subscription.unsubscribe()
     }
@@ -51,6 +54,7 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async (): Promise<void> => {
     setGoogleLoading(true)
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -59,8 +63,8 @@ export default function LoginPage() {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          }
-        }
+          },
+        },
       })
 
       if (error) throw error
@@ -89,15 +93,16 @@ export default function LoginPage() {
             <TimerIcon className="h-12 w-12 text-primary" />
             <span className="ml-3 text-3xl font-bold">Stamina Timer</span>
           </div>
-          
+
           <h1 className="text-4xl xl:text-5xl font-bold leading-tight mb-6">
             Build Better <span className="text-primary">Control</span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            Develop stamina and control through structured practice with detailed progress tracking and analytics.
+            Develop stamina and control through structured practice with detailed progress tracking
+            and analytics.
           </p>
-          
+
           <div className="grid grid-cols-1 gap-6 mb-8">
             <div className="flex items-center space-x-4">
               <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -105,31 +110,37 @@ export default function LoginPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Precise Control</h3>
-                <p className="text-sm text-muted-foreground">Advanced timing with detailed edge tracking and session analysis</p>
+                <p className="text-sm text-muted-foreground">
+                  Advanced timing with detailed edge tracking and session analysis
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold">Progress Insights</h3>
-                <p className="text-sm text-muted-foreground">Data-driven analytics to track improvement over time</p>
+                <p className="text-sm text-muted-foreground">
+                  Data-driven analytics to track improvement over time
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold">Private & Secure</h3>
-                <p className="text-sm text-muted-foreground">Your personal wellness data stays completely private</p>
+                <p className="text-sm text-muted-foreground">
+                  Your personal wellness data stays completely private
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center text-sm text-muted-foreground">
             <span>Trusted by thousands for personal wellness goals</span>
           </div>
@@ -141,7 +152,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-6">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center pt-4">
-            <Link href="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity"
+            >
               <div className="h-10 w-10 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center mr-2">
                 <TimerIcon className="h-6 w-6 text-primary-foreground" />
               </div>
@@ -151,17 +165,15 @@ export default function LoginPage() {
 
           <Card className="border-none shadow-2xl">
             <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl font-bold text-center">
-                Welcome Back
-              </CardTitle>
+              <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
               <p className="text-center text-muted-foreground">
                 Sign in to continue your training journey
               </p>
             </CardHeader>
-            
+
             <CardContent className="space-y-6">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full h-12 text-base font-medium border-2 hover:bg-accent hover:border-primary/50 transition-all duration-200"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading}
@@ -190,7 +202,7 @@ export default function LoginPage() {
                 )}
                 Continue with Google
               </Button>
-              
+
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-muted" />
@@ -249,7 +261,7 @@ export default function LoginPage() {
                   }}
                 />
               </div>
-              
+
               <div className="text-center space-y-2">
                 <p className="text-sm text-muted-foreground">
                   New to Stamina Timer?{' '}
@@ -257,8 +269,8 @@ export default function LoginPage() {
                     Create an account above
                   </span>
                 </p>
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <ArrowRight className="mr-1 h-3 w-3 rotate-180" />
@@ -267,13 +279,17 @@ export default function LoginPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <div className="text-center text-xs text-muted-foreground space-y-2">
             <p>
               By signing in, you agree to our{' '}
-              <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
-              {' '}and{' '}
-              <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+              <Link href="/terms" className="text-primary hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-primary hover:underline">
+                Privacy Policy
+              </Link>
             </p>
           </div>
         </div>

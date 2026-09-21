@@ -11,11 +11,13 @@ const { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS, AUTH_RATE_LIMIT_MAX } = A
 
 function parseRateLimitCookie(cookie: string | undefined): number[] {
   if (!cookie) return []
+
   try {
     const timestamps = JSON.parse(cookie) as number[]
     const now = Date.now()
+
     // Filter out old timestamps
-    return timestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW_MS)
+    return timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS)
   } catch {
     return []
   }
@@ -26,13 +28,14 @@ function checkRateLimitCookie(
   maxRequests: number
 ): { allowed: boolean; remaining: number; timestamps: number[] } {
   const now = Date.now()
-  const recentTimestamps = timestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW_MS)
+  const recentTimestamps = timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS)
 
   if (recentTimestamps.length >= maxRequests) {
     return { allowed: false, remaining: 0, timestamps: recentTimestamps }
   }
 
   recentTimestamps.push(now)
+
   return {
     allowed: true,
     remaining: maxRequests - recentTimestamps.length,
@@ -46,7 +49,11 @@ async function hashClientIdentifier(ip: string): Promise<string> {
   const data = encoder.encode(ip)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16)
+
+  return hashArray
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+    .slice(0, 16)
 }
 
 export async function proxy(req: NextRequest) {
@@ -57,9 +64,10 @@ export async function proxy(req: NextRequest) {
   const isApiRoute = pathname.startsWith('/api/')
 
   // Get client identifier (IP or fallback)
-  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                   req.headers.get('x-real-ip') ||
-                   'anonymous'
+  const clientIp =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'anonymous'
 
   // Create rate limit cookie name based on route type and hashed IP
   // Using hash of full IP to avoid collisions while maintaining consistency
@@ -72,7 +80,11 @@ export async function proxy(req: NextRequest) {
   const timestamps = parseRateLimitCookie(existingCookie)
 
   // Check rate limit using cookie-based fallback
-  const { allowed, remaining, timestamps: newTimestamps } = checkRateLimitCookie(timestamps, maxRequests)
+  const {
+    allowed,
+    remaining,
+    timestamps: newTimestamps,
+  } = checkRateLimitCookie(timestamps, maxRequests)
 
   if (!allowed) {
     const response = new NextResponse(
@@ -90,6 +102,7 @@ export async function proxy(req: NextRequest) {
         },
       }
     )
+
     return response
   }
 
@@ -131,17 +144,29 @@ export async function proxy(req: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/license', '/privacy', '/terms', '/auth/callback', '/faq', '/guides']
-  const isPublicRoute = publicRoutes.includes(pathname) ||
-                        pathname.startsWith('/share/') ||
-                        pathname.startsWith('/guides/') ||
-                        pathname === '/offline.html' ||
-                        isApiRoute
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/license',
+    '/privacy',
+    '/terms',
+    '/auth/callback',
+    '/faq',
+    '/guides',
+  ]
+
+  const isPublicRoute =
+    publicRoutes.includes(pathname) ||
+    pathname.startsWith('/share/') ||
+    pathname.startsWith('/guides/') ||
+    pathname === '/offline.html' ||
+    isApiRoute
 
   // If user is not signed in and the route is protected, redirect to login
   if (!user && !isPublicRoute) {
     const url = req.nextUrl.clone()
     url.pathname = '/login'
+
     return NextResponse.redirect(url)
   }
 

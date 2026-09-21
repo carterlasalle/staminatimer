@@ -9,8 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . && oxlint",
+    "lint:fix": "eslint . --fix && oxlint --fix",
+    "lint:oxlint": "oxlint",
+    "lint:oxlint:fix": "oxlint --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -61,6 +63,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@oxlint/plugins": "1.83.0",
     "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/dom": "^10.4.1",
@@ -78,6 +81,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^27.4.0",
+    "oxlint": "1.83.0",
     "postcss": "^8.5.23",
     "prettier": "^3.8.1",
     "sharp": "^0.35.4",

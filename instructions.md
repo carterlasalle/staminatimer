@@ -1,19 +1,21 @@
 # Product Requirements Document (PRD)
-IGNORETHIS
----
+
+## IGNORETHIS
 
 ## **Product Name:** Edging Timer
 
-**Document Version:** 1.0  
+**Document Version:** 1.0
 
 ---
 
 ## **1. Executive Summary**
+
 The **Edging Timer** is a digital tool designed to help men track and improve their sexual stamina through structured timing and data analysis. It provides an easy-to-use interface for managing and analyzing masturbation sessions, with features for timing active activity, pausing when edging, and tracking key metrics for self-improvement. [In Progress]
 
 ---
 
 ## **2. Objectives**
+
 - **Primary Goal:** Enable users to improve sexual stamina by tracking and analyzing edging sessions. [In Progress]
 - **Key Features:**
   - Three distinct timers for session tracking. [Done]
@@ -25,11 +27,11 @@ The **Edging Timer** is a digital tool designed to help men track and improve th
 ## **3. Key Features & Functional Requirements**
 
 ### **3.1. Core Features**
+
 1. **Timers**
    - **Overall Session Timer:** Tracks the entire duration of the session from start to finish. [Done]
    - **Active Masturbation Timer:** Tracks the time spent actively masturbating. [Done]
    - **Edge Timer:** Tracks the time spent in the paused edging state. [Done]
-   
 2. **Session Workflow**
    - Start button initiates the overall session and active masturbation timer. [Done]
    - Edge button pauses the active masturbation timer and starts the edge timer. [Done]
@@ -107,8 +109,8 @@ The **Edging Timer** is a digital tool designed to help men track and improve th
      - Start, Edge, End Edge, and Finish. [Done]
    - Dashboard to display historical data and trends. [Done]
 
-
 ---
+
 Current Directory Structure:
 
 .
@@ -120,29 +122,27 @@ Current Directory Structure:
 ├── package.json
 ├── postcss.config.mjs
 ├── public
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
+│ ├── file.svg
+│ ├── globe.svg
+│ ├── next.svg
+│ ├── vercel.svg
+│ └── window.svg
 ├── src
-│   └── app
-│       ├── favicon.ico
-│       ├── fonts
-│       │   ├── GeistMonoVF.woff
-│       │   └── GeistVF.woff
-│       ├── globals.css
-│       ├── layout.tsx
-│       └── page.tsx
+│ └── app
+│ ├── favicon.ico
+│ ├── fonts
+│ │ ├── GeistMonoVF.woff
+│ │ └── GeistVF.woff
+│ ├── globals.css
+│ ├── layout.tsx
+│ └── page.tsx
 ├── tailwind.config.ts
 └── tsconfig.json
 
-
 Raw Input as Reference:
-k. Its an "Edging timer" aka a timer to increase stamina for men. its a mastermation timer. pretty much. So you click start when you start jerking off. it keeps going untill you click "edge", you clikc that when you are close to finishing and you pause, and the timer pauses, and a new pause timer starts, then you can resume/ end edging when you are done. you click finish when you "fishish" and u can track if u finished during you pause time. It should be all tracked from time, history, bc this is to improve sexual stamina for men. 
+k. Its an "Edging timer" aka a timer to increase stamina for men. its a mastermation timer. pretty much. So you click start when you start jerking off. it keeps going untill you click "edge", you clikc that when you are close to finishing and you pause, and the timer pauses, and a new pause timer starts, then you can resume/ end edging when you are done. you click finish when you "fishish" and u can track if u finished during you pause time. It should be all tracked from time, history, bc this is to improve sexual stamina for men.
 
 Workflow:
-U start masterbating, you then click start, you get close to finishing so you click "edge", you wait until you calm down, then click end edging, then you keep going, then you get close again, you click "edge" again, and then calm down, then you end edging, you keep going, then you finish, so you click finish. You then can check total time(edging plus active masterbating time), materbating time, edging time, time between each edge, avg time between edge, and if you finished during your edge then compare it to every other session, seeing if you are improving or not, 
-
+U start masterbating, you then click start, you get close to finishing so you click "edge", you wait until you calm down, then click end edging, then you keep going, then you get close again, you click "edge" again, and then calm down, then you end edging, you keep going, then you finish, so you click finish. You then can check total time(edging plus active masterbating time), materbating time, edging time, time between each edge, avg time between edge, and if you finished during your edge then compare it to every other session, seeing if you are improving or not,
 
 3 timers pretty much, an overall session timer, a active masterbation timer, and a edge/pause time , timer, kinda, but plus more according to the workflow

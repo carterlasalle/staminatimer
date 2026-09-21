@@ -8,16 +8,7 @@ import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
 import { useEffect, useState } from 'react'
-import { 
-  Clock, 
-  Zap, 
-  Timer, 
-  TrendingUp, 
-  TrendingDown, 
-  BarChart3,
-  Brain,
-  Gauge
-} from 'lucide-react'
+import { Clock, Zap, Timer, TrendingUp, TrendingDown, BarChart3, Brain, Gauge } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Analytics = {
@@ -39,23 +30,31 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
   useEffect(() => {
     async function calculateAnalytics(): Promise<void> {
       setLoading(true)
+
       try {
         let sessionsToAnalyze: DBSession[]
 
         if (externalData) {
           sessionsToAnalyze = externalData
         } else {
-          const { data: { user } } = await supabase.auth.getUser()
+          const {
+            data: { user },
+          } = await supabase.auth.getUser()
+
           if (!user?.id) {
             setAnalytics(null)
+
             return
           }
+
           const { data: sessions, error } = await supabase
             .from('sessions')
-            .select(`
+            .select(
+              `
               *,
               edge_events!fk_session (*)
-            `)
+            `
+            )
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
             .limit(20)
@@ -63,8 +62,10 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           if (error) {
             console.error('Error fetching analytics data:', error)
             setAnalytics(null)
+
             return
           }
+
           sessionsToAnalyze = sessions as DBSession[]
         }
 
@@ -75,7 +76,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           averageEdgeDuration: calculatedStats.averageEdgeDuration,
           averageTimeBetweenEdges: calculatedStats.averageTimeBetweenEdges,
           totalSessions: calculatedStats.totalSessions,
-          improvementRate: calculatedStats.improvementRate
+          improvementRate: calculatedStats.improvementRate,
         })
       } catch (err) {
         console.error('Error calculating analytics:', err)
@@ -88,55 +89,64 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
     calculateAnalytics()
   }, [externalData])
 
-  if (loading) return (
-    <Card>
-      <CardContent className="p-6">
-        <Loading text="Analyzing performance..." className="text-center" />
-      </CardContent>
-    </Card>
-  )
+  if (loading)
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Loading text="Analyzing performance..." className="text-center" />
+        </CardContent>
+      </Card>
+    )
 
-  if (!analytics) return (
-    <Card>
-      <CardContent className="p-6 text-center text-muted-foreground">
-        <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>No analytics data available.</p>
-        <p className="text-xs mt-1">Complete some training sessions to see your performance insights.</p>
-      </CardContent>
-    </Card>
-  )
+  if (!analytics)
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p>No analytics data available.</p>
+          <p className="text-xs mt-1">
+            Complete some training sessions to see your performance insights.
+          </p>
+        </CardContent>
+      </Card>
+    )
 
   const getImprovementStatus = () => {
-    if (analytics.improvementRate >= 10) return {
-      icon: <TrendingUp className="h-5 w-5" />,
-      color: 'text-green-500',
-      bgColor: 'bg-green-500/10',
-      borderColor: 'border-green-500/20',
-      label: 'Excellent Progress!'
-    }
-    if (analytics.improvementRate >= 0) return {
-      icon: <TrendingUp className="h-5 w-5" />,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
-      label: 'Steady Improvement'
-    }
+    if (analytics.improvementRate >= 10)
+      return {
+        icon: <TrendingUp className="h-5 w-5" />,
+        color: 'text-green-500',
+        bgColor: 'bg-green-500/10',
+        borderColor: 'border-green-500/20',
+        label: 'Excellent Progress!',
+      }
+
+    if (analytics.improvementRate >= 0)
+      return {
+        icon: <TrendingUp className="h-5 w-5" />,
+        color: 'text-blue-500',
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/20',
+        label: 'Steady Improvement',
+      }
+
     return {
       icon: <TrendingDown className="h-5 w-5" />,
       color: 'text-orange-500',
       bgColor: 'bg-orange-500/10',
       borderColor: 'border-orange-500/20',
-      label: 'Focus Needed'
+      label: 'Focus Needed',
     }
   }
 
   const improvementStatus = getImprovementStatus()
-  
+
   // Calculate efficiency metrics
-  const edgeRatio = analytics.averageSessionDuration > 0 
-    ? (analytics.averageEdgeDuration / analytics.averageSessionDuration) * 100 
-    : 0
-  
+  const edgeRatio =
+    analytics.averageSessionDuration > 0
+      ? (analytics.averageEdgeDuration / analytics.averageSessionDuration) * 100
+      : 0
+
   const sessionEfficiency = Math.min(100, Math.max(0, 100 - edgeRatio))
 
   return (
@@ -150,7 +160,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           Based on your last {analytics.totalSessions} training sessions
         </p>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -200,25 +210,26 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
           </div>
 
           {/* Improvement Rate */}
-          <div className={cn(
-            "p-4 rounded-lg border transition-all duration-300",
-            improvementStatus.bgColor,
-            improvementStatus.borderColor
-          )}>
+          <div
+            className={cn(
+              'p-4 rounded-lg border transition-all duration-300',
+              improvementStatus.bgColor,
+              improvementStatus.borderColor
+            )}
+          >
             <div className="flex items-center gap-3 mb-2">
-              <div className={cn("p-2 rounded-full", improvementStatus.bgColor)}>
-                <div className={improvementStatus.color}>
-                  {improvementStatus.icon}
-                </div>
+              <div className={cn('p-2 rounded-full', improvementStatus.bgColor)}>
+                <div className={improvementStatus.color}>{improvementStatus.icon}</div>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Improvement</p>
-                <p className={cn("text-lg font-bold", improvementStatus.color)}>
-                  {analytics.improvementRate >= 0 ? '+' : ''}{analytics.improvementRate.toFixed(1)}%
+                <p className={cn('text-lg font-bold', improvementStatus.color)}>
+                  {analytics.improvementRate >= 0 ? '+' : ''}
+                  {analytics.improvementRate.toFixed(1)}%
                 </p>
               </div>
             </div>
-            <p className={cn("text-xs font-medium", improvementStatus.color)}>
+            <p className={cn('text-xs font-medium', improvementStatus.color)}>
               {improvementStatus.label}
             </p>
           </div>
@@ -230,14 +241,12 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
             <Gauge className="h-4 w-4" />
             Performance Insights
           </h4>
-          
+
           {/* Session Efficiency */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Training Efficiency</span>
-              <span className="text-sm text-muted-foreground">
-                {sessionEfficiency.toFixed(0)}%
-              </span>
+              <span className="text-sm text-muted-foreground">{sessionEfficiency.toFixed(0)}%</span>
             </div>
             <Progress value={sessionEfficiency} className="h-2" />
             <p className="text-xs text-muted-foreground">
@@ -269,14 +278,14 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
             </div>
             <div>
               <div className="text-2xl font-bold text-green-500">
-                {analytics.averageTimeBetweenEdges > 0 ? 
-                  Math.round(analytics.averageSessionDuration / analytics.averageTimeBetweenEdges) 
+                {analytics.averageTimeBetweenEdges > 0
+                  ? Math.round(analytics.averageSessionDuration / analytics.averageTimeBetweenEdges)
                   : 0}
               </div>
               <div className="text-xs text-muted-foreground">Avg Edges</div>
             </div>
             <div>
-              <div className={cn("text-2xl font-bold", improvementStatus.color)}>
+              <div className={cn('text-2xl font-bold', improvementStatus.color)}>
                 {analytics.improvementRate >= 0 ? '↗' : '↘'}
               </div>
               <div className="text-xs text-muted-foreground">Trend</div>

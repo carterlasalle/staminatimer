@@ -12,35 +12,35 @@ export class Validator {
     const errors: string[] = []
 
     for (const [field, rule] of Object.entries(rules)) {
-      const value = data[field];
+      const value = data[field]
 
       if (rule.required && (value === undefined || value === null || value === '')) {
         errors.push(`${field} is required`)
-        continue;
+        continue
       }
 
       if (value !== undefined && value !== null) {
         if (rule.min !== undefined) {
           if (typeof value !== 'number') {
-            errors.push(`${field} must be a number to check min value`);
+            errors.push(`${field} must be a number to check min value`)
           } else if (value < rule.min) {
-        errors.push(`${field} must be at least ${rule.min}`)
+            errors.push(`${field} must be at least ${rule.min}`)
           }
-      }
+        }
 
         if (rule.max !== undefined) {
           if (typeof value !== 'number') {
-             errors.push(`${field} must be a number to check max value`);
+            errors.push(`${field} must be a number to check max value`)
           } else if (value > rule.max) {
-        errors.push(`${field} must be at most ${rule.max}`)
+            errors.push(`${field} must be at most ${rule.max}`)
           }
-      }
+        }
 
         if (rule.pattern) {
           if (typeof value !== 'string') {
-            errors.push(`${field} must be a string to check pattern`);
+            errors.push(`${field} must be a string to check pattern`)
           } else if (!rule.pattern.test(value)) {
-        errors.push(`${field} has an invalid format`)
+            errors.push(`${field} has an invalid format`)
           }
         }
       }
@@ -54,4 +54,4 @@ export class Validator {
   static isNumber(value: unknown): value is number {
     return typeof value === 'number' && !isNaN(value)
   }
-} 
+}

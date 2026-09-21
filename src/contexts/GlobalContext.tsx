@@ -28,11 +28,13 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     if (!user) {
       setRecentSessions([])
       setLoading(false)
+
       return
     }
 
     setLoading(true)
     setError(null)
+
     try {
       const { data, error: fetchError } = await supabase
         .from('sessions')
@@ -47,7 +49,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch sessions'))
       toast.error('Could not load session data.')
-      console.error("Error fetching sessions:", err)
+      console.error('Error fetching sessions:', err)
     } finally {
       setLoading(false)
     }
@@ -58,11 +60,14 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
 
     const channel = supabase
       .channel('public:sessions')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
         (_payload: RealtimePostgresChangesPayload<DBSession>) => {
           // Realtime session change received - refresh sessions
           fetchSessions()
-        })
+        }
+      )
       .subscribe()
 
     return () => {
@@ -75,20 +80,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     recentSessions,
     loading,
     error,
-    fetchSessions
+    fetchSessions,
   }
 
-  return (
-    <GlobalContext.Provider value={state}>
-      {children}
-    </GlobalContext.Provider>
-  )
+  return <GlobalContext.Provider value={state}>{children}</GlobalContext.Provider>
 }
 
 export function useGlobal() {
   const context = useContext(GlobalContext)
+
   if (context === undefined) {
     throw new Error('useGlobal must be used within a GlobalProvider')
   }
+
   return context
 }

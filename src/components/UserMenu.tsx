@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu'
 import { supabase } from '@/lib/supabase/client'
 import { LogOut, Settings, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -21,9 +21,12 @@ export function UserMenu() {
 
   useEffect(() => {
     async function getUser(): Promise<void> {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       setEmail(user?.email ?? null)
     }
+
     getUser()
   }, [])
 
@@ -54,9 +57,7 @@ export function UserMenu() {
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {email}
-            </p>
+            <p className="text-xs leading-none text-muted-foreground">{email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -26,12 +26,14 @@ function calculateEntropy(str: string): number {
   if (str.length === 0) return 0
 
   const freq: Record<string, number> = {}
+
   for (const char of str) {
     freq[char] = (freq[char] || 0) + 1
   }
 
   return Object.values(freq).reduce((entropy, count) => {
     const p = count / str.length
+
     return entropy - p * Math.log2(p)
   }, 0)
 }
@@ -59,6 +61,7 @@ const INJECTION_PATTERNS: RegExp[] = [
 ]
 
 const HTML_TAG_PATTERN = /<\/?[a-z][^>]*>/i
+
 const SCRIPT_TAG_PATTERN = /<\s*\/?\s*script\b/i
 
 /**
@@ -78,6 +81,7 @@ export function sanitizeAIInput(input: string): SanitizationResult {
 
   // Word count validation
   const wordCount = processed.split(/\s+/).filter(Boolean).length
+
   if (wordCount > MAX_WORDS) {
     return {
       sanitized: '',
@@ -99,6 +103,7 @@ export function sanitizeAIInput(input: string): SanitizationResult {
 
   // Check for high entropy (potential obfuscation)
   const entropy = calculateEntropy(processed)
+
   if (entropy > HIGH_ENTROPY_THRESHOLD && processed.length > 50) {
     return {
       sanitized: '',

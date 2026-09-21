@@ -1,12 +1,7 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { LineChart } from '@/components/LazyChart'
 import type { DBSession } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
@@ -21,12 +16,13 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
   if (!session) return null
 
   const edgeEvents = session.edge_events ?? []
+
   const chartData = {
     labels: edgeEvents.map((_, index) => `Edge ${index + 1}`),
     datasets: [
       {
         label: 'Edge Duration',
-        data: edgeEvents.map(edge => edge.duration ? Math.round(edge.duration / 1000) : 0),
+        data: edgeEvents.map((edge) => (edge.duration ? Math.round(edge.duration / 1000) : 0)),
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
@@ -34,20 +30,26 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
         label: 'Time Between Edges',
         data: edgeEvents.slice(1).map((edge, index) => {
           const prevEdge = edgeEvents[index]
+
           if (!prevEdge.end_time || !edge.start_time) return 0
-          return Math.round((new Date(edge.start_time).getTime() - new Date(prevEdge.end_time).getTime()) / 1000)
+
+          return Math.round(
+            (new Date(edge.start_time).getTime() - new Date(prevEdge.end_time).getTime()) / 1000
+          )
         }),
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      }
-    ]
+      },
+    ],
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Session Details - {new Date(session.created_at).toLocaleString()}</DialogTitle>
+          <DialogTitle>
+            Session Details - {new Date(session.created_at).toLocaleString()}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-6">
@@ -59,11 +61,15 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
             <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">Total Duration</div>
-                <div className="text-xl font-semibold">{formatDuration(session.total_duration)}</div>
+                <div className="text-xl font-semibold">
+                  {formatDuration(session.total_duration)}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Active Time</div>
-                <div className="text-xl font-semibold">{formatDuration(session.active_duration)}</div>
+                <div className="text-xl font-semibold">
+                  {formatDuration(session.active_duration)}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Edge Time</div>
@@ -96,13 +102,13 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
                         beginAtZero: true,
                         title: {
                           display: true,
-                          text: 'Seconds'
+                          text: 'Seconds',
                         },
                         ticks: {
-                          callback: (value) => `${value}s`
-                        }
-                      }
-                    }
+                          callback: (value) => `${value}s`,
+                        },
+                      },
+                    },
                   }}
                 />
               </div>
@@ -126,7 +132,9 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
                       </div>
                       <div>
                         <div className="text-muted-foreground">End Time</div>
-                        <div>{edge.end_time ? new Date(edge.end_time).toLocaleTimeString() : 'N/A'}</div>
+                        <div>
+                          {edge.end_time ? new Date(edge.end_time).toLocaleTimeString() : 'N/A'}
+                        </div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Duration</div>
@@ -139,7 +147,7 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
                             {edge.start_time && edgeEvents[index - 1].end_time
                               ? formatDuration(
                                   new Date(edge.start_time).getTime() -
-                                  new Date(edgeEvents[index - 1].end_time!).getTime()
+                                    new Date(edgeEvents[index - 1].end_time!).getTime()
                                 )
                               : 'N/A'}
                           </div>
@@ -155,4 +163,4 @@ export function SessionDetails({ session, open, onOpenChange }: SessionDetailsPr
       </DialogContent>
     </Dialog>
   )
-} 
+}

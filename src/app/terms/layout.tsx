@@ -2,7 +2,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Read the terms and conditions for using Stamina Timer. Understand your rights and responsibilities when using our stamina training platform.',
+  description:
+    'Read the terms and conditions for using Stamina Timer. Understand your rights and responsibilities when using our stamina training platform.',
   robots: {
     index: true,
     follow: true,
@@ -13,10 +14,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function TermsLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function TermsLayout({ children }: { children: React.ReactNode }) {
   return children
 }

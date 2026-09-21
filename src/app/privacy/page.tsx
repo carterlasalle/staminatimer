@@ -20,9 +20,10 @@ export default function PrivacyPage() {
         </CardHeader>
         <CardContent className="prose dark:prose-invert max-w-none">
           <p>
-            Welcome to Stamina Timer. This Privacy Policy explains how we collect, use, disclose, and safeguard
-            your information when you use our application and website (the &quot;Service&quot;). Please read this policy
-            carefully. By using the Service, you consent to the practices described in this Privacy Policy.
+            Welcome to Stamina Timer. This Privacy Policy explains how we collect, use, disclose,
+            and safeguard your information when you use our application and website (the
+            &quot;Service&quot;). Please read this policy carefully. By using the Service, you
+            consent to the practices described in this Privacy Policy.
           </p>
 
           <h2>1. Information We Collect</h2>
@@ -53,9 +54,9 @@ export default function PrivacyPage() {
             <li>Interaction timestamps and frequency</li>
           </ul>
           <p>
-            AI prompts are processed through Google Gemini. Your prompts are sanitized before being sent to
-            remove potential security risks. We do not store the full content of AI conversations long-term,
-            but may log metadata for security and abuse prevention.
+            AI prompts are processed through Google Gemini. Your prompts are sanitized before being
+            sent to remove potential security risks. We do not store the full content of AI
+            conversations long-term, but may log metadata for security and abuse prevention.
           </p>
 
           <h3>1.4 Technical Information</h3>
@@ -72,19 +73,40 @@ export default function PrivacyPage() {
           <h3>1.5 Cookies and Local Storage</h3>
           <p>We use:</p>
           <ul>
-            <li><strong>Essential cookies:</strong> Required for authentication and security (CSRF tokens, session cookies)</li>
-            <li><strong>Local storage:</strong> Stores preferences, cached data, and offline session data</li>
-            <li><strong>Analytics cookies:</strong> Microsoft Clarity for usage analytics (with consent where required)</li>
+            <li>
+              <strong>Essential cookies:</strong> Required for authentication and security (CSRF
+              tokens, session cookies)
+            </li>
+            <li>
+              <strong>Local storage:</strong> Stores preferences, cached data, and offline session
+              data
+            </li>
+            <li>
+              <strong>Analytics cookies:</strong> Microsoft Clarity for usage analytics (with
+              consent where required)
+            </li>
           </ul>
 
           <h2>2. How We Use Your Information</h2>
           <p>We use collected information to:</p>
           <ul>
-            <li><strong>Provide the Service:</strong> Process your sessions, track progress, display analytics</li>
-            <li><strong>Maintain security:</strong> Rate limiting, fraud prevention, abuse detection</li>
-            <li><strong>Improve the Service:</strong> Analyze usage patterns, fix bugs, develop new features</li>
-            <li><strong>Communicate:</strong> Send service-related notifications and updates</li>
-            <li><strong>Legal compliance:</strong> Respond to legal requests and enforce our terms</li>
+            <li>
+              <strong>Provide the Service:</strong> Process your sessions, track progress, display
+              analytics
+            </li>
+            <li>
+              <strong>Maintain security:</strong> Rate limiting, fraud prevention, abuse detection
+            </li>
+            <li>
+              <strong>Improve the Service:</strong> Analyze usage patterns, fix bugs, develop new
+              features
+            </li>
+            <li>
+              <strong>Communicate:</strong> Send service-related notifications and updates
+            </li>
+            <li>
+              <strong>Legal compliance:</strong> Respond to legal requests and enforce our terms
+            </li>
           </ul>
 
           <h2>3. Data Sharing and Disclosure</h2>
@@ -130,7 +152,8 @@ export default function PrivacyPage() {
 
           <h3>3.2 We Do Not Sell Your Data</h3>
           <p>
-            We do not sell, rent, or trade your personal information to third parties for marketing purposes.
+            We do not sell, rent, or trade your personal information to third parties for marketing
+            purposes.
           </p>
 
           <h3>3.3 Legal Requirements</h3>
@@ -145,26 +168,54 @@ export default function PrivacyPage() {
           <h2>4. Data Security</h2>
           <p>We implement multiple layers of security to protect your data:</p>
           <ul>
-            <li><strong>Encryption:</strong> Data is encrypted in transit (TLS/HTTPS) and at rest</li>
-            <li><strong>Authentication:</strong> Secure OAuth 2.0 with trusted providers</li>
-            <li><strong>Access control:</strong> Row-level security ensures you can only access your own data</li>
-            <li><strong>CSRF protection:</strong> All state-changing requests require valid CSRF tokens</li>
-            <li><strong>Rate limiting:</strong> Protects against brute force and abuse attacks</li>
-            <li><strong>Input validation:</strong> All user input is validated and sanitized server-side</li>
-            <li><strong>Security headers:</strong> Strict CSP, HSTS, and other protective headers</li>
+            <li>
+              <strong>Encryption:</strong> Data is encrypted in transit (TLS/HTTPS) and at rest
+            </li>
+            <li>
+              <strong>Authentication:</strong> Secure OAuth 2.0 with trusted providers
+            </li>
+            <li>
+              <strong>Access control:</strong> Row-level security ensures you can only access your
+              own data
+            </li>
+            <li>
+              <strong>CSRF protection:</strong> All state-changing requests require valid CSRF
+              tokens
+            </li>
+            <li>
+              <strong>Rate limiting:</strong> Protects against brute force and abuse attacks
+            </li>
+            <li>
+              <strong>Input validation:</strong> All user input is validated and sanitized
+              server-side
+            </li>
+            <li>
+              <strong>Security headers:</strong> Strict CSP, HSTS, and other protective headers
+            </li>
           </ul>
           <p>
-            While we take security seriously, no method of transmission over the Internet is 100% secure.
-            We cannot guarantee absolute security of your data.
+            While we take security seriously, no method of transmission over the Internet is 100%
+            secure. We cannot guarantee absolute security of your data.
           </p>
 
           <h2>5. Data Retention</h2>
           <ul>
-            <li><strong>Active accounts:</strong> Data retained while your account is active</li>
-            <li><strong>Deleted accounts:</strong> Data deleted within 30 days of account deletion</li>
-            <li><strong>Shared sessions:</strong> Automatically expire based on selected duration (1 hour to 30 days, or never)</li>
-            <li><strong>Analytics data:</strong> Anonymized analytics retained for up to 24 months</li>
-            <li><strong>Security logs:</strong> Retained for up to 90 days for abuse prevention</li>
+            <li>
+              <strong>Active accounts:</strong> Data retained while your account is active
+            </li>
+            <li>
+              <strong>Deleted accounts:</strong> Data deleted within 30 days of account deletion
+            </li>
+            <li>
+              <strong>Shared sessions:</strong> Automatically expire based on selected duration (1
+              hour to 30 days, or never)
+            </li>
+            <li>
+              <strong>Analytics data:</strong> Anonymized analytics retained for up to 24 months
+            </li>
+            <li>
+              <strong>Security logs:</strong> Retained for up to 90 days for abuse prevention
+            </li>
           </ul>
 
           <h2>6. Your Rights and Choices</h2>
@@ -215,16 +266,16 @@ export default function PrivacyPage() {
 
           <h2>7. Children&apos;s Privacy</h2>
           <p>
-            The Service is intended for users 18 years of age or older. We do not knowingly collect personal
-            information from anyone under 18. If we become aware that we have collected data from a minor,
-            we will take steps to delete such information promptly.
+            The Service is intended for users 18 years of age or older. We do not knowingly collect
+            personal information from anyone under 18. If we become aware that we have collected
+            data from a minor, we will take steps to delete such information promptly.
           </p>
 
           <h2>8. International Data Transfers</h2>
           <p>
-            Your information may be transferred to and processed in countries other than your country of
-            residence. These countries may have different data protection laws. When we transfer data
-            internationally, we ensure appropriate safeguards are in place, including:
+            Your information may be transferred to and processed in countries other than your
+            country of residence. These countries may have different data protection laws. When we
+            transfer data internationally, we ensure appropriate safeguards are in place, including:
           </p>
           <ul>
             <li>Standard contractual clauses approved by regulatory authorities</li>
@@ -234,14 +285,15 @@ export default function PrivacyPage() {
 
           <h2>9. Third-Party Links</h2>
           <p>
-            The Service may contain links to third-party websites or services. We are not responsible for
-            the privacy practices of these third parties. We encourage you to read the privacy policies of
-            any third-party sites you visit.
+            The Service may contain links to third-party websites or services. We are not
+            responsible for the privacy practices of these third parties. We encourage you to read
+            the privacy policies of any third-party sites you visit.
           </p>
 
           <h2>10. Changes to This Policy</h2>
           <p>
-            We may update this Privacy Policy from time to time. We will notify you of any material changes by:
+            We may update this Privacy Policy from time to time. We will notify you of any material
+            changes by:
           </p>
           <ul>
             <li>Posting the updated policy on this page with a new effective date</li>
@@ -249,27 +301,49 @@ export default function PrivacyPage() {
             <li>Displaying a notice within the Service</li>
           </ul>
           <p>
-            Your continued use of the Service after any changes indicates your acceptance of the updated policy.
+            Your continued use of the Service after any changes indicates your acceptance of the
+            updated policy.
           </p>
 
           <h2>11. Contact Information</h2>
-          <p>For privacy-related questions, concerns, or to exercise your rights, please contact:</p>
+          <p>
+            For privacy-related questions, concerns, or to exercise your rights, please contact:
+          </p>
           <ul>
             <li>Email: carterlasalle@gmail.com</li>
-            <li>GitHub: <a href="https://github.com/carterlasalle/staminatimer" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">github.com/carterlasalle/staminatimer</a></li>
+            <li>
+              GitHub:{' '}
+              <a
+                href="https://github.com/carterlasalle/staminatimer"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/carterlasalle/staminatimer
+              </a>
+            </li>
           </ul>
           <p>
-            We will respond to your request within 30 days. For EU residents, you may also contact the data
-            protection authority in your country if you have concerns about our data practices.
+            We will respond to your request within 30 days. For EU residents, you may also contact
+            the data protection authority in your country if you have concerns about our data
+            practices.
           </p>
 
           <h2>12. Legal Basis for Processing (GDPR)</h2>
           <p>We process personal data under the following legal bases:</p>
           <ul>
-            <li><strong>Contract:</strong> Processing necessary to provide the Service you requested</li>
-            <li><strong>Consent:</strong> Where you have given explicit consent (e.g., analytics)</li>
-            <li><strong>Legitimate interests:</strong> Security, fraud prevention, service improvement</li>
-            <li><strong>Legal obligation:</strong> Compliance with applicable laws</li>
+            <li>
+              <strong>Contract:</strong> Processing necessary to provide the Service you requested
+            </li>
+            <li>
+              <strong>Consent:</strong> Where you have given explicit consent (e.g., analytics)
+            </li>
+            <li>
+              <strong>Legitimate interests:</strong> Security, fraud prevention, service improvement
+            </li>
+            <li>
+              <strong>Legal obligation:</strong> Compliance with applicable laws
+            </li>
           </ul>
         </CardContent>
       </Card>

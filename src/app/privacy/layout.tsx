@@ -2,7 +2,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Learn how Stamina Timer protects your privacy. Your data is encrypted, never shared, and you maintain full control. Complete privacy for your personal training.',
+  description:
+    'Learn how Stamina Timer protects your privacy. Your data is encrypted, never shared, and you maintain full control. Complete privacy for your personal training.',
   robots: {
     index: true,
     follow: true,
@@ -13,10 +14,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PrivacyLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function PrivacyLayout({ children }: { children: React.ReactNode }) {
   return children
 }

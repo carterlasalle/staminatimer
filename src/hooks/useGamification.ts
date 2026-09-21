@@ -14,25 +14,35 @@ export function useGamification() {
   useEffect(() => {
     async function fetch() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
         if (!user) {
           setUserAchievements([])
+
           return
         }
+
         const { data } = await supabase
           .from('user_achievements')
           .select('*, achievement:achievements(*)')
           .eq('user_id', user.id)
+
         setUserAchievements((data as UserAchievement[]) || [])
       } finally {
         setLoading(false)
       }
     }
+
     fetch()
   }, [])
 
   const points = useMemo(() => {
-    return userAchievements.reduce((acc, ua) => acc + (ua.progress === 100 ? (ua.achievement.points || 0) : 0), 0)
+    return userAchievements.reduce(
+      (acc, ua) => acc + (ua.progress === 100 ? ua.achievement.points || 0 : 0),
+      0
+    )
   }, [userAchievements])
 
   const level = useMemo(() => {
@@ -40,6 +50,7 @@ export function useGamification() {
     const lvl = Math.floor(points / 100) + 1
     const currentLevelXp = points % 100
     const progressPct = Math.min(100, Math.round((currentLevelXp / 100) * 100))
+
     return { level: lvl, progressPct, currentLevelXp }
   }, [points])
 
@@ -58,6 +69,7 @@ function computeStreak(sessions: DBSession[]): number {
 
   // Get unique dates with successful sessions (not finished during edge)
   const successfulDates = new Set<string>()
+
   for (const session of sessions) {
     if (!session.finished_during_edge) {
       const dateStr = getUTCDateString(new Date(session.created_at))
@@ -76,6 +88,7 @@ function computeStreak(sessions: DBSession[]): number {
   const yesterday = getUTCDateString(new Date(Date.now() - 86400000))
 
   const mostRecent = sortedDates[0]
+
   if (mostRecent !== today && mostRecent !== yesterday) {
     return 0 // Streak is broken - no activity in the grace period
   }
@@ -104,4 +117,3 @@ function computeStreak(sessions: DBSession[]): number {
 
   return streak
 }
-

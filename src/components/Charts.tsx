@@ -29,44 +29,54 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
   const { theme } = useTheme()
   const { loading: globalLoading, recentSessions } = useGlobal()
 
-  const isLoading = externalData === undefined && globalLoading;
+  const isLoading = externalData === undefined && globalLoading
 
-  const processSessionsForChart = useCallback((sessions: DBSession[]): LineChartData => {
-    const sortedSessions = [...sessions].sort((a, b) => 
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    )
+  const processSessionsForChart = useCallback(
+    (sessions: DBSession[]): LineChartData => {
+      const sortedSessions = [...sessions].sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )
 
-    return {
-      labels: sortedSessions.map(s => new Date(s.created_at).toLocaleTimeString()),
-      datasets: [
-        {
-          label: 'Total Duration',
-          data: sortedSessions.map(s => s.total_duration ? Math.round(s.total_duration / 1000 / 60 * 100) / 100 : 0),
-          borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
-          backgroundColor: theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
-          tension: 0.1
-        },
-        {
-          label: 'Edge Duration',
-          data: sortedSessions.map(s => s.edge_duration ? Math.round(s.edge_duration / 1000 / 60 * 100) / 100 : 0),
-          borderColor: theme === 'dark' ? 'rgb(251, 113, 133)' : 'rgb(239, 68, 68)',
-          backgroundColor: theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-          tension: 0.1
-        }
-      ]
-    }
-  }, [theme])
+      return {
+        labels: sortedSessions.map((s) => new Date(s.created_at).toLocaleTimeString()),
+        datasets: [
+          {
+            label: 'Total Duration',
+            data: sortedSessions.map((s) =>
+              s.total_duration ? Math.round((s.total_duration / 1000 / 60) * 100) / 100 : 0
+            ),
+            borderColor: theme === 'dark' ? 'rgb(134, 239, 172)' : 'rgb(75, 192, 192)',
+            backgroundColor:
+              theme === 'dark' ? 'rgba(134, 239, 172, 0.5)' : 'rgba(75, 192, 192, 0.5)',
+            tension: 0.1,
+          },
+          {
+            label: 'Edge Duration',
+            data: sortedSessions.map((s) =>
+              s.edge_duration ? Math.round((s.edge_duration / 1000 / 60) * 100) / 100 : 0
+            ),
+            borderColor: theme === 'dark' ? 'rgb(251, 113, 133)' : 'rgb(239, 68, 68)',
+            backgroundColor:
+              theme === 'dark' ? 'rgba(248, 113, 113, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+            tension: 0.1,
+          },
+        ],
+      }
+    },
+    [theme]
+  )
 
   useEffect(() => {
-    let sessionsToProcess: DBSession[] | undefined;
+    let sessionsToProcess: DBSession[] | undefined
 
-        if (externalData) {
+    if (externalData) {
       sessionsToProcess = externalData
     } else if (!globalLoading && recentSessions) {
       sessionsToProcess = recentSessions
     } else {
-          setChartData(null)
-      return;
+      setChartData(null)
+
+      return
     }
 
     if (!sessionsToProcess || sessionsToProcess.length === 0) {
@@ -117,40 +127,40 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
         title: {
           display: true,
           text: 'Duration (minutes)',
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
         },
         ticks: {
           callback: (value) => `${value}m`,
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
         },
         grid: {
-          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-        }
+          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
       },
       x: {
         ticks: {
           maxRotation: 45,
           minRotation: 45,
-          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46'
+          color: theme === 'dark' ? '#a1a1aa' : '#3f3f46',
         },
         grid: {
-          display: false
-        }
-      }
+          display: false,
+        },
+      },
     },
     plugins: {
       legend: {
         position: 'top',
         labels: {
-          color: theme === 'dark' ? '#e2e8f0' : '#1e293b'
-        }
+          color: theme === 'dark' ? '#e2e8f0' : '#1e293b',
+        },
       },
       tooltip: {
         callbacks: {
-          label: (context) => `${context.dataset.label}: ${context.parsed.y}m`
-        }
-      }
-    }
+          label: (context) => `${context.dataset.label}: ${context.parsed.y}m`,
+        },
+      },
+    },
   }
 
   return (

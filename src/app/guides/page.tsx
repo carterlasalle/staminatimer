@@ -1,15 +1,40 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { generatePageMetadata, SITE_CONFIG } from '@/lib/seo/config'
-import { EXPANDED_GUIDE_TOPICS, EXPANDED_CATEGORIES, getFeaturedGuides } from '@/lib/seo/guides-data'
+import {
+  EXPANDED_GUIDE_TOPICS,
+  EXPANDED_CATEGORIES,
+  getFeaturedGuides,
+} from '@/lib/seo/guides-data'
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd'
-import { Timer, BookOpen, ArrowRight, Brain, Dumbbell, Heart, Calendar, Beaker, Users, Wrench, Zap, AlertCircle, Salad } from 'lucide-react'
+import {
+  Timer,
+  BookOpen,
+  ArrowRight,
+  Brain,
+  Dumbbell,
+  Heart,
+  Calendar,
+  Beaker,
+  Users,
+  Wrench,
+  Zap,
+  AlertCircle,
+  Salad,
+} from 'lucide-react'
 
 export const metadata: Metadata = generatePageMetadata({
   title: 'Stamina Training Guides - Expert Tips & Techniques',
-  description: 'Comprehensive guides on stamina training, edging techniques, kegel exercises, and proven methods to build lasting control. Science-backed advice for real results.',
+  description:
+    'Comprehensive guides on stamina training, edging techniques, kegel exercises, and proven methods to build lasting control. Science-backed advice for real results.',
   path: '/guides',
-  keywords: ['stamina guides', 'stamina training tips', 'how to last longer', 'stamina techniques', 'edging guide'],
+  keywords: [
+    'stamina guides',
+    'stamina training tips',
+    'how to last longer',
+    'stamina techniques',
+    'edging guide',
+  ],
 })
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -28,19 +53,36 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 export default function GuidesPage() {
   // Group guides by category
-  const guidesByCategory = EXPANDED_GUIDE_TOPICS.reduce((acc, guide) => {
-    if (!acc[guide.category]) {
-      acc[guide.category] = []
-    }
-    acc[guide.category].push(guide)
-    return acc
-  }, {} as Record<string, typeof EXPANDED_GUIDE_TOPICS[number][]>)
+  const guidesByCategory = EXPANDED_GUIDE_TOPICS.reduce(
+    (acc, guide) => {
+      if (!acc[guide.category]) {
+        acc[guide.category] = []
+      }
+
+      acc[guide.category].push(guide)
+
+      return acc
+    },
+    {} as Record<string, (typeof EXPANDED_GUIDE_TOPICS)[number][]>
+  )
 
   const featuredGuides = getFeaturedGuides()
 
   // Order categories for display
-  const categoryOrder = ['fundamentals', 'techniques', 'exercises', 'mental', 'routines', 'problems', 'lifestyle', 'relationships', 'science', 'tools', 'advanced']
-  const orderedCategories = categoryOrder.filter(cat => guidesByCategory[cat])
+  const categoryOrder = [
+    'fundamentals',
+    'techniques',
+    'exercises',
+    'mental',
+    'routines',
+    'problems',
+    'lifestyle',
+    'relationships',
+    'science',
+    'tools',
+    'advanced',
+  ]
+  const orderedCategories = categoryOrder.filter((cat) => guidesByCategory[cat])
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,14 +97,27 @@ export default function GuidesPage() {
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <Link href="/" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            >
               <Timer className="w-5 h-5" />
               <span className="font-semibold">Stamina Timer</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/guides" className="text-foreground font-medium">Guides</Link>
-              <Link href="/faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</Link>
-              <Link href="/login" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+              <Link href="/guides" className="text-foreground font-medium">
+                Guides
+              </Link>
+              <Link
+                href="/faq"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/login"
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              >
                 Start Training
               </Link>
             </nav>
@@ -73,11 +128,10 @@ export default function GuidesPage() {
       {/* Hero Section */}
       <section className="py-16 md:py-24 border-b border-border">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Stamina Training Guides
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Stamina Training Guides</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
-            {EXPANDED_GUIDE_TOPICS.length}+ comprehensive guides on building lasting stamina and control.
+            {EXPANDED_GUIDE_TOPICS.length}+ comprehensive guides on building lasting stamina and
+            control.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Science-backed techniques and expert advice for real results.
@@ -113,9 +167,7 @@ export default function GuidesPage() {
                   <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                     {guide.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm line-clamp-2">
-                    {guide.description}
-                  </p>
+                  <p className="text-muted-foreground text-sm line-clamp-2">{guide.description}</p>
                 </Link>
               ))}
             </div>
@@ -129,6 +181,7 @@ export default function GuidesPage() {
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {orderedCategories.map((category) => {
               const cat = EXPANDED_CATEGORIES[category as keyof typeof EXPANDED_CATEGORIES]
+
               return (
                 <a
                   key={category}
@@ -137,7 +190,9 @@ export default function GuidesPage() {
                 >
                   {categoryIcons[category]}
                   {cat?.title || category}
-                  <span className="text-xs text-muted-foreground">({guidesByCategory[category].length})</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({guidesByCategory[category].length})
+                  </span>
                 </a>
               )
             })}
@@ -159,9 +214,7 @@ export default function GuidesPage() {
                     {categoryIcons[category]}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">
-                      {cat?.title || category}
-                    </h2>
+                    <h2 className="text-2xl font-bold">{cat?.title || category}</h2>
                     <p className="text-sm text-muted-foreground">
                       {cat?.description} • {guides.length} guides
                     </p>
@@ -208,7 +261,9 @@ export default function GuidesPage() {
               <div className="text-sm text-muted-foreground">Training Guides</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-primary">{Object.keys(EXPANDED_CATEGORIES).length}</div>
+              <div className="text-3xl font-bold text-primary">
+                {Object.keys(EXPANDED_CATEGORIES).length}
+              </div>
               <div className="text-sm text-muted-foreground">Categories</div>
             </div>
             <div>
@@ -226,12 +281,10 @@ export default function GuidesPage() {
       {/* CTA Section */}
       <section className="py-16 border-t border-border">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Ready to Put This Into Practice?
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Put This Into Practice?</h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Start tracking your progress with our free stamina training app.
-            Get personalized insights and see real improvement in weeks.
+            Start tracking your progress with our free stamina training app. Get personalized
+            insights and see real improvement in weeks.
           </p>
           <Link
             href="/login"
@@ -252,11 +305,21 @@ export default function GuidesPage() {
               <span className="font-semibold">Stamina Timer</span>
             </Link>
             <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
-              <Link href="/guides" className="hover:text-foreground transition-colors">Guides</Link>
-              <Link href="/faq" className="hover:text-foreground transition-colors">FAQ</Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/" className="hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link href="/guides" className="hover:text-foreground transition-colors">
+                Guides
+              </Link>
+              <Link href="/faq" className="hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
             </nav>
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Stamina Timer

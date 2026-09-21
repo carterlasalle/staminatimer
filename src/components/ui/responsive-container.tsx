@@ -13,23 +13,25 @@ const maxWidthMap = {
   lg: 'max-w-(--breakpoint-lg)',
   xl: 'max-w-(--breakpoint-xl)',
   '2xl': 'max-w-(--breakpoint-2xl)',
-  'full': 'max-w-full'
+  full: 'max-w-full',
 }
 
-export function ResponsiveContainer({ 
-  children, 
+export function ResponsiveContainer({
+  children,
   className,
   maxWidth = 'xl',
-  padding = true
+  padding = true,
 }: ResponsiveContainerProps) {
   return (
-    <div className={cn(
-      'mx-auto w-full',
-      maxWidthMap[maxWidth],
-      padding && 'px-4 sm:px-6 lg:px-8',
-      className
-    )}>
+    <div
+      className={cn(
+        'mx-auto w-full',
+        maxWidthMap[maxWidth],
+        padding && 'px-4 sm:px-6 lg:px-8',
+        className
+      )}
+    >
       {children}
     </div>
   )
-} 
+}

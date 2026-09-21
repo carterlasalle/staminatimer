@@ -12,6 +12,7 @@ if (!CSRF_SECRET && typeof window === 'undefined') {
 
 // Use the secret or fallback to a development-only value
 const SECRET = CSRF_SECRET || 'development-csrf-secret-do-not-use-in-production'
+
 const TOKEN_MAX_AGE_MS = 15 * 60 * 1000 // 15 minutes
 
 // Text encoder for Web Crypto API
@@ -23,8 +24,9 @@ const encoder = new TextEncoder()
 function getRandomBytes(length: number): string {
   const bytes = new Uint8Array(length)
   crypto.getRandomValues(bytes)
+
   return Array.from(bytes)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }
 
@@ -40,14 +42,10 @@ async function createHmacSignature(message: string, secret: string): Promise<str
     ['sign']
   )
 
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(message)
-  )
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message))
 
   return Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }
 
@@ -73,6 +71,7 @@ export async function validateCSRFToken(tokenString: string): Promise<boolean> {
   }
 
   const parts = tokenString.split(':')
+
   if (parts.length !== 3) {
     return false
   }
@@ -81,6 +80,7 @@ export async function validateCSRFToken(tokenString: string): Promise<boolean> {
 
   // Check token age
   const tokenAge = Date.now() - parseInt(timestamp, 10)
+
   if (isNaN(tokenAge) || tokenAge > TOKEN_MAX_AGE_MS) {
     return false
   }
@@ -116,6 +116,7 @@ function timingSafeEqual(a: string, b: string): boolean {
   }
 
   let result = 0
+
   for (let i = 0; i < a.length; i++) {
     result |= a.charCodeAt(i) ^ b.charCodeAt(i)
   }

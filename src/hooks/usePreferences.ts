@@ -18,6 +18,7 @@ export function usePreferences() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY)
+
       if (raw) setPrefs({ ...defaultPrefs, ...JSON.parse(raw) })
     } catch {
       // ignore
@@ -39,4 +40,3 @@ export function usePreferences() {
     },
   }
 }
-

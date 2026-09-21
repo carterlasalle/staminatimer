@@ -19,7 +19,7 @@ let lastTableFinalY = 0
 
 export async function generatePDF(sessions: DBSession[]) {
   const doc = new jsPDF() as CustomJsPDF
-  
+
   // Set dark theme colors
   const colors = {
     primary: '#e5e5e5',
@@ -27,19 +27,19 @@ export async function generatePDF(sessions: DBSession[]) {
     accent: '#3b82f6',
     background: '#18181b',
     success: '#22c55e',
-    warning: '#f59e0b'
+    warning: '#f59e0b',
   }
 
   // Add dark background
   doc.setFillColor(colors.background)
   doc.rect(0, 0, doc.internal.pageSize.width, doc.internal.pageSize.height, 'F')
-  
+
   // Add title
   doc.setTextColor(colors.primary)
   doc.setFontSize(24)
   doc.setFont('helvetica', 'bold')
   doc.text('Stamina Training Report', 20, 20)
-  
+
   // Add timestamp
   doc.setFontSize(10)
   doc.setTextColor(colors.secondary)
@@ -54,13 +54,15 @@ export async function generatePDF(sessions: DBSession[]) {
   const totalDuration = sessions.reduce((acc, s) => acc + s.total_duration, 0)
   const totalEdges = sessions.reduce((acc, s) => acc + (s.edge_events?.length ?? 0), 0)
   const avgEdgesPerSession = totalSessions > 0 ? totalEdges / totalSessions : 0
-  const successRate = (sessions.filter(s => !s.finished_during_edge).length / totalSessions) * 100
-  const longestSession = Math.max(...sessions.map(s => s.total_duration))
-  const avgEdgeDuration = totalEdges > 0 ? sessions.reduce((acc, s) => acc + s.edge_duration, 0) / totalEdges : 0
+  const successRate = (sessions.filter((s) => !s.finished_during_edge).length / totalSessions) * 100
+  const longestSession = Math.max(...sessions.map((s) => s.total_duration))
+  const avgEdgeDuration =
+    totalEdges > 0 ? sessions.reduce((acc, s) => acc + s.edge_duration, 0) / totalEdges : 0
 
   // Add stats grid
   doc.setFontSize(12)
   doc.setTextColor(colors.secondary)
+
   const stats = [
     ['Total Sessions', totalSessions.toString()],
     ['Total Training Time', formatDuration(totalDuration)],
@@ -68,7 +70,7 @@ export async function generatePDF(sessions: DBSession[]) {
     ['Average Edges/Session', isNaN(avgEdgesPerSession) ? 'N/A' : avgEdgesPerSession.toFixed(1)],
     ['Success Rate', `${successRate.toFixed(1)}%`],
     ['Longest Session', formatDuration(longestSession)],
-    ['Average Edge Duration', formatDuration(avgEdgeDuration)]
+    ['Average Edge Duration', formatDuration(avgEdgeDuration)],
   ]
 
   autoTable(doc, {
@@ -83,11 +85,11 @@ export async function generatePDF(sessions: DBSession[]) {
     },
     columnStyles: {
       0: { fontStyle: 'bold', textColor: colors.secondary },
-      1: { halign: 'right' }
+      1: { halign: 'right' },
     },
     didDrawPage: (data) => {
       lastTableFinalY = data.cursor?.y ?? 55
-    }
+    },
   })
 
   // Add recent sessions
@@ -95,14 +97,16 @@ export async function generatePDF(sessions: DBSession[]) {
   doc.setTextColor(colors.primary)
   doc.text('Recent Sessions', 20, lastTableFinalY + 20)
 
-  const sessionData = sessions.map(session => [
+  const sessionData = sessions.map((session) => [
     new Date(session.created_at).toLocaleDateString(),
     formatDuration(session.total_duration),
     formatDuration(session.edge_duration),
     session.edge_events?.length ?? 0,
     // Handle division by zero for avg edge duration per session
-    (session.edge_events?.length ?? 0) > 0 ? formatDuration(session.edge_duration / session.edge_events!.length) : 'N/A',
-    session.finished_during_edge ? '❌' : '✅'
+    (session.edge_events?.length ?? 0) > 0
+      ? formatDuration(session.edge_duration / session.edge_events!.length)
+      : 'N/A',
+    session.finished_during_edge ? '❌' : '✅',
   ])
 
   autoTable(doc, {
@@ -120,14 +124,14 @@ export async function generatePDF(sessions: DBSession[]) {
     headStyles: {
       fillColor: colors.accent,
       textColor: colors.primary,
-      fontStyle: 'bold'
+      fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: '#1f1f23'
+      fillColor: '#1f1f23',
     },
     didDrawPage: (data) => {
       lastTableFinalY = data.cursor?.y ?? lastTableFinalY
-    }
+    },
   })
 
   // Add edge analysis
@@ -139,15 +143,20 @@ export async function generatePDF(sessions: DBSession[]) {
   doc.setTextColor(colors.primary)
   doc.text('Edge Analysis', 20, lastTableFinalY + 20)
 
-  const edgeData = sessions.flatMap(session => 
-    (session.edge_events ?? []).map((edge, index: number) => [ // Handle potentially null edge_events
+  const edgeData = sessions.flatMap((session) =>
+    (session.edge_events ?? []).map((edge, index: number) => [
+      // Handle potentially null edge_events
       new Date(session.created_at).toLocaleDateString(),
       `Edge ${index + 1}`,
       formatDuration(edge.duration ?? 0),
       // Recovery time calculation requires logic beyond simple edge duration
-      edge.end_time && index > 0 && session.edge_events?.[index-1]?.end_time ? formatDuration( // Requires previous edge end_time
-        new Date(edge.start_time).getTime() - new Date(session.edge_events[index-1].end_time!).getTime()
-      ) : 'N/A'
+      edge.end_time && index > 0 && session.edge_events?.[index - 1]?.end_time
+        ? formatDuration(
+            // Requires previous edge end_time
+            new Date(edge.start_time).getTime() -
+              new Date(session.edge_events[index - 1].end_time!).getTime()
+          )
+        : 'N/A',
     ])
   )
 
@@ -166,17 +175,18 @@ export async function generatePDF(sessions: DBSession[]) {
     headStyles: {
       fillColor: colors.accent,
       textColor: colors.primary,
-      fontStyle: 'bold'
+      fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: '#1f1f23'
-    }
+      fillColor: '#1f1f23',
+    },
   })
 
   // Add footer
   const pageCount = doc.internal.getNumberOfPages()
   doc.setFontSize(10)
   doc.setTextColor(colors.secondary)
+
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.text(

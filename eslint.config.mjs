@@ -1,52 +1,67 @@
-import nextPlugin from "@next/eslint-plugin-next";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import tseslint from "typescript-eslint";
+import nextPlugin from '@next/eslint-plugin-next'
+import reactPlugin from 'eslint-plugin-react'
+import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
     ignores: [
-      ".next/**",
-      "node_modules/**",
-      "public/**",
-      "scripts/**",
-      "*.config.js",
-      "*.config.ts",
-      "next-env.d.ts",
+      '.next/**',
+      'node_modules/**',
+      'public/**',
+      'scripts/**',
+      '*.config.js',
+      '*.config.ts',
+      'next-env.d.ts',
+      '.yarn/**',
+      'supabase/.temp/**',
+      '.agent/**',
+      '.agents/**',
+      '.claude/**',
+      '.codex/**',
+      '.continue/**',
+      '.cursor/**',
+      '.gemini/**',
+      '.omp/**',
+      '.opencode/**',
+      '.pi/**',
+      '.roo/**',
+      '.windsurf/**',
+      'tools/oxlint/anti-slop/**',
     ],
   },
   {
-    files: ["**/*.{ts,tsx,js,jsx}"],
+    files: ['**/*.{ts,tsx,js,jsx}'],
     plugins: {
-      "@next/next": nextPlugin,
-      "react": reactPlugin,
-      "react-hooks": reactHooksPlugin,
+      '@next/next': nextPlugin,
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
     },
     rules: {
       // Next.js rules
       ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
 
       // React rules
-      "react/react-in-jsx-scope": "off",
-      "react/no-unescaped-entities": "off",
+      'react/react-in-jsx-scope': 'off',
+      'react/no-unescaped-entities': 'off',
 
       // React Hooks rules
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
 
       // TypeScript rules
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
 
       // Custom overrides
-      "@next/next/no-page-custom-font": "off", // We use App Router with fonts in layout.tsx
+      '@next/next/no-page-custom-font': 'off', // We use App Router with fonts in layout.tsx
     },
     settings: {
       react: {
-        version: "detect",
+        version: 'detect',
       },
     },
   },
-  ...tseslint.configs.recommended,
-);
+  ...tseslint.configs.recommended
+)

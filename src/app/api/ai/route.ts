@@ -23,29 +23,22 @@ export async function POST(request: NextRequest) {
   try {
     // SECURITY: Validate request origin to prevent CSRF
     if (!isAllowedRequestOrigin(request, ALLOWED_ORIGINS)) {
-      return NextResponse.json(
-        { error: 'Invalid request origin' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
     }
 
     // SECURITY: Validate CSRF token
     const csrfToken = getCSRFTokenFromHeaders(request.headers)
     const csrfCookie = request.cookies.get('csrf-token')?.value ?? null
+
     if (!csrfToken || !(await validateCSRFTokenWithCookie(csrfToken, csrfCookie))) {
-      return NextResponse.json(
-        { error: 'Invalid or missing CSRF token' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Invalid or missing CSRF token' }, { status: 403 })
     }
 
     // SECURITY: Check request body size before parsing
     const contentLength = request.headers.get('content-length')
+
     if (contentLength && parseInt(contentLength, 10) > MAX_BODY_SIZE) {
-      return NextResponse.json(
-        { error: 'Request body too large' },
-        { status: 413 }
-      )
+      return NextResponse.json({ error: 'Request body too large' }, { status: 413 })
     }
 
     // Get API key from server-side environment (NOT NEXT_PUBLIC_)
@@ -53,14 +46,13 @@ export async function POST(request: NextRequest) {
 
     if (!API_KEY) {
       console.error('Missing GEMINI_API_KEY environment variable')
-      return NextResponse.json(
-        { error: 'AI service not configured' },
-        { status: 503 }
-      )
+
+      return NextResponse.json({ error: 'AI service not configured' }, { status: 503 })
     }
 
     // Verify user is authenticated
     const cookieStore = await cookies()
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -78,13 +70,13 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Rate limiting by user ID using Redis (or fallback)
@@ -100,7 +92,7 @@ export async function POST(request: NextRequest) {
             'X-RateLimit-Remaining': String(remaining),
             'X-RateLimit-Reset': String(reset),
             'Retry-After': '60',
-          }
+          },
         }
       )
     }
@@ -110,28 +102,32 @@ export async function POST(request: NextRequest) {
     const { prompt } = body
 
     if (!prompt || typeof prompt !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid request: prompt is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid request: prompt is required' }, { status: 400 })
     }
 
     // Limit prompt length to prevent abuse
     if (prompt.length > VALIDATION_CONSTANTS.MAX_AI_PROMPT_LENGTH) {
       return NextResponse.json(
-        { error: `Prompt too long. Maximum ${VALIDATION_CONSTANTS.MAX_AI_PROMPT_LENGTH} characters allowed.` },
+        {
+          error: `Prompt too long. Maximum ${VALIDATION_CONSTANTS.MAX_AI_PROMPT_LENGTH} characters allowed.`,
+        },
         { status: 400 }
       )
     }
 
     // SECURITY: Sanitize and validate AI input to prevent prompt injection
     let sanitizedPrompt: string
+
     try {
       sanitizedPrompt = validateAIInput(prompt)
     } catch (sanitizationError) {
       console.warn('AI input sanitization blocked request:', sanitizationError)
+
       return NextResponse.json(
-        { error: 'Your message contains content that cannot be processed. Please rephrase and try again.' },
+        {
+          error:
+            'Your message contains content that cannot be processed. Please rephrase and try again.',
+        },
         { status: 400 }
       )
     }
@@ -150,7 +146,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'X-RateLimit-Limit': String(limit),
           'X-RateLimit-Remaining': String(remaining),
-        }
+        },
       }
     )
   } catch (error: unknown) {
@@ -167,17 +163,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (errorMessage.includes('401') || errorMessage.includes('API key')) {
-      return NextResponse.json(
-        { error: 'AI service authentication failed' },
-        { status: 503 }
-      )
+      return NextResponse.json({ error: 'AI service authentication failed' }, { status: 503 })
     }
 
     if (errorMessage.includes('403')) {
-      return NextResponse.json(
-        { error: 'AI service access denied' },
-        { status: 503 }
-      )
+      return NextResponse.json({ error: 'AI service access denied' }, { status: 503 })
     }
 
     return NextResponse.json(

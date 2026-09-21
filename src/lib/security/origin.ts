@@ -15,6 +15,7 @@ function toOrigin(value: string | null | undefined): string | null {
 function isLocalhostOrigin(origin: string): boolean {
   try {
     const parsed = new URL(origin)
+
     return (
       parsed.hostname === 'localhost' ||
       parsed.hostname === '127.0.0.1' ||
@@ -46,6 +47,7 @@ export function isAllowedRequestOrigin(
     if (process.env.NODE_ENV === 'development' && isLocalhostOrigin(originHeader)) {
       return true
     }
+
     return normalizedAllowed.has(originHeader)
   }
 
@@ -53,15 +55,18 @@ export function isAllowedRequestOrigin(
     if (process.env.NODE_ENV === 'development' && isLocalhostOrigin(refererHeader)) {
       return true
     }
+
     return normalizedAllowed.has(refererHeader)
   }
 
   // Same-origin fallback for requests without Origin/Referer headers.
   const requestOrigin = toOrigin(request.nextUrl.origin)
+
   if (requestOrigin) {
     if (process.env.NODE_ENV === 'development' && isLocalhostOrigin(requestOrigin)) {
       return true
     }
+
     return normalizedAllowed.has(requestOrigin)
   }
 

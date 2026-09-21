@@ -3,7 +3,18 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Flame, Target, Trophy, Star, Crown, Award, Minus, Plus, Calendar, Clock } from 'lucide-react'
+import {
+  Flame,
+  Target,
+  Trophy,
+  Star,
+  Crown,
+  Award,
+  Minus,
+  Plus,
+  Calendar,
+  Clock,
+} from 'lucide-react'
 import { usePreferences } from '@/hooks/usePreferences'
 import { useGlobal } from '@/contexts/GlobalContext'
 import { useGamification } from '@/hooks/useGamification'
@@ -30,6 +41,7 @@ export function GamifiedHud() {
   const todayMs = recentSessions
     .filter((s) => {
       const t = new Date(s.created_at)
+
       return t >= today && t < tomorrow
     })
     .reduce((acc, s) => acc + (s.total_duration || 0), 0)
@@ -45,36 +57,50 @@ export function GamifiedHud() {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true
       prevLevelRef.current = level.level
+
       return
     }
 
     // Only show animation when level actually increases from previous value
     if (level.level > prevLevelRef.current) {
       setShowLevelUpAnimation(true)
+
       const timeout = setTimeout(() => {
         setShowLevelUpAnimation(false)
       }, UI_CONSTANTS.LEVEL_UP_ANIMATION_DURATION_MS)
+
       prevLevelRef.current = level.level
+
       return () => clearTimeout(timeout)
     }
   }, [level.level])
 
   const getLevelIcon = () => {
     if (level.level >= 20) return <Crown className="h-6 w-6 text-purple-400" />
+
     if (level.level >= 10) return <Award className="h-6 w-6 text-blue-400" />
+
     return <Star className="h-6 w-6 text-yellow-400" />
   }
 
   const getStreakColor = () => {
     if (streakCount >= 10) return 'text-purple-500'
+
     if (streakCount >= 5) return 'text-orange-500'
+
     return 'text-orange-400'
   }
 
   const getGoalStatus = () => {
-    if (goalPct >= 100) return { color: 'text-green-500', bg: 'bg-green-500', message: 'Goal Achieved! 🎉' }
-    if (goalPct >= 75) return { color: 'text-blue-500', bg: 'bg-blue-500', message: 'Almost there!' }
-    if (goalPct >= 50) return { color: 'text-yellow-500', bg: 'bg-yellow-500', message: 'Halfway there!' }
+    if (goalPct >= 100)
+      return { color: 'text-green-500', bg: 'bg-green-500', message: 'Goal Achieved! 🎉' }
+
+    if (goalPct >= 75)
+      return { color: 'text-blue-500', bg: 'bg-blue-500', message: 'Almost there!' }
+
+    if (goalPct >= 50)
+      return { color: 'text-yellow-500', bg: 'bg-yellow-500', message: 'Halfway there!' }
+
     return { color: 'text-gray-500', bg: 'bg-gray-500', message: 'Keep going!' }
   }
 
@@ -115,13 +141,15 @@ export function GamifiedHud() {
               </div>
             </div>
             <div className="space-y-2">
-              <Progress 
-                value={level.progressPct} 
+              <Progress
+                value={level.progressPct}
                 className="h-2 bg-yellow-100 dark:bg-yellow-900/20"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{level.currentLevelXp} XP</span>
-                <span>{100 - level.currentLevelXp} to level {level.level + 1}</span>
+                <span>
+                  {100 - level.currentLevelXp} to level {level.level + 1}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -133,16 +161,14 @@ export function GamifiedHud() {
           <CardContent className="pt-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <Flame className={cn("h-6 w-6", getStreakColor())} />
+                <Flame className={cn('h-6 w-6', getStreakColor())} />
                 <div>
                   <div className="font-bold text-lg">Streak</div>
                   <div className="text-xs text-muted-foreground">Practice Days</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className={cn("text-2xl font-bold", getStreakColor())}>
-                  {streakCount}
-                </div>
+                <div className={cn('text-2xl font-bold', getStreakColor())}>{streakCount}</div>
                 <div className="text-xs text-muted-foreground">🔥 Days</div>
               </div>
             </div>
@@ -161,21 +187,18 @@ export function GamifiedHud() {
                 <Target className="h-6 w-6 text-blue-500" />
                 <div>
                   <div className="font-bold text-lg">Daily Goal</div>
-                  <div className="text-xs text-muted-foreground">{prefs.dailyGoalMinutes} minutes</div>
+                  <div className="text-xs text-muted-foreground">
+                    {prefs.dailyGoalMinutes} minutes
+                  </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className={cn("text-lg font-bold", goalStatus.color)}>
-                  {goalPct}%
-                </div>
+                <div className={cn('text-lg font-bold', goalStatus.color)}>{goalPct}%</div>
                 <div className="text-xs text-muted-foreground">Complete</div>
               </div>
             </div>
             <div className="space-y-2">
-              <Progress 
-                value={goalPct} 
-                className="h-2"
-              />
+              <Progress value={goalPct} className="h-2" />
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
@@ -225,10 +248,7 @@ export function GamifiedHud() {
               </div>
             </div>
             <div className="space-y-2">
-              <Progress 
-                value={(unlockedAchievements / totalAchievements) * 100} 
-                className="h-2"
-              />
+              <Progress value={(unlockedAchievements / totalAchievements) * 100} className="h-2" />
               <div className="text-xs text-muted-foreground">
                 {totalAchievements - unlockedAchievements} achievements remaining
               </div>
@@ -247,10 +267,10 @@ export function GamifiedHud() {
               <div>
                 <h3 className="font-bold text-lg">Today's Progress</h3>
                 <p className="text-sm text-muted-foreground">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  {new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
                   })}
                 </p>
               </div>
@@ -260,13 +280,18 @@ export function GamifiedHud() {
               <div className="text-sm text-muted-foreground">Total Practice</div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-3 bg-secondary/50 rounded-lg">
-              <div className="text-2xl font-bold">{recentSessions.filter(s => {
-                const t = new Date(s.created_at)
-                return t >= today && t < tomorrow
-              }).length}</div>
+              <div className="text-2xl font-bold">
+                {
+                  recentSessions.filter((s) => {
+                    const t = new Date(s.created_at)
+
+                    return t >= today && t < tomorrow
+                  }).length
+                }
+              </div>
               <div className="text-xs text-muted-foreground">Sessions</div>
             </div>
             <div className="p-3 bg-secondary/50 rounded-lg">
@@ -287,4 +312,3 @@ export function GamifiedHud() {
     </div>
   )
 }
-

@@ -11,7 +11,7 @@ const hasUpstashCredentials = !!(
 if (!hasUpstashCredentials && process.env.NODE_ENV === 'production') {
   console.error(
     'SECURITY WARNING: Rate limiting Redis is not configured in production! ' +
-    'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.'
+      'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.'
   )
 }
 
@@ -39,6 +39,7 @@ function inMemoryRateLimit(
   if (!existing || existing.resetAt < now) {
     // New window
     inMemoryStore.set(key, { count: 1, resetAt: now + windowMs })
+
     return { success: true, remaining: maxRequests - 1 }
   }
 
@@ -47,6 +48,7 @@ function inMemoryRateLimit(
   }
 
   existing.count++
+
   return { success: true, remaining: maxRequests - existing.count }
 }
 
@@ -56,10 +58,7 @@ function inMemoryRateLimit(
 export const generalRatelimit = redis
   ? new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(
-        API_CONSTANTS.RATE_LIMIT_MAX_REQUESTS,
-        '60 s'
-      ),
+      limiter: Ratelimit.slidingWindow(API_CONSTANTS.RATE_LIMIT_MAX_REQUESTS, '60 s'),
       analytics: true,
       prefix: 'ratelimit:general',
     })
@@ -110,8 +109,7 @@ export async function checkRateLimit(
   identifier: string,
   type: 'general' | 'auth' | 'ai' = 'general'
 ): Promise<RateLimitResult> {
-  const limiter =
-    type === 'auth' ? authRatelimit : type === 'ai' ? aiRatelimit : generalRatelimit
+  const limiter = type === 'auth' ? authRatelimit : type === 'ai' ? aiRatelimit : generalRatelimit
 
   const maxRequests =
     type === 'auth'
@@ -125,6 +123,7 @@ export async function checkRateLimit(
     // SECURITY: In production, fail CLOSED - deny the request
     if (process.env.NODE_ENV === 'production') {
       console.error('Rate limiting unavailable in production - blocking request')
+
       return {
         success: false,
         limit: maxRequests,
@@ -135,11 +134,13 @@ export async function checkRateLimit(
 
     // In development, use in-memory fallback (with warning)
     console.warn('Using in-memory rate limiting (development only)')
+
     const { success, remaining } = inMemoryRateLimit(
       `${type}:${identifier}`,
       maxRequests,
       API_CONSTANTS.RATE_LIMIT_WINDOW_MS
     )
+
     return {
       success,
       limit: maxRequests,
@@ -150,6 +151,7 @@ export async function checkRateLimit(
 
   try {
     const { success, limit, remaining, reset } = await limiter.limit(identifier)
+
     return { success, limit, remaining, reset }
   } catch (error) {
     console.error('Rate limit check failed:', error)
@@ -157,6 +159,7 @@ export async function checkRateLimit(
     // SECURITY: In production, fail CLOSED - deny the request on error
     if (process.env.NODE_ENV === 'production') {
       console.error('Rate limiting error in production - blocking request for safety')
+
       return {
         success: false,
         limit: maxRequests,
@@ -167,11 +170,13 @@ export async function checkRateLimit(
 
     // In development, use in-memory fallback on error
     console.warn('Redis error, falling back to in-memory rate limiting')
+
     const { success, remaining } = inMemoryRateLimit(
       `${type}:${identifier}`,
       maxRequests,
       API_CONSTANTS.RATE_LIMIT_WINDOW_MS
     )
+
     return {
       success,
       limit: maxRequests,

@@ -4,6 +4,7 @@ import type { Database } from './types'
 
 // Get environment variables
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 /**
@@ -12,6 +13,7 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
  */
 function createNoOpClient(): SupabaseClient<Database> {
   const noOp = () => Promise.resolve({ data: null, error: null })
+
   const noOpChain = () => ({
     select: noOpChain,
     insert: noOpChain,
@@ -31,6 +33,7 @@ function createNoOpClient(): SupabaseClient<Database> {
     maybeSingle: noOp,
     then: (resolve: (value: { data: null; error: null }) => void) => {
       resolve({ data: null, error: null })
+
       return Promise.resolve({ data: null, error: null })
     },
   })
@@ -64,6 +67,7 @@ function createSupabaseClient(): SupabaseClient<Database> {
 
   if (!url || !anon) {
     console.error('Missing Supabase environment variables')
+
     return createNoOpClient()
   }
 

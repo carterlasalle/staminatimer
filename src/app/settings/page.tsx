@@ -5,7 +5,14 @@ export const dynamic = 'force-dynamic'
 
 import { AppNavigation } from '@/components/AppNavigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loading } from '@/components/ui/loading'
@@ -24,13 +31,14 @@ import {
   Vibrate,
   Volume2,
   HelpCircle,
-  Sparkles
+  Sparkles,
 } from 'lucide-react'
 import { useOnboarding } from '@/components/OnboardingTutorial'
 import { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
 
 const NOTIFICATION_PREFS_KEY = 'stamina-notification-prefs'
+
 const APP_PREFS_KEY = 'stamina-app-prefs'
 
 type NotificationPrefs = {
@@ -48,13 +56,13 @@ type AppPrefs = {
 const defaultNotificationPrefs: NotificationPrefs = {
   reminderEnabled: true,
   soundEnabled: true,
-  vibrationEnabled: true
+  vibrationEnabled: true,
 }
 
 const defaultAppPrefs: AppPrefs = {
   displayName: '',
   autoStartTimer: false,
-  showMotivationalMessages: true
+  showMotivationalMessages: true,
 }
 
 export default function SettingsPage() {
@@ -67,32 +75,39 @@ export default function SettingsPage() {
   const { prefs: trainingPrefs, setDailyGoalMinutes } = usePreferences()
   const { resetOnboarding } = useOnboarding()
 
-  const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>(defaultNotificationPrefs)
+  const [notificationPrefs, setNotificationPrefs] =
+    useState<NotificationPrefs>(defaultNotificationPrefs)
   const [appPrefs, setAppPrefs] = useState<AppPrefs>(defaultAppPrefs)
 
   // Load user profile
   useEffect(() => {
     async function getProfile(): Promise<void> {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (user?.email) {
         setEmail(user.email)
         // Use email username as default display name if not set
         const storedAppPrefs = localStorage.getItem(APP_PREFS_KEY)
+
         if (storedAppPrefs) {
           setAppPrefs(JSON.parse(storedAppPrefs))
         } else {
-          setAppPrefs(prev => ({
+          setAppPrefs((prev) => ({
             ...prev,
-            displayName: user.email?.split('@')[0] || ''
+            displayName: user.email?.split('@')[0] || '',
           }))
         }
       }
+
       setLoading(false)
     }
 
     // Load notification preferences
     try {
       const stored = localStorage.getItem(NOTIFICATION_PREFS_KEY)
+
       if (stored) {
         setNotificationPrefs(JSON.parse(stored))
       }
@@ -107,6 +122,7 @@ export default function SettingsPage() {
   const updateNotificationPrefs = (updates: Partial<NotificationPrefs>) => {
     const updated = { ...notificationPrefs, ...updates }
     setNotificationPrefs(updated)
+
     try {
       localStorage.setItem(NOTIFICATION_PREFS_KEY, JSON.stringify(updated))
       toast.success('Preferences saved')
@@ -119,6 +135,7 @@ export default function SettingsPage() {
   const updateAppPrefs = (updates: Partial<AppPrefs>) => {
     const updated = { ...appPrefs, ...updates }
     setAppPrefs(updated)
+
     try {
       localStorage.setItem(APP_PREFS_KEY, JSON.stringify(updated))
       toast.success('Preferences saved')
@@ -131,6 +148,7 @@ export default function SettingsPage() {
     try {
       setIsUpdating(true)
       const { error } = await supabase.auth.updateUser({ email })
+
       if (error) throw error
       toast.success('Email update initiated. Please check your inbox.')
     } catch (error) {
@@ -143,14 +161,18 @@ export default function SettingsPage() {
 
   const handlePasswordReset = async (): Promise<void> => {
     if (!email) {
-      toast.error("Email address not found.")
+      toast.error('Email address not found.')
+
       return
     }
+
     try {
       setIsUpdating(true)
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login`,
       })
+
       if (error) throw error
       toast.success('Password reset email sent. Please check your inbox.')
     } catch (error) {
@@ -162,16 +184,21 @@ export default function SettingsPage() {
   }
 
   const handleClearLocalData = useCallback(async () => {
-    const confirm = window.confirm('This will clear all locally stored preferences and cached data. Your cloud data will remain. Continue?')
+    const confirm = window.confirm(
+      'This will clear all locally stored preferences and cached data. Your cloud data will remain. Continue?'
+    )
+
     if (!confirm) return
 
     setIsClearingData(true)
+
     try {
       // Clear all stamina-related localStorage items
-      const keysToRemove = Object.keys(localStorage).filter(key =>
-        key.startsWith('stamina') || key.startsWith('pwa-')
+      const keysToRemove = Object.keys(localStorage).filter(
+        (key) => key.startsWith('stamina') || key.startsWith('pwa-')
       )
-      keysToRemove.forEach(key => localStorage.removeItem(key))
+
+      keysToRemove.forEach((key) => localStorage.removeItem(key))
 
       toast.success('Local data cleared. Page will reload.')
       setTimeout(() => window.location.reload(), 1500)
@@ -183,9 +210,13 @@ export default function SettingsPage() {
   }, [])
 
   const handleDeleteAccount = useCallback(async () => {
-    const confirmation = prompt('This action is irreversible. Type your email address to confirm deletion:')
+    const confirmation = prompt(
+      'This action is irreversible. Type your email address to confirm deletion:'
+    )
+
     if (confirmation !== email) {
       toast.warning('Account deletion cancelled or email mismatch.')
+
       return
     }
 
@@ -194,6 +225,7 @@ export default function SettingsPage() {
 
     try {
       const { error } = await supabase.functions.invoke('delete-user')
+
       if (error) throw error
 
       toast.success('Account deleted successfully. Signing out...')
@@ -215,9 +247,7 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto p-4 sm:p-8 space-y-6">
         <div>
           <h1 className="text-2xl font-medium">Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your account and app preferences
-          </p>
+          <p className="text-muted-foreground mt-1">Manage your account and app preferences</p>
         </div>
 
         {/* Profile Settings */}
@@ -235,7 +265,7 @@ export default function SettingsPage() {
               <Input
                 id="displayName"
                 value={appPrefs.displayName}
-                onChange={(e) => setAppPrefs(prev => ({ ...prev, displayName: e.target.value }))}
+                onChange={(e) => setAppPrefs((prev) => ({ ...prev, displayName: e.target.value }))}
                 onBlur={() => updateAppPrefs({ displayName: appPrefs.displayName })}
                 placeholder="Your name"
               />
@@ -272,7 +302,9 @@ export default function SettingsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Daily Goal</Label>
-                <span className="text-sm text-muted-foreground">{trainingPrefs.dailyGoalMinutes} minutes</span>
+                <span className="text-sm text-muted-foreground">
+                  {trainingPrefs.dailyGoalMinutes} minutes
+                </span>
               </div>
               <Slider
                 value={[trainingPrefs.dailyGoalMinutes]}
@@ -332,9 +364,7 @@ export default function SettingsPage() {
                 <Bell className="h-4 w-4 text-muted-foreground" />
                 <div className="space-y-0.5">
                   <Label>Training Reminders</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Get reminded to train
-                  </p>
+                  <p className="text-xs text-muted-foreground">Get reminded to train</p>
                 </div>
               </div>
               <Switch
@@ -348,9 +378,7 @@ export default function SettingsPage() {
                 <Volume2 className="h-4 w-4 text-muted-foreground" />
                 <div className="space-y-0.5">
                   <Label>Sound Effects</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Play sounds during training
-                  </p>
+                  <p className="text-xs text-muted-foreground">Play sounds during training</p>
                 </div>
               </div>
               <Switch
@@ -364,14 +392,14 @@ export default function SettingsPage() {
                 <Vibrate className="h-4 w-4 text-muted-foreground" />
                 <div className="space-y-0.5">
                   <Label>Vibration</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Vibrate on important events
-                  </p>
+                  <p className="text-xs text-muted-foreground">Vibrate on important events</p>
                 </div>
               </div>
               <Switch
                 checked={notificationPrefs.vibrationEnabled}
-                onCheckedChange={(checked) => updateNotificationPrefs({ vibrationEnabled: checked })}
+                onCheckedChange={(checked) =>
+                  updateNotificationPrefs({ vibrationEnabled: checked })
+                }
               />
             </div>
           </CardContent>
@@ -388,7 +416,11 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Button variant="outline" onClick={handlePasswordReset} disabled={isUpdating}>
-              {isUpdating ? <Loading size="sm" className="mr-2" /> : <Lock className="mr-2 h-4 w-4" />}
+              {isUpdating ? (
+                <Loading size="sm" className="mr-2" />
+              ) : (
+                <Lock className="mr-2 h-4 w-4" />
+              )}
               Send Password Reset Email
             </Button>
           </CardContent>
@@ -405,7 +437,11 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Button variant="outline" onClick={handleClearLocalData} disabled={isClearingData}>
-              {isClearingData ? <Loading size="sm" className="mr-2" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+              {isClearingData ? (
+                <Loading size="sm" className="mr-2" />
+              ) : (
+                <RefreshCw className="mr-2 h-4 w-4" />
+              )}
               Clear Local Data
             </Button>
             <p className="text-xs text-muted-foreground">
@@ -445,7 +481,11 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting}>
-              {isDeleting ? <Loading size="sm" className="mr-2" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              {isDeleting ? (
+                <Loading size="sm" className="mr-2" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
               Delete Account
             </Button>
           </CardContent>

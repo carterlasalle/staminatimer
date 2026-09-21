@@ -7,10 +7,7 @@ import { AppNavigation } from '@/components/AppNavigation'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { OnboardingTutorial, useOnboarding } from '@/components/OnboardingTutorial'
-import {
-  Timer,
-  ArrowRight
-} from 'lucide-react'
+import { Timer, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useGamification } from '@/hooks/useGamification'
 import { useGlobal } from '@/contexts/GlobalContext'
@@ -32,6 +29,7 @@ export default function Dashboard() {
   const todayMs = recentSessions
     .filter((s) => {
       const t = new Date(s.created_at)
+
       return t >= today && t < tomorrow
     })
     .reduce((acc, s) => acc + (s.total_duration || 0), 0)
@@ -50,13 +48,18 @@ export default function Dashboard() {
         {/* Welcome Header */}
         <div className="text-center space-y-1 md:space-y-2">
           <h1 className="text-2xl md:text-3xl font-light text-foreground">Welcome back</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Ready to continue your progress?</p>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Ready to continue your progress?
+          </p>
         </div>
 
         {/* Primary Action */}
         <div className="text-center">
           <Link href="/training">
-            <Button size="lg" className="px-6 py-5 md:px-8 md:py-6 text-base md:text-lg font-medium rounded-full w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="px-6 py-5 md:px-8 md:py-6 text-base md:text-lg font-medium rounded-full w-full sm:w-auto"
+            >
               <Timer className="mr-2 md:mr-3 h-5 w-5" />
               Start Training Session
             </Button>
@@ -99,7 +102,8 @@ export default function Dashboard() {
               <div>
                 <h3 className="text-base md:text-lg font-medium">Last Session</h3>
                 <p className="text-sm md:text-base text-muted-foreground">
-                  {formatDuration(lastSession.total_duration)} • {lastSession.edge_events?.length || 0} edges
+                  {formatDuration(lastSession.total_duration)} •{' '}
+                  {lastSession.edge_events?.length || 0} edges
                 </p>
               </div>
               <div className="text-xs md:text-sm text-muted-foreground">

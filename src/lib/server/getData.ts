@@ -17,7 +17,11 @@ export async function getSessionData(): Promise<DBSession[] | null> {
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           // Server Components cannot set cookies. Middleware handles session refresh.
           // This empty catcher is needed as per @supabase/ssr docs for server components.
-          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) } catch {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
             // Intentionally empty as per @supabase/ssr docs for server components
           }
         },
@@ -25,22 +29,28 @@ export async function getSessionData(): Promise<DBSession[] | null> {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) return null
 
   const { data, error } = await supabase
     .from('sessions')
-    .select(`
+    .select(
+      `
       *,
       edge_events (*)
-    `)
+    `
+    )
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("Error fetching session data:", error.message)
+    console.error('Error fetching session data:', error.message)
+
     return null
   }
+
   return data as DBSession[]
 }

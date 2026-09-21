@@ -268,13 +268,7 @@
   }
 
   /* Alpha mask for marquee edges */
-  -webkit-mask: linear-gradient(
-    90deg,
-    transparent,
-    white 10%,
-    white 90%,
-    transparent
-  );
+  -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
   mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
   @property --num {
     syntax: '<integer>';
@@ -786,8 +780,13 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
   }
 
   @keyframes pulse-ring-anim {
@@ -802,8 +801,13 @@
   }
 
   @keyframes scroll-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(10px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(10px);
+    }
   }
   @property --num {
     syntax: '<integer>';
@@ -820,7 +824,9 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu'
 import { generatePDF } from '@/lib/export/pdf'
 import { supabase } from '@/lib/supabase/client'
 import { FileDown, Share2, Copy } from 'lucide-react'
@@ -19,18 +19,24 @@ export function ExportButton() {
   const handleExportPDF = async (): Promise<void> => {
     try {
       setIsLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user?.id) {
         toast.error('Please log in to export')
+
         return
       }
 
       const { data: sessions, error } = await supabase
         .from('sessions')
-        .select(`
+        .select(
+          `
           *,
           edge_events (*)
-        `)
+        `
+        )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(100)
@@ -39,6 +45,7 @@ export function ExportButton() {
 
       if (!sessions || sessions.length === 0) {
         toast.error('No sessions to export. Start training to generate data!')
+
         return
       }
 
@@ -55,9 +62,13 @@ export function ExportButton() {
   const handleCopyStats = async (): Promise<void> => {
     try {
       setIsLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user?.id) {
         toast.error('Please log in to copy stats')
+
         return
       }
 
@@ -71,17 +82,20 @@ export function ExportButton() {
 
       if (!sessions || sessions.length === 0) {
         toast.error('No sessions to share. Start training first!')
+
         return
       }
 
       const totalSessions = sessions.length
       const totalDuration = sessions.reduce((acc, s) => acc + (s.total_duration || 0), 0)
       const avgDuration = totalDuration / totalSessions
-      const successRate = (sessions.filter(s => !s.finished_during_edge).length / totalSessions) * 100
+      const successRate =
+        (sessions.filter((s) => !s.finished_during_edge).length / totalSessions) * 100
 
       const formatDuration = (ms: number) => {
         const minutes = Math.floor(ms / 60000)
         const seconds = Math.floor((ms % 60000) / 1000)
+
         return `${minutes}m ${seconds}s`
       }
 
@@ -123,4 +137,4 @@ Track your progress at staminatimer.com`
       </DropdownMenuContent>
     </DropdownMenu>
   )
-} 
+}

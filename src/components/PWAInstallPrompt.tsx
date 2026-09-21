@@ -16,7 +16,8 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     // Check if already installed
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+    const standalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
 
     setIsStandalone(standalone)
@@ -24,14 +25,18 @@ export function PWAInstallPrompt() {
     if (standalone) return
 
     // Check if iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
+    const iOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+      !(window as Window & { MSStream?: unknown }).MSStream
     setIsIOS(iOS)
 
     // Check if dismissed recently
     const dismissed = localStorage.getItem('pwa-prompt-dismissed')
+
     if (dismissed) {
       const dismissedTime = parseInt(dismissed, 10)
       const daysSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24)
+
       if (daysSinceDismissed < 7) return // Don't show for 7 days after dismissal
     }
 
@@ -59,9 +64,11 @@ export function PWAInstallPrompt() {
     if (deferredPrompt) {
       await deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
+
       if (outcome === 'accepted') {
         setShowPrompt(false)
       }
+
       setDeferredPrompt(null)
     }
   }
@@ -97,8 +104,8 @@ export function PWAInstallPrompt() {
               <h3 className="font-semibold text-foreground">Install Stamina Timer</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {isIOS
-                  ? "Add to your home screen for the full app experience"
-                  : "Install the app for quick access and offline use"}
+                  ? 'Add to your home screen for the full app experience'
+                  : 'Install the app for quick access and offline use'}
               </p>
             </div>
           </div>

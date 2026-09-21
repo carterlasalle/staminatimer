@@ -5,6 +5,7 @@
 
 // Cache for CSRF token to avoid fetching on every request
 let csrfTokenCache: { token: string; fetchedAt: number } | null = null
+
 const CSRF_TOKEN_CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (tokens valid for 15)
 
 /**
@@ -13,10 +14,7 @@ const CSRF_TOKEN_CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (tokens valid for
  */
 async function getCSRFToken(): Promise<string> {
   // Check if we have a cached token that's still valid
-  if (
-    csrfTokenCache &&
-    Date.now() - csrfTokenCache.fetchedAt < CSRF_TOKEN_CACHE_DURATION
-  ) {
+  if (csrfTokenCache && Date.now() - csrfTokenCache.fetchedAt < CSRF_TOKEN_CACHE_DURATION) {
     return csrfTokenCache.token
   }
 
@@ -73,7 +71,9 @@ export async function generateAIResponse(prompt: string): Promise<string> {
 
       // Handle specific error codes
       if (response.status === 429) {
-        throw new Error('API rate limit exceeded. Please try again in a few moments. The free tier has limited requests per minute.')
+        throw new Error(
+          'API rate limit exceeded. Please try again in a few moments. The free tier has limited requests per minute.'
+        )
       }
 
       if (response.status === 401) {
@@ -94,6 +94,7 @@ export async function generateAIResponse(prompt: string): Promise<string> {
     }
 
     const data = await response.json()
+
     return data.response
   } catch (error: unknown) {
     // Re-throw if already a proper Error with message
@@ -109,6 +110,7 @@ export async function generateStreamResponse(prompt: string) {
   // For streaming, we would need to implement SSE or WebSocket
   // For now, fall back to non-streaming response
   const response = await generateAIResponse(prompt)
+
   return {
     stream: (async function* () {
       yield response

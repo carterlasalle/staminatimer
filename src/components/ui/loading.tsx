@@ -11,12 +11,12 @@ type LoadingProps = {
 const sizeMap = {
   sm: 'h-4 w-4',
   md: 'h-8 w-8',
-  lg: 'h-12 w-12'
+  lg: 'h-12 w-12',
 }
 
 export function Loading({ className, size = 'md', text, fullScreen }: LoadingProps) {
   const Wrapper = fullScreen ? FullScreenWrapper : DefaultWrapper
-  
+
   return (
     <Wrapper>
       <div className={cn('flex flex-col items-center justify-center gap-2', className)}>
@@ -37,4 +37,4 @@ function FullScreenWrapper({ children }: { children: React.ReactNode }) {
 
 function DefaultWrapper({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center justify-center p-4">{children}</div>
-} 
+}

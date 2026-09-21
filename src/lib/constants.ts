@@ -52,7 +52,7 @@ export const SHARE_DURATION_MAP = {
   '24h': 24 * 60 * 60 * 1000,
   '7d': 7 * 24 * 60 * 60 * 1000,
   '30d': 30 * 24 * 60 * 60 * 1000,
-  'infinite': null,
+  infinite: null,
 } as const
 
 // Daily Goal Constraints

@@ -15,7 +15,16 @@ import {
 import { useTimer } from '@/hooks/useTimer'
 import { TimingGuide } from '@/components/TimingGuide'
 import { formatDuration } from '@/lib/utils'
-import { Play, Square, Zap, CheckCircle, RotateCcw, Keyboard, Settings, AlertTriangle } from 'lucide-react'
+import {
+  Play,
+  Square,
+  Zap,
+  CheckCircle,
+  RotateCcw,
+  Keyboard,
+  Settings,
+  AlertTriangle,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TIMER_CONSTANTS } from '@/lib/constants'
 
@@ -29,7 +38,7 @@ export function Timer() {
     startEdge,
     endEdge,
     finishSession,
-    resetTimer
+    resetTimer,
   } = useTimer()
 
   const [showKeyboardHints, setShowKeyboardHints] = useState(false)
@@ -40,6 +49,7 @@ export function Timer() {
   // Handler for finish button - shows confirmation for longer sessions
   const handleFinishClick = useCallback(() => {
     const totalTime = activeTime + edgeTime
+
     if (totalTime >= TIMER_CONSTANTS.CONFIRMATION_THRESHOLD_MS) {
       setShowFinishConfirm(true)
     } else {
@@ -58,6 +68,7 @@ export function Timer() {
   useEffect(() => {
     setPulseAnimation(true)
     const timeout = setTimeout(() => setPulseAnimation(false), 600)
+
     return () => clearTimeout(timeout)
   }, [state])
 
@@ -76,13 +87,20 @@ export function Timer() {
       ) {
         return
       }
+
       const key = e.key.toLowerCase()
+
       if (key === 's' && state === 'idle') startSession()
+
       if (key === 'e' && state === 'active') startEdge()
+
       if (key === 'x' && state === 'edging') endEdge()
+
       if (key === 'f' && (state === 'active' || state === 'edging')) handleFinishClick()
     }
+
     window.addEventListener('keydown', onKey)
+
     return () => window.removeEventListener('keydown', onKey)
   }, [state, startSession, startEdge, endEdge, handleFinishClick])
 
@@ -95,7 +113,7 @@ export function Timer() {
           icon: <Play className="h-6 w-6" />,
           color: 'text-blue-500',
           bgColor: 'bg-blue-500/10',
-          borderColor: 'border-blue-500/20'
+          borderColor: 'border-blue-500/20',
         }
       case 'active':
         return {
@@ -104,7 +122,7 @@ export function Timer() {
           icon: <Zap className="h-6 w-6" />,
           color: 'text-green-500',
           bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/20'
+          borderColor: 'border-green-500/20',
         }
       case 'edging':
         return {
@@ -113,7 +131,7 @@ export function Timer() {
           icon: <Square className="h-6 w-6" />,
           color: 'text-orange-500',
           bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/20'
+          borderColor: 'border-orange-500/20',
         }
       case 'finished':
         return {
@@ -122,7 +140,7 @@ export function Timer() {
           icon: <CheckCircle className="h-6 w-6" />,
           color: 'text-emerald-500',
           bgColor: 'bg-emerald-500/10',
-          borderColor: 'border-emerald-500/20'
+          borderColor: 'border-emerald-500/20',
         }
     }
   }
@@ -133,21 +151,23 @@ export function Timer() {
 
   return (
     <div className="space-y-6">
-      <Card className={cn(
-        "w-full transition-all duration-300 hover:shadow-lg",
-        stateConfig.borderColor,
-        pulseAnimation && "animate-pulse"
-      )}>
+      <Card
+        className={cn(
+          'w-full transition-all duration-300 hover:shadow-lg',
+          stateConfig.borderColor,
+          pulseAnimation && 'animate-pulse'
+        )}
+      >
         <CardHeader className="pb-3 md:pb-4 px-4 md:px-6">
           <div className="flex items-start sm:items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2 md:gap-3">
-              <div className={cn(
-                "p-1.5 md:p-2 rounded-full transition-all duration-300 shrink-0",
-                stateConfig.bgColor
-              )}>
-                <div className={stateConfig.color}>
-                  {stateConfig.icon}
-                </div>
+              <div
+                className={cn(
+                  'p-1.5 md:p-2 rounded-full transition-all duration-300 shrink-0',
+                  stateConfig.bgColor
+                )}
+              >
+                <div className={stateConfig.color}>{stateConfig.icon}</div>
               </div>
               <div className="min-w-0">
                 <div className="text-base md:text-xl font-bold truncate">{stateConfig.title}</div>
@@ -163,8 +183,8 @@ export function Timer() {
                 size="icon"
                 onClick={() => setShowTimingGuide(!showTimingGuide)}
                 className={cn(
-                  "h-8 w-8 md:h-9 md:w-9 text-muted-foreground hover:text-foreground",
-                  showTimingGuide && "text-primary bg-primary/10"
+                  'h-8 w-8 md:h-9 md:w-9 text-muted-foreground hover:text-foreground',
+                  showTimingGuide && 'text-primary bg-primary/10'
                 )}
                 title="Timing guides"
               >
@@ -182,26 +202,32 @@ export function Timer() {
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4 md:space-y-6">
           {/* Enhanced Time Display */}
           <div className="grid grid-cols-3 gap-2 md:gap-4">
             <div className="text-center p-3 md:p-6 bg-linear-to-br from-primary/5 to-primary/10 rounded-lg md:rounded-xl border border-primary/10">
-              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Total</p>
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
+                Total
+              </p>
               <p className="text-lg md:text-3xl font-bold text-primary">
                 {formatDuration(totalTime)}
               </p>
             </div>
 
             <div className="text-center p-3 md:p-6 bg-linear-to-br from-green-500/5 to-green-500/10 rounded-lg md:rounded-xl border border-green-500/10">
-              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Active</p>
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
+                Active
+              </p>
               <p className="text-lg md:text-3xl font-bold text-green-600">
                 {formatDuration(activeTime)}
               </p>
             </div>
 
             <div className="text-center p-3 md:p-6 bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg md:rounded-xl border border-orange-500/10">
-              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">Edge</p>
+              <p className="text-[10px] md:text-sm font-medium text-muted-foreground mb-0.5 md:mb-1">
+                Edge
+              </p>
               <p className="text-lg md:text-3xl font-bold text-orange-600">
                 {formatDuration(edgeTime)}
               </p>
@@ -215,12 +241,9 @@ export function Timer() {
                 <span>Edge Time Ratio</span>
                 <span>{edgePercentage.toFixed(1)}%</span>
               </div>
-              <Progress 
-                value={edgePercentage} 
-                className="h-3"
-              />
+              <Progress value={edgePercentage} className="h-3" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Active: {((100 - edgePercentage)).toFixed(1)}%</span>
+                <span>Active: {(100 - edgePercentage).toFixed(1)}%</span>
                 <span>Edge: {edgePercentage.toFixed(1)}%</span>
               </div>
             </div>
@@ -235,8 +258,8 @@ export function Timer() {
               </h3>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {edgeLaps.map((lap, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex justify-between items-center p-3 bg-linear-to-r from-orange-500/5 to-orange-500/10 rounded-lg border border-orange-500/10 hover:border-orange-500/20 transition-colors"
                   >
                     <div className="flex items-center gap-2">
@@ -244,7 +267,9 @@ export function Timer() {
                       <span className="font-medium">Edge {index + 1}</span>
                     </div>
                     <span className="font-mono text-sm">
-                      {lap.duration ? formatDuration(lap.duration) : (
+                      {lap.duration ? (
+                        formatDuration(lap.duration)
+                      ) : (
                         <span className="text-orange-500 animate-pulse">In Progress...</span>
                       )}
                     </span>
@@ -262,10 +287,18 @@ export function Timer() {
                 Keyboard Shortcuts
               </h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div><kbd className="px-2 py-1 bg-background rounded text-xs">S</kbd> Start Session</div>
-                <div><kbd className="px-2 py-1 bg-background rounded text-xs">E</kbd> Begin Edge</div>
-                <div><kbd className="px-2 py-1 bg-background rounded text-xs">X</kbd> End Edge</div>
-                <div><kbd className="px-2 py-1 bg-background rounded text-xs">F</kbd> Finish Session</div>
+                <div>
+                  <kbd className="px-2 py-1 bg-background rounded text-xs">S</kbd> Start Session
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-background rounded text-xs">E</kbd> Begin Edge
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-background rounded text-xs">X</kbd> End Edge
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-background rounded text-xs">F</kbd> Finish Session
+                </div>
               </div>
             </div>
           )}
@@ -337,9 +370,7 @@ export function Timer() {
       </Card>
 
       {/* Timing Guide Panel */}
-      {showTimingGuide && (
-        <TimingGuide />
-      )}
+      {showTimingGuide && <TimingGuide />}
 
       {/* Finish Session Confirmation Dialog */}
       <Dialog open={showFinishConfirm} onOpenChange={setShowFinishConfirm}>
@@ -350,7 +381,8 @@ export function Timer() {
               Finish Session?
             </DialogTitle>
             <DialogDescription>
-              You have been training for <span className="font-semibold text-foreground">{formatDuration(totalTime)}</span>.
+              You have been training for{' '}
+              <span className="font-semibold text-foreground">{formatDuration(totalTime)}</span>.
               Are you sure you want to end your session now? Your progress will be saved.
             </DialogDescription>
           </DialogHeader>
@@ -378,11 +410,7 @@ export function Timer() {
             >
               Continue Training
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmFinish}
-              className="w-full sm:w-auto"
-            >
+            <Button variant="destructive" onClick={confirmFinish} className="w-full sm:w-auto">
               <CheckCircle className="mr-2 h-4 w-4" />
               Finish Session
             </Button>

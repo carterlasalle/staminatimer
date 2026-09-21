@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 import { supabase } from '@/lib/supabase/client'
 import { formatDuration } from '@/lib/utils'
 import { RefreshCw, Trash2 } from 'lucide-react'
@@ -19,6 +19,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { UI_CONSTANTS } from '@/lib/constants'
 
 type SortField = 'created_at' | 'total_duration' | 'edge_duration'
+
 type SortOrder = 'desc' | 'asc'
 
 type DBSession = {
@@ -47,6 +48,7 @@ export function SessionHistory() {
 
   // Virtual list setup for performance with long session lists
   const parentRef = useRef<HTMLDivElement>(null)
+
   const rowVirtualizer = useVirtualizer({
     count: sessions.length,
     getScrollElement: () => parentRef.current,
@@ -56,9 +58,13 @@ export function SessionHistory() {
 
   const fetchSessions = useCallback(async (): Promise<void> => {
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user?.id) {
       setLoading(false)
+
       return
     }
 
@@ -71,6 +77,7 @@ export function SessionHistory() {
 
     if (error) {
       console.error('Error fetching sessions:', error)
+
       return
     }
 
@@ -78,24 +85,26 @@ export function SessionHistory() {
     setLoading(false)
   }, [sortField, sortOrder])
 
-  const deleteSession = useCallback(async (sessionId: string): Promise<void> => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this session?')
-    if (!confirmDelete) return
+  const deleteSession = useCallback(
+    async (sessionId: string): Promise<void> => {
+      const confirmDelete = window.confirm('Are you sure you want to delete this session?')
 
-    const { error } = await supabase
-      .from('sessions')
-      .delete()
-      .eq('id', sessionId)
+      if (!confirmDelete) return
 
-    if (error) {
-      toast.error('Failed to delete session')
-      console.error('Error deleting session:', error)
-      return
-    }
+      const { error } = await supabase.from('sessions').delete().eq('id', sessionId)
 
-    toast.success('Session deleted')
-    fetchSessions()
-  }, [fetchSessions])
+      if (error) {
+        toast.error('Failed to delete session')
+        console.error('Error deleting session:', error)
+
+        return
+      }
+
+      toast.success('Session deleted')
+      fetchSessions()
+    },
+    [fetchSessions]
+  )
 
   useEffect(() => {
     fetchSessions()
@@ -108,11 +117,7 @@ export function SessionHistory() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Recent Sessions</CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchSessions}
-          >
+          <Button variant="outline" size="sm" onClick={fetchSessions}>
             <RefreshCw className="h-3 w-3" />
           </Button>
         </div>
@@ -130,7 +135,7 @@ export function SessionHistory() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setSortOrder(order => order === 'desc' ? 'asc' : 'desc')}
+            onClick={() => setSortOrder((order) => (order === 'desc' ? 'asc' : 'desc'))}
             className="h-8 px-2"
           >
             {sortOrder === 'desc' ? '↓' : '↑'}
@@ -138,10 +143,7 @@ export function SessionHistory() {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div
-          ref={parentRef}
-          className="h-80 overflow-y-auto custom-scrollbar"
-        >
+        <div ref={parentRef} className="h-80 overflow-y-auto custom-scrollbar">
           <div
             style={{
               height: `${rowVirtualizer.getTotalSize()}px`,
@@ -151,6 +153,7 @@ export function SessionHistory() {
           >
             {rowVirtualizer.getVirtualItems().map((virtualItem) => {
               const session = sessions[virtualItem.index]
+
               return (
                 <div
                   key={session.id}
@@ -171,7 +174,10 @@ export function SessionHistory() {
                       variant="ghost"
                       size="sm"
                       className="absolute top-1 right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteSession(session.id)
+                      }}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -179,11 +185,15 @@ export function SessionHistory() {
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
                           <div className="text-muted-foreground">Total Time</div>
-                          <div className="font-medium">{formatDuration(session.total_duration)}</div>
+                          <div className="font-medium">
+                            {formatDuration(session.total_duration)}
+                          </div>
                         </div>
                         <div>
                           <div className="text-muted-foreground">Active Time</div>
-                          <div className="font-medium">{formatDuration(session.active_duration)}</div>
+                          <div className="font-medium">
+                            {formatDuration(session.active_duration)}
+                          </div>
                         </div>
                         <div>
                           <div className="text-muted-foreground">Edge Time</div>
@@ -198,11 +208,13 @@ export function SessionHistory() {
                         <div className="text-muted-foreground">
                           {new Date(session.created_at).toLocaleDateString()}
                         </div>
-                        <div className={`px-2 py-0.5 rounded text-xs ${
-                          session.finished_during_edge
-                            ? 'bg-orange-500/20 text-orange-400'
-                            : 'bg-green-500/20 text-green-400'
-                        }`}>
+                        <div
+                          className={`px-2 py-0.5 rounded text-xs ${
+                            session.finished_during_edge
+                              ? 'bg-orange-500/20 text-orange-400'
+                              : 'bg-green-500/20 text-green-400'
+                          }`}
+                        >
                           {session.finished_during_edge ? 'Edge Finish' : 'Complete'}
                         </div>
                       </div>

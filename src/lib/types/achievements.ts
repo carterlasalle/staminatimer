@@ -1,5 +1,7 @@
 export type AchievementCategory = 'endurance' | 'control' | 'progress' | 'special'
+
 export type ConditionType = 'duration' | 'edge_count' | 'edge_duration' | 'streak' | 'custom'
+
 export type ComparisonType = 'greater' | 'less' | 'equal'
 
 export type Achievement = {
@@ -21,4 +23,4 @@ export type UserAchievement = {
   unlocked_at: string
   progress: number
   achievement: Achievement
-} 
+}

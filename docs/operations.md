@@ -5,7 +5,7 @@
 `GET /api/health` returns HTTP 200 with a static payload when the Next.js process can serve requests:
 
 ```json
-{"status":"ok","service":"staminatimer"}
+{ "status": "ok", "service": "staminatimer" }
 ```
 
 It is non-cacheable and intentionally does not expose environment variables, database connectivity details, versions, tokens, or secret presence. Use it for deployment readiness/liveness checks; use the privacy/browser CI jobs for deeper dependency verification.

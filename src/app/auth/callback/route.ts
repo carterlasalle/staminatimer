@@ -12,6 +12,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     if (code) {
       const cookieStore = await cookies()
+
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,7 +29,9 @@ export async function GET(request: Request): Promise<NextResponse> {
           },
         }
       )
+
       const { error } = await supabase.auth.exchangeCodeForSession(code)
+
       if (error) throw error // Throw error to be caught below
     }
 
@@ -36,6 +39,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     return NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
   } catch (error) {
     console.error('Auth callback error:', error)
+
     return NextResponse.redirect(new URL('/', request.url))
   }
 }

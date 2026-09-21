@@ -9,10 +9,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function LicenseLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function LicenseLayout({ children }: { children: React.ReactNode }) {
   return children
 }

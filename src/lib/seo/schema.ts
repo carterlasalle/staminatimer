@@ -224,9 +224,7 @@ export function generateGuidePageSchemas(guide: GuideTopic, content: GuideConten
 
   // Add FAQ schema if guide has FAQs
   if (content.faqs && content.faqs.length > 0) {
-    schemas.push(
-      generateInlineFAQSchema(content.faqs, `${SITE_CONFIG.url}/guides/${guide.slug}`)
-    )
+    schemas.push(generateInlineFAQSchema(content.faqs, `${SITE_CONFIG.url}/guides/${guide.slug}`))
   }
 
   return schemas
@@ -237,6 +235,7 @@ export function generateGuidePageSchemas(guide: GuideTopic, content: GuideConten
  */
 export function renderJsonLd(schema: object | object[]): string {
   const schemas = Array.isArray(schema) ? schema : [schema]
+
   return JSON.stringify(schemas.length === 1 ? schemas[0] : schemas)
 }
 
@@ -249,6 +248,7 @@ export function renderJsonLd(schema: object | object[]): string {
  */
 function parseReadTime(readTime: string): number {
   const match = readTime.match(/(\d+)/)
+
   return match ? parseInt(match[1], 10) : 5
 }
 
@@ -264,5 +264,6 @@ function estimateWordCount(content: GuideContent): number {
   content.tips.forEach((tip) => {
     count += tip.split(/\s+/).length
   })
+
   return count
 }

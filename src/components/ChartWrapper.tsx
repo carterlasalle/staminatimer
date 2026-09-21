@@ -14,15 +14,7 @@ import { Line } from 'react-chartjs-2'
 import type { ChartData, ChartOptions } from 'chart.js'
 
 // Register Chart.js components once when this module is loaded
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 type LineChartProps = {
   data: ChartData<'line'>

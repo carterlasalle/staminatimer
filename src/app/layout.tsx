@@ -1,51 +1,52 @@
-import { ClarityAnalytics } from "@/components/ClarityAnalytics"
-import { FontLoader } from "@/components/FontLoader"
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
-import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar"
+import { ClarityAnalytics } from '@/components/ClarityAnalytics'
+import { FontLoader } from '@/components/FontLoader'
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
+import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar'
 import {
   OrganizationJsonLd,
   SoftwareApplicationJsonLd,
   WebSiteJsonLd,
-} from "@/components/seo/JsonLd"
-import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/contexts/AuthContext"
-import { GlobalProvider } from "@/contexts/GlobalContext"
-import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Metadata, Viewport } from "next"
-import { Toaster } from "sonner"
-import "./globals.css"
+} from '@/components/seo/JsonLd'
+import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { GlobalProvider } from '@/contexts/GlobalContext'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Metadata, Viewport } from 'next'
+import { Toaster } from 'sonner'
+import './globals.css'
 
 const siteConfig = {
-  name: "Stamina Timer",
-  description: "The science-backed training app that helps men build lasting stamina and control. Track your progress, understand your patterns, and see real improvement in weeks.",
-  url: "https://staminatimer.com",
-  ogImage: "/og-image.png",
+  name: 'Stamina Timer',
+  description:
+    'The science-backed training app that helps men build lasting stamina and control. Track your progress, understand your patterns, and see real improvement in weeks.',
+  url: 'https://staminatimer.com',
+  ogImage: '/og-image.png',
   keywords: [
-    "stamina training",
-    "stamina timer",
-    "endurance training",
-    "performance improvement",
-    "stamina control",
-    "edging timer",
-    "stamina tracker",
-    "male stamina",
-    "lasting longer",
-    "sexual health",
-    "performance anxiety",
-    "stamina exercises"
+    'stamina training',
+    'stamina timer',
+    'endurance training',
+    'performance improvement',
+    'stamina control',
+    'edging timer',
+    'stamina tracker',
+    'male stamina',
+    'lasting longer',
+    'sexual health',
+    'performance anxiety',
+    'stamina exercises',
   ],
 }
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5, // Allow zooming for accessibility
   userScalable: true, // Enable pinch-to-zoom for accessibility
-  viewportFit: "cover",
+  viewportFit: 'cover',
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" }
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
   ],
 }
 
@@ -57,36 +58,32 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   keywords: siteConfig.keywords,
-  authors: [{ name: "Stamina Timer Team" }],
-  creator: "Stamina Timer",
-  publisher: "Stamina Timer",
+  authors: [{ name: 'Stamina Timer Team' }],
+  creator: 'Stamina Timer',
+  publisher: 'Stamina Timer',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  manifest: "/manifest.json",
+  manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-    shortcut: [
-      { url: "/icons/icon-192x192.png" },
-    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: [{ url: '/icons/icon-192x192.png' }],
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: 'black-translucent',
     title: siteConfig.name,
   },
   openGraph: {
-    type: "website",
-    locale: "en_US",
+    type: 'website',
+    locale: 'en_US',
     url: siteConfig.url,
     title: `${siteConfig.name} - Build Lasting Stamina & Control`,
     description: siteConfig.description,
@@ -101,11 +98,11 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: 'summary_large_image',
     title: `${siteConfig.name} - Build Lasting Stamina & Control`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
-    creator: "@staminatimer",
+    creator: '@staminatimer',
   },
   robots: {
     index: true,
@@ -113,9 +110,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
   verification: {
@@ -126,7 +123,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteConfig.url,
   },
-  category: "health",
+  category: 'health',
 }
 
 export default function RootLayout({
