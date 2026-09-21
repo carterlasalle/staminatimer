@@ -79,15 +79,10 @@ export function SoftwareApplicationJsonLd() {
       price: '0',
       priceCurrency: 'USD',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '1250',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // No aggregateRating: the app has no ratings, and inventing them is both a
+    // structured-data violation and a claim this product cannot support.
     description:
-      'The science-backed training app that helps men build lasting stamina and control. Track your progress, understand your patterns, and see real improvement in weeks.',
+      'A private training app for building lasting control. Follow a measured guided program, track your progress, and see how each session compares with your own baseline.',
     screenshot: 'https://staminatimer.com/og-image.png',
     featureList: [
       'Precision Timer with Edge Control',
