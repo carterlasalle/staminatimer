@@ -15,6 +15,16 @@ export default tseslint.config(
       'next-env.d.ts',
       '.yarn/**',
       'supabase/.temp/**',
+      // Playwright's reporter writes bundled viewer assets; they are generated
+      // build output, not source, and linting them reports hundreds of errors.
+      'playwright-report/**',
+      'test-results/**',
+      'lighthouse-report/**',
+      '.lighthouseci/**',
+      // Repository-local scratch space (AGENTS.md §12), never linted.
+      '.work/**',
+      '.artifacts/**',
+      '.cache/**',
       '.agent/**',
       '.agents/**',
       '.claude/**',

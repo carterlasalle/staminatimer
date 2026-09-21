@@ -88,3 +88,8 @@ package-lock.json
 test-results/
 playwright-report/
 .lighthouseci/
+
+.work
+.tmp
+.artifacts
+.omp
