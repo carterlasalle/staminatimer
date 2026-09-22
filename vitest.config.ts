@@ -13,5 +13,14 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
     clearMocks: true,
+    coverage: {
+      provider: 'v8',
+      // Measure every source file, not only the ones a test happens to import.
+      // Without `include`, v8 reports ~77% over the handful of touched files
+      // while the real figure across the app is ~19%.
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts'],
+      reporter: ['text', 'json-summary'],
+    },
   },
 })
