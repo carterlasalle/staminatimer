@@ -7,8 +7,6 @@ import {
   WebSiteJsonLd,
 } from '@/components/seo/JsonLd'
 import { ThemeProvider } from '@/components/theme-provider'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { GlobalProvider } from '@/contexts/GlobalContext'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata, Viewport } from 'next'
@@ -197,27 +195,26 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <GlobalProvider>
-              <div className="app-ground min-h-screen">
-                <div className="relative z-10">
-                  {children}
-                  <Toaster />
-                  {/* Both scripts 404 unless Web Analytics / Speed Insights are enabled
-                      for the deployment, so they only render when explicitly turned on. */}
-                  {VERCEL_ANALYTICS_ENABLED && (
-                    <>
-                      <SpeedInsights />
-                      <Analytics />
-                    </>
-                  )}
-                  <ClarityAnalytics />
-                  <ServiceWorkerRegistrar />
-                  <PWAInstallPrompt />
-                </div>
-              </div>
-            </GlobalProvider>
-          </AuthProvider>
+          {/* The auth and session providers live in the (app) route group, not
+              here: mounting them globally put `supabase-js` on every public page
+              for no benefit. Everything left in this tree is anonymous. */}
+          <div className="app-ground min-h-screen">
+            <div className="relative z-10">
+              {children}
+              <Toaster />
+              {/* Both scripts 404 unless Web Analytics / Speed Insights are enabled
+                  for the deployment, so they only render when explicitly turned on. */}
+              {VERCEL_ANALYTICS_ENABLED && (
+                <>
+                  <SpeedInsights />
+                  <Analytics />
+                </>
+              )}
+              <ClarityAnalytics />
+              <ServiceWorkerRegistrar />
+              <PWAInstallPrompt />
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

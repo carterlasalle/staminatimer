@@ -2829,6 +2829,29 @@ device and says so in the footer.
   favicon, `manifest.json` and `offline.html` do honour it. Matching image paths
   in the middleware would fix the rest but would run the auth path on every
   asset request.
+- **The client providers live in the `(app)` route group, not the root layout.**
+  `AuthProvider` and `GlobalProvider` both reach `supabase-js`; mounted globally
+  they put ~67 KiB of Brotli'd application JavaScript on every marketing and
+  guide page, none of which reads auth state or a session. Moving them into
+  `src/app/(app)/layout.tsx` (the group already existed as a vestigial no-op)
+  cut `/guides` from 280.2 KiB to 213.4 KiB and `/` from 318.5 to 252.4,
+  measured with Brotli. Two things hold that split together: nothing in the
+  root tree may use `useAuth`/`useGlobal` (Clarity identity was the last
+  dependency, so it moved to `ClarityIdentify` inside the group), and the
+  signed-in redirect for `/` moved into the middleware, which already holds a
+  validated user. Adding a public page that reads auth state would silently drag
+  the client back onto every page.
+- **Counting network calls by URL alone miscounts.** Supabase requests carry
+  `apikey` and `Authorization` headers, so they are non-simple and the browser
+  sends a CORS `OPTIONS` preflight. Preflights are cached, so a run can show a
+  resource twice and the next run once. Classify by HTTP method before
+  concluding anything is duplicated — a `rpc/x×2` was a POST plus its preflight,
+  not two calls.
+- **Moving a route directory silently disables its oxlint override.** The
+  `.oxlintrc.json` `overrides` entry lists exact paths, so `src/app/progress/`
+  became `src/app/(app)/progress/` and its pre-existing findings resurfaced as
+  errors. Also regenerate `.next/types` — a moved route leaves the generated
+  route validator pointing at the old path and `tsc --noEmit` fails.
 
 ## Guide content is now a hard requirement
 

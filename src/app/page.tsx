@@ -2,7 +2,6 @@
 
 import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase/client'
 import {
   FIVE_MINUTE_CHECKPOINT_MS,
   TARGET_LADDER_MS,
@@ -13,8 +12,6 @@ import {
 } from '@/lib/program/protocol-v2'
 import { ArrowRight, BarChart3, Bot, Lock, ShieldCheck, Target, Timer, Trophy } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 
 const EXAMPLE_TARGET_MS = TARGET_LADDER_MS[4] // 4:00
 const EXAMPLE_GATE = getProgressionRequirement(EXAMPLE_TARGET_MS)
@@ -110,29 +107,10 @@ function WeekPanel() {
 }
 
 export default function Home() {
-  const router = useRouter()
-
-  useEffect(() => {
-    // Send signed-in visitors to their dashboard. `requestIdleCallback` keeps the
-    // check off the first paint; the Supabase client itself is already loaded by
-    // the layout's AuthProvider, so a static import costs nothing extra here.
-    async function checkSession(): Promise<void> {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (session) {
-        router.push('/dashboard')
-      }
-    }
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => checkSession(), { timeout: 2000 })
-    } else {
-      setTimeout(checkSession, 1000)
-    }
-  }, [router])
-
+  // Signed-in visitors are sent to their dashboard by the middleware, which has
+  // already validated the session. Doing it here meant loading `supabase-js` on
+  // the landing page — the only thing that pulled it into the public bundle — to
+  // run a check the server had already done.
   return (
     <div className="app-ground min-h-screen">
       <a

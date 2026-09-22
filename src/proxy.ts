@@ -179,6 +179,18 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Signed-in visitors go straight to their dashboard. This used to run on the
+  // client, which is the only reason the landing page ever imported
+  // `supabase-js`; the middleware already holds a validated user, so the check
+  // is free here. Behaviour is unchanged — a signed-in visitor never saw the
+  // landing page — but the redirect now happens before first paint.
+  if (user && pathname === '/') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
+
+    return NextResponse.redirect(url)
+  }
+
   // Set rate limit cookie with updated timestamps
   supabaseResponse.cookies.set(rateLimitCookieName, JSON.stringify(newTimestamps), {
     httpOnly: true,
