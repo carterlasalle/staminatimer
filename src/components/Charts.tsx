@@ -138,7 +138,11 @@ export function Charts({ data: externalData }: ChartsProps = {}) {
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
-          <LineChart data={chartData} options={chartOptions} />
+          <LineChart
+            data={chartData}
+            options={chartOptions}
+            ariaLabel="Line chart of session duration over time"
+          />
         </div>
       </CardContent>
     </Card>

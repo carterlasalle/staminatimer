@@ -19,8 +19,9 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 type LineChartProps = {
   data: ChartData<'line'>
   options?: ChartOptions<'line'>
+  ariaLabel?: string
 }
 
-export function LineChart({ data, options }: LineChartProps) {
-  return <Line data={data} options={options} />
+export function LineChart({ data, options, ariaLabel }: LineChartProps) {
+  return <Line data={data} options={options} aria-label={ariaLabel} />
 }

@@ -226,6 +226,13 @@
     animation: rise-in 0.5s var(--ease-out-expo) both;
   }
 
+  /* A heading animated by GSAP SplitText. Its lines are staggered individually,
+     so the block-level rise-in here would move it a second time. Escaping the
+     attribute selector keeps the decision with the component that knows. */
+  & > [data-split] {
+    animation: none;
+  }
+
   & > *:nth-child(1) {
     animation-delay: 0ms;
   }
@@ -293,6 +300,14 @@
 
   & .supabase-auth-ui_ui-button {
     @apply h-12 font-medium transition-[color,background-color,border-color,box-shadow] duration-200;
+
+    /* `ThemeSupa` paints the brand button's label white, which is 2.69:1 on the
+       jade brand colour — a serious WCAG AA failure on the primary action, and
+       worse than the app's own buttons, which use the dark ink foreground
+       (~7:1). The label is set by the library's injected stylesheet, so neither
+       the `brandButtonText` theme variable nor a utility class moves it; this
+       needs to outrank it. */
+    color: hsl(var(--primary-foreground)) !important;
   }
 
   & .supabase-auth-ui_ui-input {

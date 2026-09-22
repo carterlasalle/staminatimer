@@ -122,7 +122,7 @@ export function SessionHistory() {
         </div>
         <div className="flex gap-2">
           <Select value={sortField} onValueChange={(value: SortField) => setSortField(value)}>
-            <SelectTrigger className="h-8 text-xs">
+            <SelectTrigger className="h-8 text-xs" aria-label="Sort sessions by">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -136,6 +136,7 @@ export function SessionHistory() {
             size="sm"
             onClick={() => setSortOrder((order) => (order === 'desc' ? 'asc' : 'desc'))}
             className="h-8 px-2"
+            aria-label={`Sort ${sortOrder === 'desc' ? 'ascending' : 'descending'}`}
           >
             {sortOrder === 'desc' ? '↓' : '↑'}
           </Button>

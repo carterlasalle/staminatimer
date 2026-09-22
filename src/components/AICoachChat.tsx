@@ -238,6 +238,7 @@ export function AICoachChat() {
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="icon"
+              aria-label="Send message"
             >
               <Send className="h-4 w-4" />
             </Button>

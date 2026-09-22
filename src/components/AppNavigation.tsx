@@ -100,6 +100,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 size="icon"
                 className="lg:hidden"
                 onClick={() => setSidebarOpen(false)}
+                aria-label="Close navigation"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -161,6 +162,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
                 size="icon"
                 className="lg:hidden"
                 onClick={() => setSidebarOpen(true)}
+                aria-label="Open navigation"
               >
                 <Menu className="h-5 w-5" />
               </Button>

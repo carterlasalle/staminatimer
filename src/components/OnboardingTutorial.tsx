@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+// `motion` is this library's current name; `framer-motion` is the same code
+// under the old one, and importing both ships it twice.
+import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -467,7 +469,13 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
             <Timer className="h-5 w-5 text-primary" />
             <span className="font-semibold">Stamina Timer</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSkip}
+            className="h-8 w-8"
+            aria-label="Skip the tutorial"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -480,7 +488,7 @@ export function OnboardingTutorial({ onComplete, isOpen }: OnboardingTutorialPro
             </span>
             <span>{Math.round(progress)}% complete</span>
           </div>
-          <Progress value={progress} className="h-1.5" />
+          <Progress value={progress} className="h-1.5" label="Setup progress" />
         </div>
 
         {/* Content */}

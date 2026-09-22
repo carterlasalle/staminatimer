@@ -18,11 +18,16 @@ import { useTheme } from 'next-themes'
 
 export default function LoginPage() {
   const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   // Resolved after mount: `window` does not exist while this page is rendered on
   // the server, and Supabase needs an absolute redirect target.
   const [redirectTo, setRedirectTo] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -224,7 +229,17 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="auth-container">
+              {/* Before hydration the browser would submit this form natively, and
+                  with no `method` that is a GET — the credentials end up in the
+                  URL. `main.tsx` installs a submit guard for that, and this makes
+                  the window explicit: the form is not interactive until React is,
+                  so a click cannot be silently swallowed either. */}
+              <div
+                className={
+                  mounted ? 'auth-container' : 'auth-container pointer-events-none opacity-60'
+                }
+                aria-busy={!mounted}
+              >
                 <Auth
                   supabaseClient={supabase}
                   appearance={{

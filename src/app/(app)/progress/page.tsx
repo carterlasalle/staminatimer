@@ -434,7 +434,7 @@ export default function ProgressPage() {
                         value={newGoalType}
                         onValueChange={(v) => setNewGoalType(v as typeof newGoalType)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Goal type">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -463,7 +463,7 @@ export default function ProgressPage() {
                         value={newGoalPriority}
                         onValueChange={(v) => setNewGoalPriority(v as typeof newGoalPriority)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Goal priority">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -474,8 +474,9 @@ export default function ProgressPage() {
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                      <Label>Days</Label>
+                      <Label htmlFor="goal-days">Days</Label>
                       <Input
+                        id="goal-days"
                         type="number"
                         placeholder="30"
                         value={newGoalDays}
@@ -513,6 +514,7 @@ export default function ProgressPage() {
                           size="icon"
                           className="h-5 w-5 text-muted-foreground hover:text-destructive"
                           onClick={() => handleDeleteGoal(goal.id)}
+                          aria-label={`Delete goal ${goal.title}`}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>

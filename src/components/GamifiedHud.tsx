@@ -138,8 +138,11 @@ export function GamifiedHud() {
               </div>
             </div>
             <div className="space-y-2">
-              <Progress value={level.progressPct} className="h-2 bg-accent dark:bg-accent/20" />
-              label="Level progress"
+              <Progress
+                value={level.progressPct}
+                className="h-2 bg-accent dark:bg-accent/20"
+                label="Level progress"
+              />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{level.currentLevelXp} XP</span>
                 <span>
@@ -191,8 +194,7 @@ export function GamifiedHud() {
               </div>
             </div>
             <div className="space-y-2">
-              <Progress value={goalPct} className="h-2" />
-              label="Daily goal progress"
+              <Progress value={goalPct} className="h-2" label="Daily goal progress" />
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
@@ -207,6 +209,7 @@ export function GamifiedHud() {
                 size="sm"
                 className="h-6 w-6 p-0"
                 onClick={() => setDailyGoalMinutes(Math.max(5, prefs.dailyGoalMinutes - 5))}
+                aria-label="Decrease daily goal by 5 minutes"
               >
                 <Minus className="h-3 w-3" />
               </Button>
@@ -215,6 +218,7 @@ export function GamifiedHud() {
                 size="sm"
                 className="h-6 w-6 p-0"
                 onClick={() => setDailyGoalMinutes(prefs.dailyGoalMinutes + 5)}
+                aria-label="Increase daily goal by 5 minutes"
               >
                 <Plus className="h-3 w-3" />
               </Button>
@@ -241,8 +245,11 @@ export function GamifiedHud() {
               </div>
             </div>
             <div className="space-y-2">
-              <Progress value={(unlockedAchievements / totalAchievements) * 100} className="h-2" />
-              label="Achievements unlocked"
+              <Progress
+                value={(unlockedAchievements / totalAchievements) * 100}
+                className="h-2"
+                label="Achievements unlocked"
+              />
               <div className="text-xs text-muted-foreground">
                 {totalAchievements - unlockedAchievements} achievements remaining
               </div>

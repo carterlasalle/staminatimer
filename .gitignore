@@ -94,5 +94,5 @@ playwright-report/
 .artifacts
 .omp
 
-# staged from the @rive-app/canvas dependency by scripts/copy-rive-wasm.mjs
-public/rive/
+# Playwright session state
+e2e/.auth/

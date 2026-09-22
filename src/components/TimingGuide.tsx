@@ -91,7 +91,11 @@ export function TimingGuide() {
               <Activity className="h-5 w-5" />
               Stroke Timing Guide
             </CardTitle>
-            <Switch checked={isStrokeGuideEnabled} onCheckedChange={toggleStrokeGuide} />
+            <Switch
+              checked={isStrokeGuideEnabled}
+              onCheckedChange={toggleStrokeGuide}
+              aria-label="Toggle stroke timing guide"
+            />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -102,7 +106,7 @@ export function TimingGuide() {
               value={currentStrokeLevel}
               onValueChange={(value) => changeStrokeLevel(value as StrokeTimingLevel)}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Stroke timing level">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -153,8 +157,11 @@ export function TimingGuide() {
                 <div className="text-sm text-muted-foreground mb-3">
                   Next: {strokePhase.nextInstruction}
                 </div>
-                <Progress value={strokePhase.progress} className="h-2" />
-                label="Guided stroke progress"
+                <Progress
+                  value={strokePhase.progress}
+                  className="h-2"
+                  label="Guided stroke progress"
+                />
               </div>
 
               <div className="flex justify-center">
@@ -181,7 +188,11 @@ export function TimingGuide() {
               <Timer className="h-5 w-5" />
               Guided Session Intervals
             </CardTitle>
-            <Switch checked={isGuidedSessionEnabled} onCheckedChange={toggleGuidedSession} />
+            <Switch
+              checked={isGuidedSessionEnabled}
+              onCheckedChange={toggleGuidedSession}
+              aria-label="Toggle guided session intervals"
+            />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -192,7 +203,7 @@ export function TimingGuide() {
               value={currentSessionInterval}
               onValueChange={(value) => changeSessionInterval(value as SessionInterval)}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Guided session pattern">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

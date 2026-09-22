@@ -329,15 +329,15 @@ export default function TrainingPage() {
         <h1 className="sr-only">Training timer</h1>
         <Tabs defaultValue="timer" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="timer" className="gap-2">
+            <TabsTrigger value="timer" className="gap-2" aria-label="Timer">
               <TimerIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Timer</span>
             </TabsTrigger>
-            <TabsTrigger value="kegels" className="gap-2">
+            <TabsTrigger value="kegels" className="gap-2" aria-label="Kegel exercises">
               <Dumbbell className="h-4 w-4" />
               <span className="hidden sm:inline">Kegels</span>
             </TabsTrigger>
-            <TabsTrigger value="mental" className="gap-2">
+            <TabsTrigger value="mental" className="gap-2" aria-label="Mental exercises">
               <Brain className="h-4 w-4" />
               <span className="hidden sm:inline">Mental</span>
             </TabsTrigger>
@@ -407,6 +407,7 @@ export default function TrainingPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setKegelRunning(!kegelRunning)}
+                        aria-label={kegelRunning ? 'Pause kegel workout' : 'Resume kegel workout'}
                       >
                         {kegelRunning ? (
                           <Pause className="h-4 w-4" />
@@ -421,6 +422,7 @@ export default function TrainingPage() {
                           setKegelWorkout(null)
                           setKegelRunning(false)
                         }}
+                        aria-label="Reset kegel workout"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -500,6 +502,9 @@ export default function TrainingPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setMentalRunning(!mentalRunning)}
+                        aria-label={
+                          mentalRunning ? 'Pause mental exercise' : 'Resume mental exercise'
+                        }
                       >
                         {mentalRunning ? (
                           <Pause className="h-4 w-4" />
@@ -514,6 +519,7 @@ export default function TrainingPage() {
                           setMentalSession(null)
                           setMentalRunning(false)
                         }}
+                        aria-label="Reset mental exercise"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>

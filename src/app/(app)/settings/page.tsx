@@ -305,6 +305,7 @@ export default function SettingsPage() {
                 </span>
               </div>
               <Slider
+                label="Daily goal in minutes"
                 value={[trainingPrefs.dailyGoalMinutes]}
                 onValueChange={([value]) => setDailyGoalMinutes(value)}
                 min={5}

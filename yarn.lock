@@ -59,6 +59,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@axe-core/playwright@npm:^4.13.0":
+  version: 4.13.0
+  resolution: "@axe-core/playwright@npm:4.13.0"
+  dependencies:
+    axe-core: "npm:~4.13.0"
+  peerDependencies:
+    playwright-core: ">= 1.0.0"
+  checksum: 10c0/0938f24f3955bfa11c77c326300646a4f1dcd513389320ace9985d68486a622c443b2a34cd86f6002f617a3395623ad1e99a622450830873166aaa7e0312aa68
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.10.4":
   version: 7.28.6
   resolution: "@babel/code-frame@npm:7.28.6"
@@ -2177,6 +2188,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rive-app/canvas@npm:2.42.2, @rive-app/canvas@npm:^2.42.2":
+  version: 2.42.2
+  resolution: "@rive-app/canvas@npm:2.42.2"
+  checksum: 10c0/1b12992bf4c5e251dc8dc2250b94f24b8d4ef037d0e6a6a155a32789e12818f53565c67f45275e68c8b0f2a70f170059df1a1fcfe4fa5d67085c49e8dbd96a15
+  languageName: node
+  linkType: hard
+
+"@rive-app/react-canvas@npm:^4.34.3":
+  version: 4.34.3
+  resolution: "@rive-app/react-canvas@npm:4.34.3"
+  dependencies:
+    "@rive-app/canvas": "npm:2.42.2"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0
+  checksum: 10c0/aaa668097e8364d64bc2ce7a40bb27476971b3cae65ef3a720d1857f9a170af88fad20344854f204fcb848d287d0c31dabe9e3fc203f376575f0c962d4220769
+  languageName: node
+  linkType: hard
+
 "@rolldown/pluginutils@npm:1.0.0-beta.53":
   version: 1.0.0-beta.53
   resolution: "@rolldown/pluginutils@npm:1.0.0-beta.53"
@@ -3668,6 +3697,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axe-core@npm:~4.13.0":
+  version: 4.13.0
+  resolution: "axe-core@npm:4.13.0"
+  checksum: 10c0/0e3be8be10eea64beddefd3007e1425424ff60c26c5f4d5f748ec48c2825356839c02ad4167fc1f03a6d84ecd82108f49fb2846ab7fe949273787391745561ca
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^4.1.0":
   version: 4.1.0
   resolution: "axobject-query@npm:4.1.0"
@@ -5026,25 +5062,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^12.29.0":
-  version: 12.29.0
-  resolution: "framer-motion@npm:12.29.0"
+"framer-motion@npm:^13.4.0":
+  version: 13.4.0
+  resolution: "framer-motion@npm:13.4.0"
   dependencies:
-    motion-dom: "npm:^12.29.0"
-    motion-utils: "npm:^12.27.2"
+    motion-dom: "npm:^13.3.0"
+    motion-utils: "npm:^13.3.0"
     tslib: "npm:^2.4.0"
   peerDependencies:
-    "@emotion/is-prop-valid": "*"
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
-    "@emotion/is-prop-valid":
-      optional: true
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 10c0/42e7c883cf404a71d479fa2e88db4a933b725b2d3072c3aff2a538b3cf58bad5b7ac86b02494765354091e0776faab33568e8798a9ab8af81dd3db4bbc154386
+  checksum: 10c0/1cba0f674c0a3893c7803876a54fa2c2c66a1a06665668cc8145909478cc6d78944c85a8eb9bdc169c61b3163cc597a2c0ebd0bcc37c2e3410e5960950b5d40b
   languageName: node
   linkType: hard
 
@@ -5256,6 +5289,13 @@ __metadata:
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: 10c0/386d011a553e02bc594ac2ca0bd6d9e4c22d7fa8cfbfc448a6d148c59ea881b092db9dbe3547ae4b88e55f1b01f7c4a2ecc53b310c042793e63aa44cf6c257f2
+  languageName: node
+  linkType: hard
+
+"gsap@npm:^3.15.0":
+  version: 3.15.0
+  resolution: "gsap@npm:3.15.0"
+  checksum: 10c0/5d86de72cb0bd6b20502c34c329a83a7d679979731bb465164407b7a5225aa61d612beee740eea36258622897c116cd2ca35320d530b7cf68bad62522361fcf7
   languageName: node
   linkType: hard
 
@@ -6952,19 +6992,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motion-dom@npm:^12.29.0":
-  version: 12.29.0
-  resolution: "motion-dom@npm:12.29.0"
+"motion-dom@npm:^13.3.0":
+  version: 13.3.0
+  resolution: "motion-dom@npm:13.3.0"
   dependencies:
-    motion-utils: "npm:^12.27.2"
-  checksum: 10c0/a2e5d381ca3e9d02e5d9d468543c30b40f03be1b61aa85832d031cd01690aa322c06c8f41a1d6f6edb884cc6680dfffda7b1c34690bcc22c7124f6ddae649a79
+    motion-utils: "npm:^13.3.0"
+  checksum: 10c0/b59ee63a4a487abb571159853d9bb47c02740d9707f01b91440b2d157af26cde16db5ebf29d1b5e19aabccc9dcb9ec763e9bbf931fdf25beae2af3e4d0f9652d
   languageName: node
   linkType: hard
 
-"motion-utils@npm:^12.27.2":
-  version: 12.27.2
-  resolution: "motion-utils@npm:12.27.2"
-  checksum: 10c0/b04ed72b4d66565d3a2791577060e0a9662fbe6a23672ffa722950ec357fe464064091118f5283860878f2447392c3ba6520a6d69559bf4b20fe8fe7b3d7b95b
+"motion-utils@npm:^13.3.0":
+  version: 13.3.0
+  resolution: "motion-utils@npm:13.3.0"
+  checksum: 10c0/9efb8388cc43501d1d6d1f2997fdd3a9e4c2bd42c57c3979586fdbcc83969a3b9aae7e3108cfb53312db0a46d945ad1b4d54ad388a6585f2eb5f5e742a58d927
+  languageName: node
+  linkType: hard
+
+"motion@npm:^13.4.0":
+  version: 13.4.0
+  resolution: "motion@npm:13.4.0"
+  dependencies:
+    framer-motion: "npm:^13.4.0"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/d2fe0daa87ef102b11ae95b7c798e592a912058c8c5c64c2960b7dcf215261a0c4f696fa4cfb2656f357a4d4cf5fd864a0cc99964ba781c8daa10a22a1132304
   languageName: node
   linkType: hard
 
@@ -8389,6 +8447,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "staminatimer@workspace:."
   dependencies:
+    "@axe-core/playwright": "npm:^4.13.0"
     "@google/generative-ai": "npm:^0.24.1"
     "@microsoft/clarity": "npm:^1.0.2"
     "@oxlint/plugins": "npm:1.83.0"
@@ -8404,6 +8463,8 @@ __metadata:
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@radix-ui/react-switch": "npm:^1.2.6"
     "@radix-ui/react-tabs": "npm:^1.1.13"
+    "@rive-app/canvas": "npm:^2.42.2"
+    "@rive-app/react-canvas": "npm:^4.34.3"
     "@supabase/auth-ui-react": "npm:^0.4.7"
     "@supabase/auth-ui-shared": "npm:^0.1.8"
     "@supabase/ssr": "npm:^0.8.0"
@@ -8433,11 +8494,12 @@ __metadata:
     eslint-config-next: "npm:^16.1.4"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.0.1"
-    framer-motion: "npm:^12.29.0"
+    gsap: "npm:^3.15.0"
     jsdom: "npm:^27.4.0"
     jspdf: "npm:^4.2.1"
     jspdf-autotable: "npm:^5.0.7"
     lucide-react: "npm:^0.562.0"
+    motion: "npm:^13.4.0"
     next: "npm:^16.3.3"
     next-themes: "npm:^0.4.6"
     oxlint: "npm:1.83.0"

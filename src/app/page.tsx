@@ -1,6 +1,10 @@
 'use client'
 
+import { AnimatedGroup } from '@/components/motion/AnimatedGroup'
 import { ModeToggle } from '@/components/mode-toggle'
+import { NumberTicker } from '@/components/motion/NumberTicker'
+import { ScrollReveal } from '@/components/motion/ScrollReveal'
+import { SplitHeading } from '@/components/motion/SplitHeading'
 import { Button } from '@/components/ui/button'
 import {
   FIVE_MINUTE_CHECKPOINT_MS,
@@ -67,7 +71,8 @@ function TargetPanel() {
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          {EXAMPLE_GATE.requiredPasses} of {EXAMPLE_GATE.requiredObservations} passed
+          <NumberTicker value={EXAMPLE_GATE.requiredPasses} durationMs={900} /> of{' '}
+          {EXAMPLE_GATE.requiredObservations} passed
         </p>
         <span className="flex gap-1.5" aria-hidden>
           <span className="h-1.5 w-7 rounded-full bg-primary" />
@@ -167,6 +172,15 @@ export default function Home() {
                 Guided training for lasting longer
               </p>
 
+              {/*
+                Deliberately a plain h1 with the CSS rise-in, not a SplitHeading.
+                The hero headline is the largest-contentful element, so any
+                entrance animation on it delays the moment it reaches its final
+                painted state — and therefore the LCP. Measured on a throttled
+                mobile profile: SplitText here took LCP from 2.2 s to 4.4 s. The
+                section headings below the fold use it instead, where it costs
+                nothing that is measured.
+              */}
               <h1 className="mt-4 font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Build lasting control, measured one session at a time.
               </h1>
@@ -223,9 +237,13 @@ export default function Home() {
               <p className="text-xs font-medium uppercase tracking-wider text-primary">
                 The program
               </p>
-              <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+              <SplitHeading
+                as="h2"
+                delay={0.05}
+                className="mt-3 font-display text-3xl tracking-tight sm:text-4xl"
+              >
                 Most training time around moderate arousal
-              </h2>
+              </SplitHeading>
               <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
                 Each session type has one job. Control builds the block. Endurance tests it once
                 without a retry. Baseline measures it the same way every time. Reset is breathing,
@@ -233,7 +251,11 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mt-12 grid gap-10 lg:grid-cols-3 lg:gap-12">
+            <AnimatedGroup
+              className="mt-12 grid gap-10 lg:grid-cols-3 lg:gap-12"
+              itemClassName=""
+              stagger={0.08}
+            >
               <div>
                 <h3 className="text-sm font-medium">Steady, accelerating, or a full reset</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -260,9 +282,9 @@ export default function Home() {
                   {formatTarget(TARGET_LADDER_MS[TARGET_LADDER_MS.length - 1])}.
                 </p>
               </div>
-            </div>
+            </AnimatedGroup>
 
-            <div className="mt-12 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <ScrollReveal className="mt-12 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <span className="text-xs uppercase tracking-wider">Target ladder</span>
               {TARGET_LADDER_MS.map((target) => (
                 <span
@@ -272,7 +294,7 @@ export default function Home() {
                   {formatTarget(target)}
                 </span>
               ))}
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 
@@ -284,26 +306,32 @@ export default function Home() {
                 <p className="text-xs font-medium uppercase tracking-wider text-primary">
                   What&apos;s inside
                 </p>
-                <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+                <SplitHeading
+                  as="h2"
+                  delay={0.1}
+                  className="mt-3 font-display text-3xl tracking-tight sm:text-4xl"
+                >
                   Everything the training needs, nothing it doesn&apos;t
-                </h2>
+                </SplitHeading>
                 <p className="mt-5 text-base leading-relaxed text-muted-foreground">
                   No leaderboards, no streak pressure, and no claims about what a number on a scale
                   means about you.
                 </p>
               </div>
 
-              <ul className="divide-y divide-border/60 border-y border-border/60">
-                {INCLUDED.map((item) => (
-                  <li key={item.title} className="flex gap-4 py-5">
-                    <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-                    <div>
-                      <h3 className="text-sm font-medium">{item.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <ScrollReveal>
+                <ul className="divide-y divide-border/60 border-y border-border/60">
+                  {INCLUDED.map((item) => (
+                    <li key={item.title} className="flex gap-4 py-5">
+                      <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                      <div>
+                        <h3 className="text-sm font-medium">{item.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </ScrollReveal>
             </div>
           </div>
         </section>
@@ -313,9 +341,13 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-wider text-primary">Privacy</p>
-              <h2 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+              <SplitHeading
+                as="h2"
+                delay={0.15}
+                className="mt-3 font-display text-3xl tracking-tight sm:text-4xl"
+              >
                 Nothing here is anyone else&apos;s business
-              </h2>
+              </SplitHeading>
             </div>
 
             <ul className="mt-12 grid gap-10 md:grid-cols-2 md:gap-16">
@@ -343,9 +375,13 @@ export default function Home() {
         {/* One closing action. */}
         <section className="py-20 md:py-28">
           <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="font-display text-3xl tracking-tight sm:text-4xl">
+            <SplitHeading
+              as="h2"
+              delay={0.2}
+              className="font-display text-3xl tracking-tight sm:text-4xl"
+            >
               Start with today&apos;s session
-            </h2>
+            </SplitHeading>
             <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               The program tells you what to do today, what you are training toward, and whether
               today counted.

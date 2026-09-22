@@ -187,6 +187,7 @@ export function Timer() {
                   showTimingGuide && 'text-primary bg-primary/10'
                 )}
                 title="Timing guides"
+                aria-label="Toggle timing guides"
               >
                 <Settings className="h-4 w-4" />
               </Button>
@@ -196,6 +197,7 @@ export function Timer() {
                 onClick={() => setShowKeyboardHints(!showKeyboardHints)}
                 className="h-8 w-8 md:h-9 md:w-9 text-muted-foreground hover:text-foreground hidden sm:flex"
                 title="Keyboard shortcuts"
+                aria-label="Toggle keyboard shortcuts"
               >
                 <Keyboard className="h-4 w-4" />
               </Button>
@@ -241,8 +243,7 @@ export function Timer() {
                 <span>Edge Time Ratio</span>
                 <span>{edgePercentage.toFixed(1)}%</span>
               </div>
-              <Progress value={edgePercentage} className="h-3" />
-              label="Edge time share"
+              <Progress value={edgePercentage} className="h-3" label="Edge time share" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Active: {(100 - edgePercentage).toFixed(1)}%</span>
                 <span>Edge: {edgePercentage.toFixed(1)}%</span>

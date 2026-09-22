@@ -162,6 +162,20 @@ export default function RootLayout({
       className={`${fontBody.variable} ${fontDisplay.variable}`}
     >
       <head>
+        {/* A form that carries a password must never submit natively. Clicking
+            "Sign in" before hydration falls through to the browser's default
+            submission, and because the auth form has no `method` that is a GET:
+            the credentials land in the URL, and so in browser history,
+            referrers and server logs. This runs at parse time, so it covers the
+            window before React has attached; once hydrated React handles the
+            submit and calls `preventDefault` itself, so nothing changes. Scoped
+            to forms containing a password input so no other form is affected. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.addEventListener('submit',function(e){var f=e.target;if(f instanceof HTMLFormElement&&f.querySelector('input[type=\"password\"]')){e.preventDefault()}},true)",
+          }}
+        />
         {/* PWA - iOS specific */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

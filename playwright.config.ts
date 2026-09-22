@@ -16,9 +16,21 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
+    // One login, reused. Signing in per test tripped the app's own auth rate
+    // limiter and failed unrelated tests.
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // The session captured by the setup project, so authenticated specs do
+        // not each sign in (and do not trip the auth rate limiter).
+        storageState: 'e2e/.auth/user.json',
+      },
+      dependencies: ['setup'],
     },
   ],
   webServer: externalBaseUrl
