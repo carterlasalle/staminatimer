@@ -45,7 +45,7 @@ export function CinematicHero() {
     let disposed = false
     void import('@/lib/motion/gsap-runtime').then(async ({ withGsap }) => {
       if (disposed) return
-      await withGsap(({ gsap, ScrollTrigger }) => {
+      await withGsap(({ gsap }) => {
         if (disposed) return
         context = gsap.context(() => {
           gsap.fromTo(scene, { scale: 1.012 }, { scale: 1, duration: 1.15, ease: 'power3.out' })
