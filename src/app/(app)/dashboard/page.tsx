@@ -14,13 +14,44 @@ import {
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
+const WEEKDAYS = [
+  { label: 'M', name: 'Monday' },
+  { label: 'T', name: 'Tuesday' },
+  { label: 'W', name: 'Wednesday' },
+  { label: 'T', name: 'Thursday' },
+  { label: 'F', name: 'Friday' },
+  { label: 'S', name: 'Saturday' },
+  { label: 'S', name: 'Sunday' },
+] as const
+
 export default function Dashboard() {
   const { showOnboarding, completeOnboarding } = useOnboarding()
-  const { loading, needsOnboarding, currentTargetMs, gate, sessions } = useProgramV2Progress()
-  const sessionType = getScheduledSessionType(new Date())
+  const { loading, error, needsOnboarding, currentTargetMs, gate, sessions } =
+    useProgramV2Progress()
+  const today = new Date()
+  const sessionType = getScheduledSessionType(today)
+  const mondayFirstDayIndex = (today.getDay() + 6) % 7
   const prescription = getSessionPrescription(sessionType)
   const latest = sessions[0]
   const requirement = getProgressionRequirement(currentTargetMs)
+
+  if (error) {
+    return (
+      <AppNavigation>
+        <div className="mx-auto max-w-3xl px-5 py-16 sm:px-8">
+          <p className="text-xs font-medium tracking-[0.16em] text-destructive uppercase">
+            Program unavailable
+          </p>
+          <h1 className="mt-3 font-display text-4xl tracking-[-0.05em]">
+            We couldn&apos;t load your training data.
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground" role="alert">
+            {error}
+          </p>
+        </div>
+      </AppNavigation>
+    )
+  }
 
   return (
     <AppNavigation>
@@ -99,13 +130,15 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="today-rhythm mt-6">
-              <span className="is-current">M</span>
-              <span>T</span>
-              <span>W</span>
-              <span>T</span>
-              <span>F</span>
-              <span>S</span>
-              <span>S</span>
+              {WEEKDAYS.map(({ label, name }, index) => (
+                <span
+                  key={name}
+                  title={name}
+                  className={index === mondayFirstDayIndex ? 'is-current' : ''}
+                >
+                  {label}
+                </span>
+              ))}
             </div>
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
               Today&apos;s session is {prescription.label.toLowerCase()}. The schedule gives each

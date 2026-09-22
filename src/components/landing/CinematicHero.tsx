@@ -20,26 +20,37 @@ export function CinematicHero() {
     let currentX = 0
     let currentY = 0
 
+    const render = () => {
+      frame = 0
+      const deltaX = targetX - currentX
+      const deltaY = targetY - currentY
+      const settled = Math.abs(deltaX) <= 0.001 && Math.abs(deltaY) <= 0.001
+
+      currentX = settled ? targetX : currentX + deltaX * 0.045
+      currentY = settled ? targetY : currentY + deltaY * 0.045
+      scene.style.setProperty('--px', currentX.toFixed(3))
+      scene.style.setProperty('--py', currentY.toFixed(3))
+
+      if (!settled) frame = requestAnimationFrame(render)
+    }
+    const start = () => {
+      if (frame === 0) frame = requestAnimationFrame(render)
+    }
     const move = (event: PointerEvent) => {
       const rect = scene.getBoundingClientRect()
       targetX = ((event.clientX - rect.left) / rect.width - 0.5) * 2
       targetY = ((event.clientY - rect.top) / rect.height - 0.5) * 2
+      start()
     }
     const reset = () => {
       targetX = 0
       targetY = 0
-    }
-    const render = () => {
-      currentX += (targetX - currentX) * 0.045
-      currentY += (targetY - currentY) * 0.045
-      scene.style.setProperty('--px', currentX.toFixed(3))
-      scene.style.setProperty('--py', currentY.toFixed(3))
-      frame = requestAnimationFrame(render)
+      start()
     }
 
     scene.addEventListener('pointermove', move)
     scene.addEventListener('pointerleave', reset)
-    frame = requestAnimationFrame(render)
+    start()
 
     let context: { revert: () => void } | undefined
     let disposed = false

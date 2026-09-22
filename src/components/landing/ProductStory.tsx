@@ -31,6 +31,7 @@ export function ProductStory() {
       if (disposed) return
       await withGsap(({ gsap }) => {
         if (disposed) return
+        section.classList.add('story-enhanced')
         context = gsap.context(() => {
           const states = gsap.utils.toArray<HTMLElement>('.story-state')
           const copies = gsap.utils.toArray<HTMLElement>('.story-copy')
@@ -88,6 +89,7 @@ export function ProductStory() {
     return () => {
       disposed = true
       context?.revert()
+      section.classList.remove('story-enhanced')
     }
   }, [])
 
@@ -98,10 +100,7 @@ export function ProductStory() {
         <div className="landing-story-copy">
           <p className="landing-kicker text-[#75a3b2]">Practice. Measure. Progress.</p>
           {STORY_COPY.map(([label, heading, detail], index) => (
-            <div
-              key={label}
-              className={`story-copy ${index === 0 ? 'relative' : 'absolute inset-x-0 top-7'}`}
-            >
+            <div key={label} className="story-copy">
               <p className="mt-8 text-sm text-[#afc9cf]">
                 0{index + 1} / {label}
               </p>
@@ -131,7 +130,7 @@ export function ProductStory() {
               Begin session <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="story-state story-train absolute inset-0">
+          <div className="story-state story-train">
             <p className="landing-interface-label">Control session · 04:18 elapsed</p>
             <div className="mt-20 text-center">
               <p className="font-display text-[clamp(5.5rem,12vw,10rem)] leading-none tracking-[-0.08em] text-[#edf3f1] tabular-nums">
@@ -139,22 +138,16 @@ export function ProductStory() {
               </p>
               <p className="mt-5 text-sm tracking-[0.18em] text-[#d6b46f] uppercase">Steady</p>
             </div>
-            <div className="absolute bottom-0 flex w-full items-center justify-between border-t border-[#d7e5e5]/15 pt-5 text-sm text-[#d7e5e5]">
-              <button
-                className="flex items-center gap-2 transition-colors hover:text-white"
-                type="button"
-              >
+            <div className="story-train-controls flex w-full items-center justify-between border-t border-[#d7e5e5]/15 pt-5 text-sm text-[#d7e5e5]">
+              <span className="flex items-center gap-2">
                 <Pause className="h-4 w-4" /> Pause
-              </button>
-              <button
-                className="flex items-center gap-2 transition-colors hover:text-white"
-                type="button"
-              >
+              </span>
+              <span className="flex items-center gap-2">
                 <RotateCcw className="h-4 w-4" /> Need a reset
-              </button>
+              </span>
             </div>
           </div>
-          <div className="story-state story-progress absolute inset-0">
+          <div className="story-state story-progress">
             <p className="landing-interface-label">Current target</p>
             <div className="mt-9 flex items-end justify-between border-b border-[#d7e5e5]/15 pb-7">
               <p className="font-display text-6xl tracking-[-0.06em] text-[#edf3f1] tabular-nums">

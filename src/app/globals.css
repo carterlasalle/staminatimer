@@ -676,8 +676,20 @@
 }
 
 .landing-story-copy {
+  display: grid;
+  gap: 3rem;
+}
+
+.story-enhanced .landing-story-copy {
+  display: block;
   position: relative;
   min-height: 18rem;
+}
+
+.story-enhanced .story-copy:not(:first-of-type) {
+  position: absolute;
+  inset-inline: 0;
+  top: 1.75rem;
 }
 
 .landing-product-frame {
@@ -699,13 +711,35 @@
 }
 
 .story-state {
+  position: relative;
   z-index: 1;
   height: 100%;
 }
-.story-train,
-.story-progress {
+
+.story-state + .story-state {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(215, 229, 229, 0.15);
+}
+
+.story-train-controls {
+  margin-top: 4rem;
+}
+
+.story-enhanced .story-state + .story-state {
+  position: absolute;
+  inset: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+.story-enhanced .story-train-controls {
+  position: absolute;
+  bottom: 0;
+  margin-top: 0;
 }
 .landing-interface-label {
   color: #75a3b2;
@@ -785,6 +819,9 @@
     grid-template-columns: 1fr;
   }
   .landing-story-copy {
+    gap: 2.5rem;
+  }
+  .story-enhanced .landing-story-copy {
     min-height: 14.5rem;
   }
   .landing-product-frame {

@@ -51,7 +51,10 @@ const cspDirectives = [
     'https://generativelanguage.googleapis.com',
     'https://www.clarity.ms',
     'https://*.clarity.ms',
+    'https://vercel.live',
   ].join(' '),
+  // Frame-src: Vercel Live renders its preview toolbar in an embedded frame.
+  "frame-src 'self' https://vercel.live",
   // Frame ancestors: Prevent clickjacking
   "frame-ancestors 'none'",
   // Base URI: Prevent base tag hijacking
