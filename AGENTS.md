@@ -2799,7 +2799,7 @@ device and says so in the footer.
   "Browser errors were logged to the console"). `fetchSessions` already guarded
   on `user`; the subscription did not.
 - **Next ships a guarded polyfill block that Lighthouse reports as "Legacy
-  JavaScript" (~14 KiB).** It lives in a chunk that modern browsers *do* load,
+  JavaScript" (~14 KiB).** It lives in a chunk that modern browsers _do_ load,
   but every polyfill is behind `||`, so it is inert. It comes from
   `next/dist/build/polyfills/polyfill-module.js`, not from this repo, and there
   is no supported toggle. Leave it alone; patching the bundler to drop it is

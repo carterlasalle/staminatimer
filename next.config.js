@@ -122,6 +122,27 @@ const nextConfig = {
           { key: 'Cross-Origin-Embedder-Policy', value: 'unsafe-none' },
         ],
       },
+      {
+        // `/public` files ship with no cache lifetime — the favicon and the PWA
+        // manifest were revalidated on every page load. These filenames are
+        // stable rather than content-hashed, so this is a long-but-not-immutable
+        // lifetime with stale-while-revalidate: repeat visitors stop asking, and
+        // a change propagates within a day instead of being pinned for a year.
+        //
+        // Known limitation: Next's static file handler overwrites Cache-Control
+        // for `/icons/*.png` with `public, max-age=0`, so those keep
+        // revalidating. Fixing them would mean matching image paths in the
+        // middleware, which would run the auth path on every asset request —
+        // a worse trade. The service worker caches `/icons/*` cache-first for
+        // returning visitors, so the cost is limited to a first visit.
+        source: '/(favicon.ico|manifest.json|offline.html)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
     ]
   },
 }
