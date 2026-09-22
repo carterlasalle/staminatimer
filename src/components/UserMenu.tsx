@@ -10,25 +10,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { LogOut, Settings, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export function UserMenu() {
-  const [email, setEmail] = useState<string | null>(null)
+  const { user } = useAuth()
+  const email = user?.email ?? null
   const router = useRouter()
-
-  useEffect(() => {
-    async function getUser(): Promise<void> {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setEmail(user?.email ?? null)
-    }
-
-    getUser()
-  }, [])
 
   const handleSignOut = async (): Promise<void> => {
     try {

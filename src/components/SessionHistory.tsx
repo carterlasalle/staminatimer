@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatDuration } from '@/lib/utils'
 import { RefreshCw, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState, useRef } from 'react'
@@ -40,6 +41,7 @@ type DBSession = {
 }
 
 export function SessionHistory() {
+  const { user } = useAuth()
   const [sessions, setSessions] = useState<DBSession[]>([])
   const [loading, setLoading] = useState(true)
   const [sortField, setSortField] = useState<SortField>('created_at')
@@ -58,9 +60,6 @@ export function SessionHistory() {
 
   const fetchSessions = useCallback(async (): Promise<void> => {
     setLoading(true)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
 
     if (!user?.id) {
       setLoading(false)
@@ -83,7 +82,7 @@ export function SessionHistory() {
 
     setSessions(data as DBSession[])
     setLoading(false)
-  }, [sortField, sortOrder])
+  }, [sortField, sortOrder, user])
 
   const deleteSession = useCallback(
     async (sessionId: string): Promise<void> => {

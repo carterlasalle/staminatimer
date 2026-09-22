@@ -9,19 +9,18 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { generatePDF } from '@/lib/export/pdf'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { FileDown, Share2, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export function ExportButton() {
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleExportPDF = async (): Promise<void> => {
     try {
       setIsLoading(true)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
       if (!user?.id) {
         toast.error('Please log in to export')
@@ -62,9 +61,6 @@ export function ExportButton() {
   const handleCopyStats = async (): Promise<void> => {
     try {
       setIsLoading(true)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
       if (!user?.id) {
         toast.error('Please log in to copy stats')

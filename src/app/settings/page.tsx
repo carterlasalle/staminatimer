@@ -20,6 +20,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Separator } from '@/components/ui/separator'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { usePreferences } from '@/hooks/usePreferences'
 import {
   User,
@@ -66,6 +67,7 @@ const defaultAppPrefs: AppPrefs = {
 }
 
 export default function SettingsPage() {
+  const { user } = useAuth()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -82,10 +84,6 @@ export default function SettingsPage() {
   // Load user profile
   useEffect(() => {
     async function getProfile(): Promise<void> {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
       if (user?.email) {
         setEmail(user.email)
         // Use email username as default display name if not set
@@ -116,7 +114,7 @@ export default function SettingsPage() {
     }
 
     getProfile()
-  }, [])
+  }, [user])
 
   // Save notification preferences
   const updateNotificationPrefs = (updates: Partial<NotificationPrefs>) => {

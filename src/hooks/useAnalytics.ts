@@ -1,41 +1,33 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase/client'
+'use client'
+
+import { useMemo } from 'react'
+import { useGlobal } from '@/contexts/GlobalContext'
 import { calculateDetailedAnalytics } from '@/lib/analytics'
 import type { DetailedAnalytics } from '@/lib/analytics'
 import type { DBSession } from '@/lib/types'
 
-export function useAnalytics() {
-  const [analytics, setAnalytics] = useState<DetailedAnalytics | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+/**
+ * Session statistics derived from the sessions `GlobalProvider` already fetched.
+ *
+ * This used to run its own `select * from sessions ... limit 20` with no
+ * `user_id` filter and no auth check, relying entirely on row-level security
+ * to scope it. That was safe — RLS is the real boundary — but it duplicated an
+ * identical query on every page that also reads `recentSessions`, and it meant
+ * a page could show statistics computed from a different snapshot than the
+ * lists beside them. `GlobalContext` already filters by `user_id` as well as
+ * relying on RLS, so this is strictly more defensive and always consistent.
+ */
+export function useAnalytics(): {
+  analytics: DetailedAnalytics | null
+  loading: boolean
+  error: Error | null
+} {
+  const { recentSessions, loading, error } = useGlobal()
 
-  useEffect(() => {
-    async function fetchAnalytics() {
-      try {
-        const { data: sessions, error } = await supabase
-          .from('sessions')
-          .select(
-            `
-            *,
-            edge_events!fk_session (*)
-          `
-          )
-          .order('created_at', { ascending: false })
-          .limit(20)
-
-        if (error) throw error
-
-        const stats = calculateDetailedAnalytics(sessions as DBSession[])
-        setAnalytics(stats)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAnalytics()
-  }, [])
+  const analytics = useMemo(
+    () => (loading ? null : calculateDetailedAnalytics(recentSessions as DBSession[])),
+    [recentSessions, loading]
+  )
 
   return { analytics, loading, error }
 }

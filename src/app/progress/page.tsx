@@ -394,7 +394,7 @@ export default function ProgressPage() {
         {/* Charts & Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ErrorBoundary>
-            <Analytics />
+            <Analytics externalData={recentSessions} />
           </ErrorBoundary>
           <ErrorBoundary>
             <Charts />

@@ -10,48 +10,33 @@ import { useEffect, useState } from 'react'
 import { useGamification } from '@/hooks/useGamification'
 
 export function Achievements() {
+  // `useGamification` already loads this user's `user_achievements` rows and
+  // returns them; fetching them again here was the same query run twice on
+  // every page that shows achievements.
+  const { userAchievements, points, level, loading: gamificationLoading } = useGamification()
   const [all, setAll] = useState<Achievement[]>([])
-  const [user, setUser] = useState<UserAchievement[]>([])
   const [loading, setLoading] = useState(true)
-  const { points, level } = useGamification()
 
   useEffect(() => {
-    async function fetchAchievements(): Promise<void> {
+    async function fetchDefinitions(): Promise<void> {
       setLoading(true)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
-      if (!user) {
-        setAll([])
-        setUser([])
-        setLoading(false)
-
-        return
-      }
-
-      const [{ data: defs }, { data: mine, error }] = await Promise.all([
-        supabase.from('achievements').select('*'),
-        supabase
-          .from('user_achievements')
-          .select(`*, achievement:achievements(*)`)
-          .eq('user_id', user.id),
-      ])
+      const { data, error } = await supabase.from('achievements').select('*')
 
       if (error) {
         console.error('Error fetching achievements:', error)
+        setAll([])
       } else {
-        setAll((defs as Achievement[]) || [])
-        setUser((mine as UserAchievement[]) || [])
+        setAll((data as Achievement[]) || [])
       }
 
       setLoading(false)
     }
 
-    fetchAchievements()
+    fetchDefinitions()
   }, [])
 
-  if (loading) return <div>Loading achievements...</div>
+  if (loading || gamificationLoading) return <div>Loading achievements...</div>
 
   return (
     <Card className="w-full">
@@ -64,7 +49,7 @@ export function Achievements() {
           </div>
           <div className="text-center">
             <div className="font-semibold text-primary">
-              {user.filter((u) => u.progress === 100).length}
+              {userAchievements.filter((u) => u.progress === 100).length}
             </div>
             <div className="text-muted-foreground">Unlocked</div>
           </div>
@@ -98,7 +83,7 @@ export function Achievements() {
           {(['endurance', 'control', 'progress', 'special'] as const).map((category) => (
             <TabsContent key={category} value={category} className="mt-3">
               <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                {mergeAllWithUser(all, user)
+                {mergeAllWithUser(all, userAchievements)
                   .filter((a) => a.achievement.category === category)
                   .slice(0, 6) // Limit to 6 most relevant achievements
                   .map((u) => (

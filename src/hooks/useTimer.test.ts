@@ -30,6 +30,13 @@ vi.mock('@/hooks/useAchievements', () => ({
   useAchievements: () => ({ checkAchievements: mocks.checkAchievements }),
 }))
 
+// `useTimer` reads the signed-in user from `AuthContext` — the single validated
+// source — rather than calling `supabase.auth.getUser()` per write. The hook
+// itself has no auth work to test, so the context supplies the user directly.
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'user-1' }, loading: false }),
+}))
+
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 
 vi.mock('@/lib/supabase/client', () => ({

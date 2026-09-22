@@ -2804,6 +2804,31 @@ device and says so in the footer.
   `next/dist/build/polyfills/polyfill-module.js`, not from this repo, and there
   is no supported toggle. Leave it alone; patching the bundler to drop it is
   fragile across upgrades.
+- **There is exactly one auth read per page load, and it lives in
+  `AuthContext`.** Thirteen components used to call `supabase.auth.getUser()`
+  themselves; because each awaited its own round-trip they ran _in series_ and
+  cost ~214 ms of a 246 ms `/progress` load (measured). Now: `getSession()`
+  (local, instant) puts the user id in place so actions like starting a timer
+  session are never blocked, then `getUser()` validates once and replaces it if
+  the token is expired or revoked. Two rules follow. First, the `setUser` calls
+  must return the _previous_ object when the id is unchanged — a new reference
+  re-runs every `[user]`-dependent effect and doubles every data fetch on the
+  page. Second, server routes, `lib/server/getData.ts` and the middleware must
+  keep their own `getUser()`; those are the real trust boundary and RLS is what
+  enforces ownership. A client `user.id` is only ever a query filter.
+- **Hooks that fetch per instance still duplicate work.** `useGamification()`
+  mounted by two components on one page runs its `user_achievements` query
+  twice (parallel, so cheap, but real). `GlobalContext` holds sessions and
+  `useAnalytics` now derives from it instead of re-querying. The remaining
+  duplication wants a gamification context rather than a per-hook fetch.
+- **Deleting a route leaves stale generated types.** `.next/dev/types/validator.ts`
+  keeps referencing the removed `layout.tsx` files, and `tsc --noEmit` fails on
+  a route that no longer exists. `rm -rf .next/dev` and rebuild.
+- **`next.config.js` `headers()` cannot set `Cache-Control` on `/icons/*`.**
+  Next's static file handler overwrites it with `public, max-age=0`. The
+  favicon, `manifest.json` and `offline.html` do honour it. Matching image paths
+  in the middleware would fix the rest but would run the auth path on every
+  asset request.
 
 ## Guide content is now a hard requirement
 

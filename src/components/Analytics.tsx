@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loading } from '@/components/ui/loading'
 import { Progress } from '@/components/ui/progress'
 import { calculateDetailedAnalytics } from '@/lib/analytics'
+import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
@@ -24,6 +25,7 @@ type AnalyticsProps = {
 }
 
 export function Analytics({ externalData }: AnalyticsProps = {}) {
+  const { user } = useAuth()
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -37,10 +39,6 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
         if (externalData) {
           sessionsToAnalyze = externalData
         } else {
-          const {
-            data: { user },
-          } = await supabase.auth.getUser()
-
           if (!user?.id) {
             setAnalytics(null)
 
@@ -87,7 +85,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
     }
 
     calculateAnalytics()
-  }, [externalData])
+  }, [externalData, user])
 
   if (loading)
     return (

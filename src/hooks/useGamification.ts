@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { useGlobal } from '@/contexts/GlobalContext'
 import type { UserAchievement } from '@/lib/types/achievements'
 import type { DBSession } from '@/lib/types'
 
 export function useGamification() {
+  const { user } = useAuth()
   const { recentSessions } = useGlobal()
   const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([])
   const [loading, setLoading] = useState(true)
@@ -14,10 +16,6 @@ export function useGamification() {
   useEffect(() => {
     async function fetch() {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
         if (!user) {
           setUserAchievements([])
 
@@ -36,7 +34,7 @@ export function useGamification() {
     }
 
     fetch()
-  }, [])
+  }, [user])
 
   const points = useMemo(() => {
     return userAchievements.reduce(

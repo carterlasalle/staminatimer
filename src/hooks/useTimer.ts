@@ -1,6 +1,7 @@
 'use client'
 
 import { useAchievements } from '@/hooks/useAchievements'
+import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase/client'
 import type { DBSession } from '@/lib/types'
 import { useCallback, useEffect, useState, useRef } from 'react'
@@ -25,6 +26,7 @@ type FinishTimerRpcArgs = {
 }
 
 export function useTimer() {
+  const { user } = useAuth()
   const [state, setState] = useState<TimerState>('idle')
   const [isPaused, setIsPaused] = useState(false)
   const [activeTime, setActiveTime] = useState(0)
@@ -78,10 +80,6 @@ export function useTimer() {
     operationLockRef.current = true
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
       if (!user) {
         toast.error('User not authenticated')
 
@@ -121,7 +119,7 @@ export function useTimer() {
     } finally {
       operationLockRef.current = false
     }
-  }, [])
+  }, [user])
 
   const pauseSession = useCallback(async () => {
     if (
@@ -250,10 +248,6 @@ export function useTimer() {
     operationLockRef.current = true
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
       if (!user) {
         toast.error('User not found, cannot save session.')
 
@@ -340,6 +334,7 @@ export function useTimer() {
     activeTime,
     edgeTime,
     checkAchievements,
+    user,
   ])
 
   const resetTimer = useCallback(() => {
