@@ -64,8 +64,6 @@ export function CinematicHero() {
               },
             })
             .to('.landing-foreground', { yPercent: -11, scale: 1.04, ease: 'none' }, 0)
-            .to('.landing-shore', { yPercent: -6, ease: 'none' }, 0)
-            .to('.landing-mountains', { yPercent: -2, ease: 'none' }, 0)
             .to('.landing-mist', { xPercent: 7, opacity: 0.66, ease: 'none' }, 0)
             .to('.landing-hero-copy', { yPercent: -20, opacity: 0.42, ease: 'none' }, 0)
             .to(scene, { filter: 'brightness(0.76) saturate(0.85)', ease: 'none' }, 0)
@@ -89,7 +87,7 @@ export function CinematicHero() {
         <div className="landing-hero-scrim" aria-hidden />
         <div className="landing-hero-copy">
           <p className="hero-arrival landing-kicker">Structured private practice</p>
-          <h1 className="mt-4 max-w-[8ch] font-display text-[clamp(3.4rem,7.4vw,8.2rem)] font-semibold leading-[0.87] tracking-[-0.07em] text-[#edf3f1]">
+          <h1 className="landing-hero-title mt-4 max-w-[8ch] font-display text-[clamp(3.4rem,7.4vw,8.2rem)] font-semibold leading-[0.87] tracking-[-0.07em] text-[#edf3f1]">
             Build control
             <br />
             that lasts.

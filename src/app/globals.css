@@ -535,26 +535,39 @@
 }
 
 .landing-sky {
-  transform: translate(calc(var(--px) * 2px), calc(var(--py) * 2px)) scale(1.04);
-}
-.landing-mountains {
-  transform: translate(calc(var(--px) * 5px), calc(var(--py) * 4px)) scale(1.035);
+  transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px)) scale(1.035);
 }
 .landing-lake {
+  pointer-events: none;
   animation: lake-drift 18s ease-in-out infinite alternate;
-  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 4px)) scale(1.03);
-}
-.landing-shore {
-  transform: translate(calc(var(--px) * 8px), calc(var(--py) * 7px)) scale(1.03);
+  background: linear-gradient(
+    90deg,
+    rgba(117, 163, 178, 0.1),
+    transparent 35%,
+    rgba(237, 243, 241, 0.1)
+  );
+  mix-blend-mode: screen;
+  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 4px));
 }
 .landing-foreground {
+  pointer-events: none;
   animation: foliage-sway 13s ease-in-out infinite alternate;
-  transform: translate(calc(var(--px) * 13px), calc(var(--py) * 10px)) scale(1.045);
-  transform-origin: left bottom;
+  transform: translate(calc(var(--px) * 11px), calc(var(--py) * 8px));
+  transform-origin: right top;
+}
+.landing-foreground::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: radial-gradient(circle at 88% 14%, rgba(214, 180, 111, 0.12), transparent 24%);
 }
 .landing-mist {
+  pointer-events: none;
   animation: mist-drift 28s ease-in-out infinite alternate;
-  transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px)) scale(1.035);
+  background:
+    radial-gradient(ellipse at 43% 61%, rgba(215, 229, 229, 0.18), transparent 31%),
+    linear-gradient(90deg, transparent 18%, rgba(215, 229, 229, 0.06) 48%, transparent 78%);
+  transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px));
 }
 
 @keyframes lake-drift {
@@ -603,6 +616,12 @@
   top: 50%;
   width: min(38rem, calc(100% - 3rem));
   transform: translateY(-42%);
+}
+
+.landing-hero-title {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0.15em 0.6em rgba(7, 21, 33, 0.42);
 }
 
 .landing-kicker {
@@ -680,9 +699,13 @@
 }
 
 .story-state {
-  position: relative;
   z-index: 1;
   height: 100%;
+}
+.story-train,
+.story-progress {
+  visibility: hidden;
+  pointer-events: none;
 }
 .landing-interface-label {
   color: #75a3b2;

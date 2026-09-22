@@ -8,8 +8,6 @@ import { AuthProvider, useAuth } from './AuthContext'
 
 const supabaseMock = vi.hoisted(() => ({
   auth: {
-    getSession: vi.fn(),
-    getUser: vi.fn(),
     onAuthStateChange: vi.fn(),
   },
 }))
@@ -33,32 +31,11 @@ function makeSession(user: User | null): Session | null {
 
 type Listener = (event: AuthChangeEvent, session: Session | null) => void
 
-type Deferred<T> = { promise: Promise<T>; resolve: (value: T) => void }
-
-/** A promise settled by hand, so an ordering under test is the ordering that runs. */
-function deferred<T>(): Deferred<T> {
-  let resolve!: (value: T) => void
-  const promise = new Promise<T>((settle) => {
-    resolve = settle
-  })
-
-  return { promise, resolve }
-}
-
-type SessionResult = { data: { session: Session | null } }
-type UserResult = { data: { user: User | null } }
-
-let sessionCall: Deferred<SessionResult>
-let userCall: Deferred<UserResult>
 let authChangeListener: Listener | undefined
 
 beforeEach(() => {
-  sessionCall = deferred<SessionResult>()
-  userCall = deferred<UserResult>()
   authChangeListener = undefined
 
-  supabaseMock.auth.getSession.mockReturnValue(sessionCall.promise)
-  supabaseMock.auth.getUser.mockReturnValue(userCall.promise)
   supabaseMock.auth.onAuthStateChange.mockImplementation((listener: Listener) => {
     authChangeListener = listener
 
@@ -122,75 +99,37 @@ describe('children', () => {
 })
 
 describe('startup resolution', () => {
-  it('reports the validated user over the stored session user', async () => {
+  it('reports the client’s initial session without issuing a second auth read', () => {
     const record = newRecord()
     renderProvider(record)
 
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('stored-user')) } })
+    act(() => {
+      authChangeListener?.('INITIAL_SESSION', makeSession(makeUser('stored-user')))
     })
 
     expect(reportedUserId()).toBe('stored-user')
-
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('validated-user') } })
-    })
-
-    expect(reportedUserId()).toBe('validated-user')
-  })
-
-  it('keeps the validated user when the stored session resolves afterwards', async () => {
-    const record = newRecord()
-    renderProvider(record)
-
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('validated-user') } })
-    })
-
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('stored-user')) } })
-    })
-
-    expect(reportedUserId()).toBe('validated-user')
-    // The stale id was never shown to a consumer, not merely outvoted at the end.
-    expect(record.users.map((user) => user?.id)).not.toContain('stored-user')
-  })
-
-  it('reports signed out when the validated call finds no user', async () => {
-    const record = newRecord()
-    renderProvider(record)
-
-    await act(async () => {
-      userCall.resolve({ data: { user: null } })
-    })
-
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('stored-user')) } })
-    })
-
-    expect(reportedUserId()).toBe('anonymous')
+    expect(screen.getByTestId('loading').textContent).toBe('false')
+    expect(record.users.map((user) => user?.id)).toContain('stored-user')
   })
 })
 
 describe('user reference stability', () => {
-  it('does not re-render a consumer when both calls agree on the user id', async () => {
+  it('does not re-render a consumer when an auth event repeats the same user id', () => {
     const record = newRecord()
     renderProvider(record)
 
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('user-1')) } })
+    act(() => {
+      authChangeListener?.('INITIAL_SESSION', makeSession(makeUser('user-1')))
     })
 
     const settled = record.users.at(-1)
     const rendersAfterSession = record.users.length
     const effectRunsAfterSession = record.userEffectRuns
 
-    // Both calls answered for the same account: null, then the stored user.
     expect(effectRunsAfterSession).toBe(2)
 
-    // The validated call returns a different object for that same id.
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('user-1') } })
+    act(() => {
+      authChangeListener?.('TOKEN_REFRESHED', makeSession(makeUser('user-1')))
     })
 
     expect(Object.is(record.users.at(-1), settled)).toBe(true)
@@ -200,22 +139,7 @@ describe('user reference stability', () => {
 })
 
 describe('auth state changes', () => {
-  it('ignores the initial session event', async () => {
-    const record = newRecord()
-    renderProvider(record)
-
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('validated-user') } })
-    })
-
-    act(() => {
-      authChangeListener?.('INITIAL_SESSION', makeSession(makeUser('stored-user')))
-    })
-
-    expect(reportedUserId()).toBe('validated-user')
-  })
-
-  it('applies a sign-in and keeps it when a stored session arrives late', async () => {
+  it('applies a sign-in', () => {
     const record = newRecord()
     renderProvider(record)
 
@@ -225,22 +149,18 @@ describe('auth state changes', () => {
 
     expect(reportedUserId()).toBe('signed-in-user')
 
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('stored-user')) } })
-    })
-
     expect(reportedUserId()).toBe('signed-in-user')
   })
 
-  it('applies a sign-out', async () => {
+  it('applies a sign-out', () => {
     const record = newRecord()
     renderProvider(record)
 
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('validated-user') } })
+    act(() => {
+      authChangeListener?.('INITIAL_SESSION', makeSession(makeUser('signed-in-user')))
     })
 
-    expect(reportedUserId()).toBe('validated-user')
+    expect(reportedUserId()).toBe('signed-in-user')
 
     act(() => {
       authChangeListener?.('SIGNED_OUT', null)
@@ -251,27 +171,14 @@ describe('auth state changes', () => {
 })
 
 describe('loading', () => {
-  it('stays true until the stored session resolves', async () => {
+  it('stays true until the initial session event arrives', () => {
     const record = newRecord()
     renderProvider(record)
 
     expect(screen.getByTestId('loading').textContent).toBe('true')
 
-    await act(async () => {
-      sessionCall.resolve({ data: { session: makeSession(makeUser('stored-user')) } })
-    })
-
-    expect(screen.getByTestId('loading').textContent).toBe('false')
-  })
-
-  it('stays true until the validated call resolves', async () => {
-    const record = newRecord()
-    renderProvider(record)
-
-    expect(screen.getByTestId('loading').textContent).toBe('true')
-
-    await act(async () => {
-      userCall.resolve({ data: { user: makeUser('validated-user') } })
+    act(() => {
+      authChangeListener?.('INITIAL_SESSION', makeSession(makeUser('stored-user')))
     })
 
     expect(screen.getByTestId('loading').textContent).toBe('false')

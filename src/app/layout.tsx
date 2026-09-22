@@ -41,6 +41,13 @@ const fontDisplay = Bricolage_Grotesque({
  * deployment; render them only when explicitly switched on. */
 const VERCEL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === 'true'
 
+// Analytics belongs on the public production hostname. Preview deployments
+// intentionally omit it so local privacy extensions do not turn an unrelated
+// preview review into a console failure.
+const CLARITY_DEPLOYMENT_ENABLED = process.env.VERCEL_ENV
+  ? process.env.VERCEL_ENV === 'production'
+  : process.env.NODE_ENV === 'production'
+
 const siteConfig = {
   name: 'Stamina Timer',
   description:
@@ -224,7 +231,7 @@ export default function RootLayout({
                   <Analytics />
                 </>
               )}
-              <ClarityAnalytics />
+              <ClarityAnalytics enabled={CLARITY_DEPLOYMENT_ENABLED} />
               <ServiceWorkerRegistrar />
               <PWAInstallPrompt />
             </div>

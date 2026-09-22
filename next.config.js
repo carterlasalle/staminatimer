@@ -33,8 +33,8 @@ const cspDirectives = [
   // Script-src: Required 'unsafe-inline' for Next.js, 'unsafe-eval' only in dev
   // Added clarity.ms domains for Microsoft Clarity analytics
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://scripts.clarity.ms"
-    : "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://scripts.clarity.ms https://vercel.live"
+    : "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms https://vercel.live",
   // Style-src: Required for Tailwind and inline styles
   "style-src 'self' 'unsafe-inline'",
   // Font-src: next/font serves the font files from our own origin
