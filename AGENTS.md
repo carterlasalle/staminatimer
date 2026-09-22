@@ -2866,6 +2866,45 @@ device and says so in the footer.
   LCP 2.4 s on identical code. A single Lighthouse number on a live site is a
   sample, not a property.
 
+## Test suite: what exists and the rules that keep it honest
+
+Coverage is measured repo-wide (`yarn test:coverage`) and gated in `vitest.config.ts`:
+a ratchet at today's numbers plus a hard bar on `src/lib/security/**` and
+`src/contexts/**`. The ratchet may only move up. It is set below the current
+figure on purpose — a gate pinned at the aspirational 85% fails every build and
+gets switched off within a week.
+
+- **Test files are exempt from the typing-discipline anti-slop rules** via a
+  `**/*.test.*` override in `.oxlintrc.json`. `vi.mock` is how a unit is isolated
+  from a client it does not own, and a fixture is not an I/O boundary. The style
+  rules (`no-array-filter-map` and friends) still apply to tests — fix the test,
+  do not add the file to the grandfather list.
+- **Measuring mid-animation measures wrong.** Entrance animations run with
+  `opacity < 1`, which blends computed colours; axe reported 11 contrast failures
+  on the application routes and 8 vanished once the page was given 3 s to settle.
+  Any visual assertion needs the page to be still first.
+- **A new gate must be proven to bite.** Deleting the four security suites makes
+  `yarn test:coverage` exit 1 with seven threshold errors; restoring them exits 0.
+  A gate that passes when its tests are gone is decoration.
+- **`vitest.config.ts` needs `coverage.include`.** Without it v8 reports only the
+  files a test happens to import — 77% — while the truth across the app is 19%.
+- **The Playwright `webServer` reuses whatever already listens on port 3000**
+  (`reuseExistingServer: !CI`). With another session's server running there, an
+  e2e run silently measures _their_ build. Pass `PLAYWRIGHT_BASE_URL` pointing at
+  a server you started to be sure of what you are testing.
+- **Accessible names are the recurring defect.** Every Radix primitive rendered
+  without a label is invisible to a screen reader: `Progress` bars, the settings
+  `Switch`es, the account-menu and skip buttons, and the auth-ui button whose
+  white-on-jade text was 2.69:1. The component-level fix is to accept and pass a
+  `label`; the check is `e2e/accessibility.spec.ts`, which runs axe on the real
+  pages. `ui/slider.tsx` and a couple of Radix triggers are still unlabelled —
+  see the `test.fixme` block for the measured list.
+- **Mutation testing cannot run in this repo.** Every Stryker major (8, 9, 10)
+  needs `ajv ~8`; `package.json` pins `ajv` to `^6.14.0` because ESLint requires
+  that major, and forcing 8 breaks the linter (`eslint/lib/linter/linter.js`
+  fails to load) — verified, not assumed. Unblocking it means moving ESLint to a
+  version that accepts ajv 8 first.
+
 ## Guide content is now a hard requirement
 
 - Content for all 66 guides lives in `src/lib/seo/guide-content.ts`, keyed by

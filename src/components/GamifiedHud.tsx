@@ -139,6 +139,7 @@ export function GamifiedHud() {
             </div>
             <div className="space-y-2">
               <Progress value={level.progressPct} className="h-2 bg-accent dark:bg-accent/20" />
+              label="Level progress"
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{level.currentLevelXp} XP</span>
                 <span>
@@ -191,6 +192,7 @@ export function GamifiedHud() {
             </div>
             <div className="space-y-2">
               <Progress value={goalPct} className="h-2" />
+              label="Daily goal progress"
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
@@ -240,6 +242,7 @@ export function GamifiedHud() {
             </div>
             <div className="space-y-2">
               <Progress value={(unlockedAchievements / totalAchievements) * 100} className="h-2" />
+              label="Achievements unlocked"
               <div className="text-xs text-muted-foreground">
                 {totalAchievements - unlockedAchievements} achievements remaining
               </div>

@@ -150,12 +150,11 @@ export function TimingGuide() {
                   )}
                   <div className="text-3xl font-bold text-primary">{strokePhase.instruction}</div>
                 </div>
-
                 <div className="text-sm text-muted-foreground mb-3">
                   Next: {strokePhase.nextInstruction}
                 </div>
-
                 <Progress value={strokePhase.progress} className="h-2" />
+                label="Guided stroke progress"
               </div>
 
               <div className="flex justify-center">
@@ -254,6 +253,7 @@ export function TimingGuide() {
                 </Badge>
 
                 <Progress
+                  label="Session cycle progress"
                   value={
                     sessionPhase === 'on'
                       ? ((sessionConfig.onDuration - sessionTimeRemaining) /

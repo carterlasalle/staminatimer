@@ -304,7 +304,7 @@ export default function TrainingPage() {
       case 'intermediate':
         return 'bg-accent/10 text-accent'
       case 'advanced':
-        return 'bg-destructive/10 text-destructive'
+        return 'bg-destructive/5 text-destructive'
       default:
         return 'bg-muted/10 text-muted-foreground'
     }
@@ -446,6 +446,7 @@ export default function TrainingPage() {
                       </div>
                     </div>
                     <Progress
+                      label="Training progress"
                       value={(kegelWorkout.currentRep / kegelWorkout.exercise.reps) * 100}
                       className="h-2"
                     />
@@ -529,6 +530,7 @@ export default function TrainingPage() {
                       {mentalSession.exercise.instructions.length}
                     </div>
                     <Progress
+                      label="Exercise progress"
                       value={
                         ((mentalSession.currentStep + 1) /
                           mentalSession.exercise.instructions.length) *

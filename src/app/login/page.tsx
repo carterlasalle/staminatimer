@@ -234,6 +234,13 @@ export default function LoginPage() {
                         colors: {
                           brand: 'hsl(var(--primary))',
                           brandAccent: 'hsl(var(--primary))',
+                          // The default label grey is 4.3:1 here, just under the
+                          // 4.5:1 floor for 14px text. (`brandButtonText` is
+                          // pinned by ThemeSupa and is handled in globals.css.)
+                          inputLabelText: 'hsl(var(--muted-foreground))',
+                          anchorTextColor: 'hsl(var(--primary))',
+                          anchorTextHoverColor: 'hsl(var(--primary))',
+                          messageText: 'hsl(var(--muted-foreground))',
                         },
                         borderWidths: {
                           buttonBorderWidth: '2px',

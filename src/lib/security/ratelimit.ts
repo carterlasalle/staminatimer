@@ -150,7 +150,24 @@ export async function checkRateLimit(
   }
 
   try {
-    const { success, limit, remaining, reset } = await limiter.limit(identifier)
+    const { success, limit, remaining, reset, reason } = await limiter.limit(identifier)
+
+    // The SDK RESOLVES rather than rejects when its own 5s timeout fires, with
+    // `{ success: true, limit: 0, remaining: 0, reset: 0, reason: 'timeout' }`.
+    // A Redis *hang* — the failure mode most likely under exactly the load that
+    // makes rate limiting matter — therefore returned `success: true` and
+    // allowed the request. The thrown-error branches below never saw it.
+    // Fail closed, as the policy above promises.
+    if (reason === 'timeout') {
+      console.error('Rate limit check timed out - blocking request for safety')
+
+      return {
+        success: false,
+        limit: maxRequests,
+        remaining: 0,
+        reset: Date.now() + API_CONSTANTS.RATE_LIMIT_WINDOW_MS,
+      }
+    }
 
     return { success, limit, remaining, reset }
   } catch (error) {

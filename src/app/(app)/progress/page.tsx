@@ -297,7 +297,7 @@ export default function ProgressPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-destructive/10 text-destructive border-destructive/20'
+        return 'bg-destructive/5 text-destructive border-destructive/20'
       case 'medium':
         return 'bg-accent/10 text-accent border-accent/20'
       case 'low':
@@ -521,6 +521,7 @@ export default function ProgressPage() {
                   </div>
                   <div className="space-y-2">
                     <Progress
+                      label="Goal progress"
                       value={Math.min(100, (goal.current / goal.target) * 100)}
                       className="h-1.5"
                     />
@@ -552,7 +553,11 @@ export default function ProgressPage() {
                       {level.currentLevelXp}/100 XP
                     </span>
                   </div>
-                  <Progress value={level.progressPct} className="h-1.5 mt-1" />
+                  <Progress
+                    label="Level progress"
+                    value={level.progressPct}
+                    className="h-1.5 mt-1"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -569,6 +574,7 @@ export default function ProgressPage() {
                     <span className="text-xs text-muted-foreground">Goal: 30</span>
                   </div>
                   <Progress
+                    label="30 day streak progress"
                     value={Math.min(100, (streakCount / 30) * 100)}
                     className="h-1.5 mt-1"
                   />
@@ -588,6 +594,7 @@ export default function ProgressPage() {
                     <span className="text-xs text-muted-foreground">Goal: 5</span>
                   </div>
                   <Progress
+                    label="Weekly sessions progress"
                     value={Math.min(100, (stats.weekSessions / 5) * 100)}
                     className="h-1.5 mt-1"
                   />

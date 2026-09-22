@@ -60,7 +60,18 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     // guard every anonymous visitor to a public page opened a websocket with
     // `filter: user_id=eq.undefined`, which never matches anything and only
     // produced connection errors in the console.
-    if (!user) return
+    //
+    // The guard must not simply `return`: `loading` starts true and this effect
+    // is the only thing that settles it, so returning early left every anonymous
+    // visitor — including anyone who had just signed out — waiting forever, with
+    // the previous account's session history still in state. `fetchSessions()`
+    // performs exactly the reset that path needs, and issues no query without a
+    // user.
+    if (!user) {
+      void fetchSessions()
+
+      return
+    }
 
     fetchSessions()
 

@@ -242,6 +242,7 @@ export function Timer() {
                 <span>{edgePercentage.toFixed(1)}%</span>
               </div>
               <Progress value={edgePercentage} className="h-3" />
+              label="Edge time share"
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Active: {(100 - edgePercentage).toFixed(1)}%</span>
                 <span>Edge: {edgePercentage.toFixed(1)}%</span>

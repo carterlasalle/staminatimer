@@ -92,7 +92,7 @@ export function ProgramDashboardV2() {
       <TodaysPractice sessionType={todayType} currentTargetMs={currentTargetMs} status={status} />
 
       {error && (
-        <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       )}

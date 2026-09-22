@@ -327,6 +327,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
+                aria-label="Auto-start timer"
                 checked={appPrefs.autoStartTimer}
                 onCheckedChange={(checked) => updateAppPrefs({ autoStartTimer: checked })}
               />
@@ -340,6 +341,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch
+                aria-label="Motivational messages"
                 checked={appPrefs.showMotivationalMessages}
                 onCheckedChange={(checked) => updateAppPrefs({ showMotivationalMessages: checked })}
               />
@@ -366,6 +368,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Switch
+                aria-label="Training reminders"
                 checked={notificationPrefs.reminderEnabled}
                 onCheckedChange={(checked) => updateNotificationPrefs({ reminderEnabled: checked })}
               />
@@ -380,6 +383,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Switch
+                aria-label="Sound during training"
                 checked={notificationPrefs.soundEnabled}
                 onCheckedChange={(checked) => updateNotificationPrefs({ soundEnabled: checked })}
               />
@@ -394,6 +398,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Switch
+                aria-label="Vibrate on important events"
                 checked={notificationPrefs.vibrationEnabled}
                 onCheckedChange={(checked) =>
                   updateNotificationPrefs({ vibrationEnabled: checked })

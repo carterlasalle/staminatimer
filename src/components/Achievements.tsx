@@ -134,6 +134,7 @@ function AchievementCard({ userAchievement }: { userAchievement: UserAchievement
               <span className="text-muted-foreground">{progress}%</span>
             </div>
             <Progress value={progress} className="h-1" />
+            label="Achievement progress"
           </div>
         )}
 

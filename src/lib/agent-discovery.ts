@@ -54,7 +54,11 @@ function quality(accept: string, type: string): number {
 
     if (media.trim().toLowerCase() !== type) continue
 
-    const q = params.find((param) => param.trim().startsWith('q='))
+    // RFC 9110 parameter names are case-insensitive, so `Q=` must parse the
+    // same as `q=`. Reading it case-sensitively treated `text/markdown;Q=0.5`
+    // as an unparameterised q=1 and preferred markdown when the client had
+    // actually asked for it least.
+    const q = params.find((param) => param.trim().toLowerCase().startsWith('q='))
     const value = q ? Number.parseFloat(q.split('=')[1]) : 1
 
     best = Math.max(best, Number.isFinite(value) ? value : 0)

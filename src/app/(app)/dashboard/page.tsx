@@ -72,7 +72,7 @@ export default function Dashboard() {
             <span className="text-lg font-medium">Today's Goal</span>
             <span className="text-2xl font-light">{goalPct}%</span>
           </div>
-          <Progress value={goalPct} className="h-2" />
+          <Progress label="Today's goal progress" value={goalPct} className="h-2" />
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>{formatDuration(todayMs)}</span>
             <span>{formatDuration(goalMs)}</span>

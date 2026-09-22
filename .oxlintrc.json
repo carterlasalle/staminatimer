@@ -112,6 +112,17 @@
         "anti-slop/require-readable-spacing": "warn",
         "anti-slop/require-safety-comment-for-type-assertion": "warn"
       }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "e2e/**/*.spec.ts"],
+      "rules": {
+        "anti-slop/no-module-mocking": "warn",
+        "anti-slop/require-safety-comment-for-type-assertion": "warn",
+        "anti-slop/no-chained-type-assertions": "warn",
+        "anti-slop/no-known-value-widening": "warn",
+        "anti-slop/no-unsafe-dictionary-type": "warn",
+        "anti-slop/no-unknown-parameters": "warn"
+      }
     }
   ]
 }

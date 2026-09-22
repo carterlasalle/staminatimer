@@ -116,7 +116,7 @@ export function SessionHistory() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Recent sessions</CardTitle>
-          <Button variant="outline" size="sm" onClick={fetchSessions}>
+          <Button variant="outline" size="sm" onClick={fetchSessions} aria-label="Refresh sessions">
             <RefreshCw className="h-3 w-3" />
           </Button>
         </div>
@@ -173,6 +173,7 @@ export function SessionHistory() {
                       variant="ghost"
                       size="sm"
                       className="absolute top-1 right-1 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                      aria-label="Delete this session"
                       onClick={(e) => {
                         e.stopPropagation()
                         deleteSession(session.id)
@@ -211,7 +212,7 @@ export function SessionHistory() {
                           className={`px-2 py-0.5 rounded text-xs ${
                             session.finished_during_edge
                               ? 'bg-warning/20 text-warning'
-                              : 'bg-primary/20 text-primary'
+                              : 'bg-primary/10 text-primary'
                           }`}
                         >
                           {session.finished_during_edge ? 'Edge Finish' : 'Complete'}

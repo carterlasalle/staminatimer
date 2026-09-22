@@ -247,6 +247,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
               <span className="text-sm text-muted-foreground">{sessionEfficiency.toFixed(0)}%</span>
             </div>
             <Progress value={sessionEfficiency} className="h-2" />
+            label="Session efficiency"
             <p className="text-xs text-muted-foreground">
               Higher efficiency means more active training time vs edge time
             </p>
@@ -261,6 +262,7 @@ export function Analytics({ externalData }: AnalyticsProps = {}) {
               </span>
             </div>
             <Progress value={edgeRatio} className="h-2" />
+            label="Edge ratio"
             <p className="text-xs text-muted-foreground">
               Optimal edge control balances challenge with progress
             </p>

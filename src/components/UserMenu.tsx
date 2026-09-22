@@ -39,7 +39,9 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        {/* Icon-only trigger: without a name it is invisible to screen readers
+            and unreachable by voice control. The display label stays "Account". */}
+        <Button variant="ghost" size="icon" className="relative" aria-label="Account menu">
           <User className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>

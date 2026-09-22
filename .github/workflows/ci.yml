@@ -46,5 +46,11 @@ jobs:
       - name: Test
         run: yarn test
 
+      # Runs the same suite with coverage. Thresholds live in vitest.config.ts,
+      # so this step fails when coverage regresses rather than merely reporting a
+      # number nobody reads.
+      - name: Test with coverage
+        run: yarn test:coverage
+
       - name: Build
         run: yarn build

@@ -52,7 +52,7 @@ export function WeeklyPlan({ today = new Date() }: WeeklyPlanProps) {
                     {entry.day}
                   </span>
                   {isToday && (
-                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wider text-primary">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium uppercase tracking-wider text-primary">
                       Today
                     </span>
                   )}

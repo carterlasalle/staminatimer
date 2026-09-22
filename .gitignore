@@ -93,3 +93,6 @@ playwright-report/
 .tmp
 .artifacts
 .omp
+
+# staged from the @rive-app/canvas dependency by scripts/copy-rive-wasm.mjs
+public/rive/
