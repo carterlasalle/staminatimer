@@ -1,8 +1,7 @@
-const CACHE_VERSION = 'v3'
+const CACHE_VERSION = 'v4'
 const STATIC_CACHE = `stamina-static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `stamina-dynamic-${CACHE_VERSION}`
 const OFFLINE_URL = '/offline.html'
-const ALLOWED_CROSS_ORIGIN_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com'])
 
 // Static assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -14,16 +13,10 @@ const STATIC_ASSETS = [
   '/icons/apple-touch-icon.png',
 ]
 
-// Routes to cache with network-first strategy
-const NETWORK_FIRST_ROUTES = [
-  '/dashboard',
-  '/training',
-  '/analytics',
-  '/goals',
-  '/settings',
-  '/kegels',
-  '/mental',
-]
+// `NETWORK_FIRST_ROUTES` used to live here, listing /analytics, /goals, /kegels
+// and /mental — routes that no longer exist. It was declared and never read:
+// navigations already take the network-first path via `request.mode ===
+// 'navigate'` in the fetch handler below.
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -62,8 +55,10 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return
 
-  // Skip cross-origin requests (except known font hosts)
-  if (url.origin !== location.origin && !ALLOWED_CROSS_ORIGIN_HOSTS.has(url.hostname)) {
+  // Cross-origin requests are the network's business, not ours. The two Google
+  // Fonts hosts used to be excepted here; fonts are self-hosted now, so nothing
+  // is, and caching third-party responses is behaviour worth not keeping.
+  if (url.origin !== location.origin) {
     return
   }
 
@@ -107,8 +102,12 @@ async function handleNavigationRequest(request) {
 async function handleStaticAsset(request) {
   const cachedResponse = await caches.match(request)
   if (cachedResponse) {
-    // Return cached version and update in background
-    fetchAndCache(request)
+    // `/_next/static/*` is content-hashed and served `immutable` for a year, so
+    // re-fetching it in the background on every hit is pure waste. Everything
+    // else keeps the revalidate-in-the-background behaviour.
+    if (!new URL(request.url).pathname.startsWith('/_next/static/')) {
+      fetchAndCache(request)
+    }
     return cachedResponse
   }
   return fetchAndCache(request)
