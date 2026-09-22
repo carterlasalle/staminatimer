@@ -2951,6 +2951,19 @@ was cleaned up. Invented ratings are a structured-data violation as well as a
 claim the product cannot support. When removing invented social proof from a
 page, check the JSON-LD too; it is rendered from a different file.
 
+## Landing visual system
+
+- The public page is composed from `src/components/landing/`; its scene
+  boundaries are deliberate. Keep new public marketing work inside the
+  appropriate scene rather than reintroducing generic reveal utilities into
+  `page.tsx`.
+- The layered local assets in `public/landing/` are the replaceable artwork
+  contract. `AmbientLandscape` owns their stacking order; commissioned art can
+  replace a single layer without changing the hero choreography.
+- `CinematicHero`, `ProductStory`, and `ProgressLandscape` dynamically load
+  GSAP through `lib/motion/gsap-runtime.ts`. Do not import GSAP statically into
+  the public page or its immediate render path.
+
 ## Last maintenance review
 
 Date: 2026-09-21
