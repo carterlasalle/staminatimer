@@ -42,12 +42,30 @@ export function ClarityAnalytics() {
       Clarity.consentV2({ ad_Storage: 'denied', analytics_Storage: 'granted' })
     }
 
-    // Load after the page is interactive so it never competes with first paint.
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => void loadClarity(), { timeout: 3000 })
-    } else {
-      setTimeout(() => void loadClarity(), 2000)
+    // Load after the page has finished loading so it never competes with the LCP
+    // window. It previously scheduled an idle callback with a 3000 ms deadline,
+    // which *forces* the callback to run even when the browser is not idle: on a
+    // throttled phone the script then arrived at ~4.6 s and blocked the main
+    // thread for ~200 ms, measured as 3,400 ms of LCP element render delay. No
+    // deadline here — after `load` the page is quiet, so idle arrives promptly,
+    // and the fallback timer covers browsers without `requestIdleCallback`.
+    const startClarity = () => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => void loadClarity())
+      } else {
+        setTimeout(() => void loadClarity(), 2000)
+      }
     }
+
+    if (document.readyState === 'complete') {
+      startClarity()
+
+      return
+    }
+
+    window.addEventListener('load', startClarity, { once: true })
+
+    return () => window.removeEventListener('load', startClarity)
   }, [])
 
   return null
