@@ -1,5 +1,4 @@
 import { ClarityAnalytics } from '@/components/ClarityAnalytics'
-import { FontLoader } from '@/components/FontLoader'
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar'
 import {
@@ -13,8 +12,32 @@ import { GlobalProvider } from '@/contexts/GlobalContext'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata, Viewport } from 'next'
+import { Albert_Sans, Bricolage_Grotesque } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
+
+/**
+ * Both families ship as variable fonts, so the whole weight axis comes from one
+ * file per family instead of one per weight.
+ *
+ * These were previously loaded from `fonts.googleapis.com` with a stylesheet
+ * `<link>` in `<head>`, which blocks the first paint on a third-party request
+ * (measured at 780 ms on mobile) and delays the LCP element — the header text.
+ * `next/font` fetches the font files at build time, serves them from our own
+ * origin, preloads them, and generates a metric-matched fallback so swapping in
+ * the real font does not shift layout.
+ */
+const fontBody = Albert_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+})
+
+const fontDisplay = Bricolage_Grotesque({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  display: 'swap',
+})
 
 /** Vercel's analytics scripts only resolve when those products are enabled for the
  * deployment; render them only when explicitly switched on. */
@@ -135,22 +158,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${fontBody.variable} ${fontDisplay.variable}`}
+    >
       <head>
-        {/* Preconnect to Supabase for faster API connections */}
-        <link rel="preconnect" href="https://slqswobeccrzbdygkykn.supabase.co" />
-        <link rel="dns-prefetch" href="https://slqswobeccrzbdygkykn.supabase.co" />
-
-        {/* Preconnect to Google Fonts with high priority for faster font loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
-        {/* Load font stylesheet with display=swap for fast text rendering */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap"
-        />
-
         {/* PWA - iOS specific */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -201,7 +214,6 @@ export default function RootLayout({
                   <ClarityAnalytics />
                   <ServiceWorkerRegistrar />
                   <PWAInstallPrompt />
-                  <FontLoader />
                 </div>
               </div>
             </GlobalProvider>

@@ -36,9 +36,9 @@ const cspDirectives = [
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.clarity.ms https://scripts.clarity.ms"
     : "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms",
   // Style-src: Required for Tailwind and inline styles
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  // Font-src: Self and Google Fonts
-  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  // Font-src: next/font serves the font files from our own origin
+  "font-src 'self' data:",
   // Img-src: Allow self, data URLs, blobs, and HTTPS images (added clarity.ms)
   "img-src 'self' data: blob: https: https://www.clarity.ms https://*.clarity.ms",
   // Connect-src: API endpoints and WebSocket connections (added clarity.ms).

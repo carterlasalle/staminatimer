@@ -14,7 +14,11 @@
 */
 @theme {
   --font-sans: var(--font-body), system-ui, sans-serif;
-  --font-display: var(--font-display), Georgia, serif;
+  /* Points at the `next/font` variable. It previously read
+     `var(--font-display)`, i.e. itself — a self-referential custom property is
+     invalid at computed-value time, so the display font silently fell back to
+     Georgia no matter what the font loader did. */
+  --font-display: var(--font-heading), Georgia, serif;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -113,9 +117,7 @@
 
 @layer utilities {
   :root {
-    /* Font families - loaded async via FontLoader component */
-    --font-display: 'Bricolage Grotesque', Georgia, serif;
-    --font-body: 'Albert Sans', system-ui, -apple-system, sans-serif;
+    /* `--font-body` and `--font-heading` are injected by next/font on <html>. */
 
     /* Dark is the default surface: a deep ink ground tinted toward the brand
        hue, never pure black. */

@@ -2782,6 +2782,28 @@ device and says so in the footer.
 - **Next replaces `Vary` on prerendered pages.** Adding it through
   `next.config.js` `headers()` works on dynamic routes and is overwritten on
   static ones. Other middleware-set headers survive.
+- **Fonts come from `next/font/google`, never a `<link>` to the Fonts CDN.**
+  A stylesheet link in `<head>` blocks the first paint on a third-party request
+  (measured at 780 ms on slow 4G) and delays the LCP element. `next/font`
+  self-hosts the files, preloads them and generates a metric-matched fallback.
+  The font tokens then come from `<html>`: `--font-body` (Albert Sans) and
+  `--font-heading` (Bricolage Grotesque), consumed by `@theme` in
+  `globals.css`. Do not re-declare those two in `@layer utilities` — that is
+  what made `--font-display: var(--font-display)` self-referential, a custom
+  property that references itself is invalid at computed-value time, so the
+  display font silently fell back to Georgia on every heading.
+- **A realtime subscription must be gated on a user.** `GlobalContext` opened a
+  `.channel('public:sessions')` for every anonymous visitor, with
+  `filter: user_id=eq.undefined`. It cannot match anything; all it produced was
+  a websocket attempt and console errors on public pages (Lighthouse
+  "Browser errors were logged to the console"). `fetchSessions` already guarded
+  on `user`; the subscription did not.
+- **Next ships a guarded polyfill block that Lighthouse reports as "Legacy
+  JavaScript" (~14 KiB).** It lives in a chunk that modern browsers *do* load,
+  but every polyfill is behind `||`, so it is inert. It comes from
+  `next/dist/build/polyfills/polyfill-module.js`, not from this repo, and there
+  is no supported toggle. Leave it alone; patching the bundler to drop it is
+  fragile across upgrades.
 
 ## Guide content is now a hard requirement
 

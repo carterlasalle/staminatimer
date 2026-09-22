@@ -56,13 +56,19 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   useEffect(() => {
+    // Realtime is for watching the signed-in user's own sessions. Without this
+    // guard every anonymous visitor to a public page opened a websocket with
+    // `filter: user_id=eq.undefined`, which never matches anything and only
+    // produced connection errors in the console.
+    if (!user) return
+
     fetchSessions()
 
     const channel = supabase
       .channel('public:sessions')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user?.id}` },
+        { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${user.id}` },
         (_payload: RealtimePostgresChangesPayload<DBSession>) => {
           // Realtime session change received - refresh sessions
           fetchSessions()
