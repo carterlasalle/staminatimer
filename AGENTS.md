@@ -2852,6 +2852,19 @@ device and says so in the footer.
   became `src/app/(app)/progress/` and its pre-existing findings resurfaced as
   errors. Also regenerate `.next/types` — a moved route leaves the generated
   route validator pointing at the old path and `tsc --noEmit` fails.
+- **LCP on the landing page is set by whatever paints last and largest, and
+  twice that was not the hero.** Mobile LCP oscillated between 1.6 s and 5.4 s
+  across identical Lighthouse runs on unchanged code. Reading the LCP
+  _element_ out of `lcp-breakdown-insight` — rather than the score — ended both
+  hunts: once it was the PWA install banner (`beforeinstallprompt` plus a
+  hardcoded 3 s delay put a fixed-position element in the LCP window), and the
+  metric flips on whether that timer won a race. Deferred UI that appears on a
+  timer will become the LCP element; gate it on engagement instead. Before
+  optimising assets, print the LCP element.
+- **Measure a metric three times before believing a single run.** One
+  post-deploy run read `perf 77, LCP 5.4 s` and the next two read `96`/`97` with
+  LCP 2.4 s on identical code. A single Lighthouse number on a live site is a
+  sample, not a property.
 
 ## Guide content is now a hard requirement
 
