@@ -31,6 +31,15 @@ export function ClarityAnalytics() {
     const loadClarity = async () => {
       const { default: Clarity } = await import('@microsoft/clarity')
       Clarity.init(projectId)
+
+      // The product states plainly that there is no advertising and no data
+      // broker, and `/privacy` discloses Clarity for usage analytics only. Its
+      // default consent runs a cross-domain advertising sync (the `c.bing.com`
+      // request) that sets third-party cookies. Denying ad storage while keeping
+      // analytics makes the behaviour match what the policy already promises,
+      // and it is what stops Clarity failing Lighthouse's third-party-cookie
+      // audit on a site whose subject matter makes that a real concern.
+      Clarity.consentV2({ ad_Storage: 'denied', analytics_Storage: 'granted' })
     }
 
     // Load after the page is interactive so it never competes with first paint.
