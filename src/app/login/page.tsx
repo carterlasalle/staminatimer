@@ -41,10 +41,6 @@ export default function LoginPage() {
       }, 0)
     }
 
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) redirectToDashboard()
-    })
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
