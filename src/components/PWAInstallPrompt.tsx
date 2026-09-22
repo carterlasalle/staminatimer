@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X, Download, Share } from 'lucide-react'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -14,6 +14,11 @@ export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
+
+  // Whether there is something to offer, and whether the visitor has shown
+  // interest. The prompt only appears once both are true.
+  const worthOffering = useRef(false)
+  const engaged = useRef(false)
 
   useEffect(() => {
     // Check if already installed
@@ -41,23 +46,52 @@ export function PWAInstallPrompt() {
       if (daysSinceDismissed < 7) return // Don't show for 7 days after dismissal
     }
 
+    // An install prompt is an interruption: it should follow interest, not
+    // precede it. It also used to arrive ~3.4 s after load — the browser fires
+    // `beforeinstallprompt` early, then a hardcoded 3 s delay ran — which sits
+    // squarely inside the largest-contentful-paint window. On a throttled phone
+    // the banner therefore *became* the LCP element and pushed LCP from 1.6 s to
+    // 5.4 s. Waiting for the first real interaction is the recommended pattern
+    // and keeps a late fixed-position element out of the rendering window.
+    const maybeReveal = () => {
+      if (worthOffering.current && engaged.current) setShowPrompt(true)
+    }
+
     // Listen for beforeinstallprompt event (Chrome/Edge/Android)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      // Show prompt after a delay for better UX
-      setTimeout(() => setShowPrompt(true), 3000)
+      worthOffering.current = true
+      maybeReveal()
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
-    // For iOS, show after delay if not already installed
+    // iOS has no install event to wait for, but the same rule applies.
     if (iOS) {
-      setTimeout(() => setShowPrompt(true), 5000)
+      worthOffering.current = true
     }
+
+    const engagementEvents = ['scroll', 'pointerdown', 'keydown', 'touchstart'] as const
+
+    const handleEngagement = () => {
+      engaged.current = true
+      engagementEvents.forEach((name) => window.removeEventListener(name, handleEngagement))
+      maybeReveal()
+    }
+
+    engagementEvents.forEach((name) =>
+      window.addEventListener(name, handleEngagement, { passive: true })
+    )
+
+    // A reader who never scrolls still deserves an offer eventually; well past
+    // the point where it could affect first render.
+    const fallback = setTimeout(handleEngagement, 20000)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      engagementEvents.forEach((name) => window.removeEventListener(name, handleEngagement))
+      clearTimeout(fallback)
     }
   }, [])
 
