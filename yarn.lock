@@ -2188,24 +2188,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rive-app/canvas@npm:2.42.2, @rive-app/canvas@npm:^2.42.2":
-  version: 2.42.2
-  resolution: "@rive-app/canvas@npm:2.42.2"
-  checksum: 10c0/1b12992bf4c5e251dc8dc2250b94f24b8d4ef037d0e6a6a155a32789e12818f53565c67f45275e68c8b0f2a70f170059df1a1fcfe4fa5d67085c49e8dbd96a15
-  languageName: node
-  linkType: hard
-
-"@rive-app/react-canvas@npm:^4.34.3":
-  version: 4.34.3
-  resolution: "@rive-app/react-canvas@npm:4.34.3"
-  dependencies:
-    "@rive-app/canvas": "npm:2.42.2"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0
-  checksum: 10c0/aaa668097e8364d64bc2ce7a40bb27476971b3cae65ef3a720d1857f9a170af88fad20344854f204fcb848d287d0c31dabe9e3fc203f376575f0c962d4220769
-  languageName: node
-  linkType: hard
-
 "@rolldown/pluginutils@npm:1.0.0-beta.53":
   version: 1.0.0-beta.53
   resolution: "@rolldown/pluginutils@npm:1.0.0-beta.53"
@@ -8463,8 +8445,6 @@ __metadata:
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@radix-ui/react-switch": "npm:^1.2.6"
     "@radix-ui/react-tabs": "npm:^1.1.13"
-    "@rive-app/canvas": "npm:^2.42.2"
-    "@rive-app/react-canvas": "npm:^4.34.3"
     "@supabase/auth-ui-react": "npm:^0.4.7"
     "@supabase/auth-ui-shared": "npm:^0.1.8"
     "@supabase/ssr": "npm:^0.8.0"
