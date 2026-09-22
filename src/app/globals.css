@@ -425,3 +425,490 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== LANDING WORLD =====
+   These scene rules intentionally live apart from the application utility
+   layer. Public marketing uses a composed landscape; product routes remain a
+   restrained training instrument. */
+.landing-page {
+  --landing-ink: #071521;
+  --landing-deep: #0b1e2a;
+  --landing-water: #173d52;
+  --landing-mist: #d7e5e5;
+  --landing-soft: #afc9cf;
+  --landing-sky: #75a3b2;
+  --landing-sun: #d6b46f;
+  background: var(--landing-ink);
+}
+
+.landing-nav-link {
+  color: #d7e5e5;
+  font-size: 0.875rem;
+  transition: color 180ms ease;
+}
+
+.landing-nav-link:hover {
+  color: #fff;
+}
+
+.landing-nav-cta,
+.landing-primary-action,
+.landing-interface-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(237, 243, 241, 0.16);
+  background: #edf3f1;
+  color: #071521;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms var(--ease-out-quart);
+}
+
+.landing-nav-cta {
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+}
+.landing-primary-action {
+  min-height: 3rem;
+  padding: 0 1.05rem;
+}
+.landing-interface-button {
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+}
+
+.landing-nav-cta:hover,
+.landing-primary-action:hover,
+.landing-interface-button:hover {
+  background: #d6b46f;
+  transform: translateY(-1px);
+}
+
+.landing-nav-cta svg,
+.landing-primary-action svg,
+.landing-interface-button svg {
+  transition: transform 180ms ease;
+}
+.landing-nav-cta:hover svg,
+.landing-primary-action:hover svg,
+.landing-interface-button:hover svg {
+  transform: translate(3px, -1px);
+}
+
+.landing-text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #d7e5e5;
+  font-size: 0.875rem;
+  transition: color 180ms ease;
+}
+.landing-text-action:hover {
+  color: #fff;
+}
+.landing-text-action svg {
+  transition: transform 180ms ease;
+}
+.landing-text-action:hover svg {
+  transform: translateY(3px);
+}
+
+.landing-hero-wrap {
+  min-height: 100svh;
+  padding: 0.75rem;
+  background: #071521;
+}
+
+.landing-hero-scene {
+  --px: 0;
+  --py: 0;
+  position: relative;
+  min-height: calc(100svh - 1.5rem);
+  overflow: hidden;
+  border-radius: 1.75rem;
+  isolation: isolate;
+  background: #173d52;
+}
+
+.landing-sky {
+  transform: translate(calc(var(--px) * 2px), calc(var(--py) * 2px)) scale(1.04);
+}
+.landing-mountains {
+  transform: translate(calc(var(--px) * 5px), calc(var(--py) * 4px)) scale(1.035);
+}
+.landing-lake {
+  animation: lake-drift 18s ease-in-out infinite alternate;
+  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 4px)) scale(1.03);
+}
+.landing-shore {
+  transform: translate(calc(var(--px) * 8px), calc(var(--py) * 7px)) scale(1.03);
+}
+.landing-foreground {
+  animation: foliage-sway 13s ease-in-out infinite alternate;
+  transform: translate(calc(var(--px) * 13px), calc(var(--py) * 10px)) scale(1.045);
+  transform-origin: left bottom;
+}
+.landing-mist {
+  animation: mist-drift 28s ease-in-out infinite alternate;
+  transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px)) scale(1.035);
+}
+
+@keyframes lake-drift {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.1);
+  }
+}
+@keyframes foliage-sway {
+  from {
+    rotate: -0.4deg;
+  }
+  to {
+    rotate: 0.8deg;
+  }
+}
+@keyframes mist-drift {
+  from {
+    translate: -1.5% 0;
+  }
+  to {
+    translate: 2% -1%;
+  }
+}
+
+.landing-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 21, 33, 0.58) 0%,
+      rgba(7, 21, 33, 0.19) 50%,
+      rgba(7, 21, 33, 0.08) 100%
+    ),
+    linear-gradient(0deg, rgba(7, 21, 33, 0.34), transparent 48%);
+}
+
+.landing-hero-copy {
+  position: absolute;
+  z-index: 2;
+  left: clamp(1.5rem, 7vw, 8rem);
+  top: 50%;
+  width: min(38rem, calc(100% - 3rem));
+  transform: translateY(-42%);
+}
+
+.landing-kicker {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.landing-hero-caption {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.35rem;
+  z-index: 2;
+  color: rgba(215, 229, 229, 0.75);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.landing-story-section {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: clamp(4.5rem, 9vw, 9rem) max(1.25rem, 7vw);
+  background: #071521;
+}
+
+.story-orbit {
+  position: absolute;
+  top: 18%;
+  right: -12rem;
+  width: 38rem;
+  height: 38rem;
+  border: 1px solid rgba(117, 163, 178, 0.15);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 7rem rgba(23, 61, 82, 0.2),
+    inset 0 0 0 14rem rgba(11, 30, 42, 0.35);
+}
+
+.landing-story-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-items: center;
+  max-width: 80rem;
+  min-height: 72svh;
+  margin: 0 auto;
+  gap: clamp(3rem, 8vw, 10rem);
+  grid-template-columns: minmax(14rem, 0.72fr) minmax(0, 1.15fr);
+}
+
+.landing-story-copy {
+  position: relative;
+  min-height: 18rem;
+}
+
+.landing-product-frame {
+  position: relative;
+  min-height: 34rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid rgba(215, 229, 229, 0.16);
+  background: #102c3b;
+  box-shadow: 0 2.5rem 7rem rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.landing-product-frame::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(135deg, rgba(117, 163, 178, 0.14), transparent 38%);
+  pointer-events: none;
+}
+
+.story-state {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+.landing-interface-label {
+  color: #75a3b2;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.landing-interface-status {
+  color: #d6b46f;
+  font-size: 0.75rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.landing-progress-section {
+  position: relative;
+  padding: clamp(5rem, 12vw, 13rem) max(1.25rem, 7vw);
+  background: #0b1e2a;
+}
+
+.landing-progress-copy,
+.landing-ridge-chart {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+.landing-ridge-chart {
+  margin-top: clamp(4rem, 8vw, 8rem);
+}
+
+.landing-privacy-section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(6rem, 13vw, 14rem) max(1.25rem, 7vw) clamp(5rem, 10vw, 10rem);
+  background: #071521;
+}
+
+.landing-privacy-sun {
+  position: absolute;
+  top: -18rem;
+  right: max(-10rem, 10vw);
+  width: 48rem;
+  height: 48rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(214, 180, 111, 0.22),
+    rgba(23, 61, 82, 0.08) 42%,
+    transparent 68%
+  );
+}
+
+.landing-privacy-content {
+  position: relative;
+  max-width: 70rem;
+  margin-inline: auto;
+}
+.landing-footer {
+  padding: 3rem max(1.25rem, 7vw) 2rem;
+  background: #071521;
+}
+
+@media (max-width: 767px) {
+  .landing-hero-scene {
+    border-radius: 1.25rem;
+  }
+  .landing-hero-copy {
+    top: auto;
+    bottom: 4.5rem;
+    transform: none;
+  }
+  .landing-hero-caption {
+    display: none;
+  }
+  .landing-story-grid {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+  .landing-story-copy {
+    min-height: 14.5rem;
+  }
+  .landing-product-frame {
+    min-height: 29rem;
+  }
+  .story-orbit {
+    width: 27rem;
+    height: 27rem;
+    right: -16rem;
+    top: 22rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-lake,
+  .landing-foreground,
+  .landing-mist {
+    animation: none;
+  }
+}
+
+/* ===== AUTHENTICATED APP ===== */
+.today-page {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+.today-atmosphere {
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(30svh, 22rem);
+  overflow: hidden;
+  background: #0b1e2a;
+  pointer-events: none;
+}
+.today-atmosphere::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(180deg, rgba(117, 163, 178, 0.2), transparent 74%);
+}
+.today-atmosphere::after {
+  position: absolute;
+  right: -10%;
+  bottom: -3.5rem;
+  width: 72%;
+  height: 8rem;
+  content: '';
+  border-radius: 50% 50% 0 0;
+  background: #173d52;
+  opacity: 0.7;
+}
+.today-atmosphere span:first-child {
+  position: absolute;
+  right: 12%;
+  top: 21%;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: #d6b46f;
+  box-shadow: 0 0 4rem 1.2rem rgba(214, 180, 111, 0.13);
+}
+.today-atmosphere span:last-child {
+  position: absolute;
+  bottom: 12%;
+  left: -5%;
+  width: 80%;
+  height: 1px;
+  background: rgba(215, 229, 229, 0.28);
+  transform: rotate(-2deg);
+}
+.today-start-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 180ms ease,
+    transform 180ms var(--ease-out-quart);
+}
+.today-start-action:hover {
+  background: hsl(var(--primary) / 0.86);
+  transform: translateY(-1px);
+}
+.today-rhythm {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.375rem;
+}
+.today-rhythm span {
+  display: grid;
+  min-height: 2.6rem;
+  place-items: center;
+  border-top: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+.today-rhythm .is-current {
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
+}
+
+.coach-reading h1,
+.coach-reading h2,
+.coach-reading h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
+}
+.coach-reading h1 {
+  font-size: 1.875rem;
+}
+.coach-reading h2 {
+  font-size: 1.5rem;
+}
+.coach-reading h3 {
+  font-size: 1.125rem;
+}
+.coach-reading p {
+  margin-bottom: 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.coach-reading ul,
+.coach-reading ol {
+  margin: 0 0 1rem 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.coach-reading ul {
+  list-style: disc;
+}
+.coach-reading ol {
+  list-style: decimal;
+}
+.coach-reading strong {
+  font-weight: 600;
+}
+.coach-reading blockquote {
+  margin: 1rem 0;
+  border-left: 1px solid hsl(var(--primary));
+  padding-left: 1rem;
+  color: hsl(var(--muted-foreground));
+}
