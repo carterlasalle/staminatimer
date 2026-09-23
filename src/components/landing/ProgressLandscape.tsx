@@ -25,15 +25,15 @@ export function ProgressLandscape() {
     const section = sectionRef.current
     const path = pathRef.current
     if (!section || !path || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const length = path.getTotalLength()
-    path.style.strokeDasharray = `${length}`
-    path.style.strokeDashoffset = `${length}`
     let context: { revert: () => void } | undefined
     let disposed = false
     void import('@/lib/motion/gsap-runtime').then(async ({ withGsap }) => {
       if (disposed) return
       await withGsap(({ gsap }) => {
         if (disposed) return
+        const length = path.getTotalLength()
+        path.style.strokeDasharray = `${length}`
+        path.style.strokeDashoffset = `${length}`
         context = gsap.context(() => {
           gsap
             .timeline({ scrollTrigger: { trigger: section, start: 'top 70%', once: true } })
