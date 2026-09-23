@@ -77,7 +77,7 @@ export default function Dashboard() {
             <span />
           </div>
           <header className="relative max-w-6xl px-5 pt-9 sm:px-8 lg:px-12 lg:pt-12">
-            <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">Today</p>
+            <h1 className="text-xs font-medium tracking-[0.16em] text-primary uppercase">Today</h1>
             <div className="mt-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -87,9 +87,9 @@ export default function Dashboard() {
                       ? 'Set your starting point first'
                       : prescription.label}
                 </p>
-                <h1 className="mt-2 font-display text-6xl leading-none tracking-[-0.07em] tabular-nums sm:text-8xl">
+                <p className="mt-2 font-display text-6xl leading-none tracking-[-0.07em] tabular-nums sm:text-8xl">
                   {isPending ? '—' : formatTarget(currentTargetMs)}
-                </h1>
+                </p>
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
                   {isPending
                     ? 'Your session details will appear here when the program is ready.'
