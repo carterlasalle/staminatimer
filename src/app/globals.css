@@ -821,6 +821,9 @@
 
 /* ===== AUTHENTICATED APP ===== */
 .today-page {
+  --landing-deep: #0b1e2a;
+  --landing-water: #173d52;
+  --landing-sun: #d6b46f;
   position: relative;
   min-height: 100%;
   overflow: hidden;
