@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { SITE_CONFIG } from '@/lib/seo/config'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -7,6 +8,9 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/privacy`,
   },
   openGraph: {
     title: 'Privacy Policy - Stamina Timer',

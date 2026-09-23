@@ -10,6 +10,13 @@ import { expect, test } from '@playwright/test'
  * would pass every unit test and fail here.
  */
 
+async function dismissOnboarding(page: import('@playwright/test').Page) {
+  await page
+    .getByRole('button', { name: 'Skip the tutorial' })
+    .click({ timeout: 2_000 })
+    .catch(() => {})
+}
+
 // The session comes from the setup project, so these only need a page to start
 // from — no per-test sign-in.
 test.beforeEach(async ({ page }) => {
@@ -19,8 +26,7 @@ test.beforeEach(async ({ page }) => {
   // it covers the header, so nothing behind it is clickable. That is correct
   // behaviour, and a journey that ignores it is testing a state real users are
   // not in. Dismiss it if it is there.
-  const skip = page.getByRole('button', { name: 'Skip the tutorial' })
-  if (await skip.isVisible()) await skip.click()
+  await dismissOnboarding(page)
 })
 
 test('a signed-in visitor is sent to their dashboard instead of the landing page', async ({
@@ -46,8 +52,7 @@ test.describe('authenticated pages that own their session', () => {
     await page.getByRole('button', { name: 'Sign in to your account' }).click()
     await expect(page).toHaveURL(/\/dashboard/)
 
-    const skip = page.getByRole('button', { name: 'Skip the tutorial' })
-    if (await skip.isVisible()) await skip.click()
+    await dismissOnboarding(page)
   })
 
   test('the account menu is labelled and its sign out ends the session server-side', async ({

@@ -13,6 +13,8 @@ import { expect, test } from '@playwright/test'
 
 const MARKDOWN = { Accept: 'text/markdown' }
 
+test.use({ storageState: { cookies: [], origins: [] } })
+
 test.describe('unknown paths', () => {
   test('an unknown path really is a 404, not a redirect to login', async ({ request }) => {
     const response = await request.get('/definitely-not-a-page')

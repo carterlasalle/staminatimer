@@ -1,128 +1,205 @@
 'use client'
 
-// Force dynamic rendering for this page
 export const dynamic = 'force-dynamic'
 
 import { AppNavigation } from '@/components/AppNavigation'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { OnboardingTutorial, useOnboarding } from '@/components/OnboardingTutorial'
-import { Timer, ArrowRight } from 'lucide-react'
+import { useProgramV2Progress } from '@/hooks/useProgramV2Progress'
+import {
+  formatTarget,
+  getMondayFirstDayIndex,
+  getProgressionRequirement,
+  getScheduledSessionType,
+  getSessionPrescription,
+} from '@/lib/program/protocol-v2'
+import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useGamification } from '@/hooks/useGamification'
-import { useGlobal } from '@/contexts/GlobalContext'
-import { usePreferences } from '@/hooks/usePreferences'
-import { formatDuration } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
-  const { level, streakCount } = useGamification()
-  const { recentSessions } = useGlobal()
-  const { prefs } = usePreferences()
   const { showOnboarding, completeOnboarding } = useOnboarding()
+  const { loading, error, refresh, needsOnboarding, currentTargetMs, gate, sessions } =
+    useProgramV2Progress()
+  const [clientNow, setClientNow] = useState<Date | null>(null)
 
-  // Today's stats
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(today.getDate() + 1)
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const updateDate = () => {
+      const now = new Date()
+      setClientNow(now)
 
-  const todayMs = recentSessions
-    .filter((s) => {
-      const t = new Date(s.created_at)
+      const nextMidnight = new Date(now)
+      nextMidnight.setHours(24, 0, 0, 0)
+      timer = setTimeout(updateDate, nextMidnight.getTime() - now.getTime() + 50)
+    }
 
-      return t >= today && t < tomorrow
-    })
-    .reduce((acc, s) => acc + (s.total_duration || 0), 0)
+    updateDate()
 
-  const goalMs = prefs.dailyGoalMinutes * 60 * 1000
-  const goalPct = Math.min(100, Math.round((todayMs / goalMs) * 100))
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [])
 
-  const lastSession = recentSessions[0]
+  const today = clientNow ?? new Date(0)
+  const isPending = loading || clientNow === null
+  const sessionType = getScheduledSessionType(today)
+  const prescription = getSessionPrescription(sessionType)
+  const latest = sessions[0]
+  const requirement = getProgressionRequirement(currentTargetMs)
+  const todayIndex = clientNow ? getMondayFirstDayIndex(today) : -1
+  const recentBestMs = sessions.reduce<number | null>((best, session) => {
+    const duration = session.longest_continuous_block_ms
+    if (duration === null || duration <= 0) return best
+
+    return best === null || duration > best ? duration : best
+  }, null)
 
   return (
     <AppNavigation>
-      {/* Onboarding Tutorial for First-Time Users */}
       <OnboardingTutorial isOpen={showOnboarding} onComplete={completeOnboarding} />
-
-      <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8 md:space-y-12">
-        {/* Welcome Header */}
-        <div className="text-center space-y-1 md:space-y-2">
-          <h1 className="text-2xl md:text-3xl font-light text-foreground">Welcome back</h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Ready to continue your progress?
+      {error ? (
+        <main className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:px-12">
+          <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">Today</p>
+          <h1 className="mt-5 font-display text-4xl tracking-[-0.05em]">
+            We couldn&apos;t load your training data.
+          </h1>
+          <p role="alert" className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {error}
           </p>
-        </div>
-
-        {/* Primary Action */}
-        <div className="text-center">
-          <Link href="/training">
-            <Button
-              size="lg"
-              className="px-6 py-5 md:px-8 md:py-6 text-base md:text-lg font-medium rounded-full w-full sm:w-auto"
-            >
-              <Timer className="mr-2 md:mr-3 h-5 w-5" />
-              Start Training Session
-            </Button>
-          </Link>
-        </div>
-
-        {/* Today's Progress - Simple */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-medium">Today's Goal</span>
-            <span className="text-2xl font-light">{goalPct}%</span>
+          <button className="today-start-action mt-8" type="button" onClick={() => void refresh()}>
+            Try again <ArrowRight className="h-4 w-4" />
+          </button>
+        </main>
+      ) : (
+        <div className="today-page">
+          <div className="today-atmosphere" aria-hidden>
+            <span />
+            <span />
           </div>
-          <Progress label="Today's goal progress" value={goalPct} className="h-2" />
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>{formatDuration(todayMs)}</span>
-            <span>{formatDuration(goalMs)}</span>
-          </div>
-        </div>
-
-        {/* Key Stats - Minimal */}
-        <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
-          <div className="space-y-0.5 md:space-y-1">
-            <div className="text-xl md:text-2xl font-light">{level.level}</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Level</div>
-          </div>
-          <div className="space-y-0.5 md:space-y-1">
-            <div className="text-xl md:text-2xl font-light">{streakCount}</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Day Streak</div>
-          </div>
-          <div className="space-y-0.5 md:space-y-1">
-            <div className="text-xl md:text-2xl font-light">{recentSessions.length}</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Total Sessions</div>
-          </div>
-        </div>
-
-        {/* Last Session */}
-        {lastSession && (
-          <div className="border-t pt-6 md:pt-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <header className="relative max-w-6xl px-5 pt-9 sm:px-8 lg:px-12 lg:pt-12">
+            <h1 className="text-xs font-medium tracking-[0.16em] text-primary uppercase">Today</h1>
+            <div className="mt-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
-                <h3 className="text-base md:text-lg font-medium">Last Session</h3>
-                <p className="text-sm md:text-base text-muted-foreground">
-                  {formatDuration(lastSession.total_duration)} •{' '}
-                  {lastSession.edge_events?.length || 0} edges
+                <p className="text-sm text-muted-foreground">
+                  {isPending
+                    ? 'Getting today’s prescription'
+                    : needsOnboarding
+                      ? 'Set your starting point first'
+                      : prescription.label}
+                </p>
+                <p className="mt-2 font-display text-6xl leading-none tracking-[-0.07em] tabular-nums sm:text-8xl">
+                  {isPending ? '—' : formatTarget(currentTargetMs)}
+                </p>
+                <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+                  {isPending
+                    ? 'Your session details will appear here when the program is ready.'
+                    : needsOnboarding
+                      ? 'Choose a baseline and the program will give you a clear session for today.'
+                      : prescription.summary}
                 </p>
               </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
-                {new Date(lastSession.created_at).toLocaleDateString()}
-              </div>
+              {isPending ? (
+                <span className="today-start-action cursor-wait opacity-60" aria-live="polite">
+                  Loading session
+                </span>
+              ) : (
+                <Link
+                  href={needsOnboarding ? '/program' : `/program/session?type=${sessionType}`}
+                  className="today-start-action"
+                >
+                  {needsOnboarding ? 'Set up program' : 'Begin session'}{' '}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
             </div>
-          </div>
-        )}
+          </header>
 
-        {/* View Progress Link */}
-        <div className="text-center pt-4 border-t">
-          <Link href="/progress">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              View your progress
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <section
+            aria-label="Current training metrics"
+            className="relative mx-5 mt-14 max-w-6xl border-y border-border/60 sm:mx-8 lg:mx-12"
+          >
+            <dl className="grid divide-y divide-border/60 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+              <div className="py-5 sm:px-5 sm:first:pl-0">
+                <dt className="text-xs text-muted-foreground">Current target</dt>
+                <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
+                  {isPending ? '—' : formatTarget(currentTargetMs)}
+                </dd>
+              </div>
+              <div className="py-5 sm:px-5">
+                <dt className="text-xs text-muted-foreground">Recent best</dt>
+                <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
+                  {isPending ? '—' : recentBestMs ? formatTarget(recentBestMs) : '—'}
+                </dd>
+              </div>
+              <div className="py-5 sm:px-5">
+                <dt className="text-xs text-muted-foreground">Observations</dt>
+                <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
+                  {isPending
+                    ? '—'
+                    : `${gate?.observationCount ?? 0} / ${requirement.requiredObservations}`}
+                </dd>
+              </div>
+              <div className="py-5 sm:px-5 sm:last:pr-0">
+                <dt className="text-xs text-muted-foreground">Passes</dt>
+                <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
+                  {isPending ? '—' : `${gate?.passCount ?? 0} / ${requirement.requiredPasses}`}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="relative mx-5 mt-14 grid max-w-6xl gap-10 pb-16 sm:mx-8 lg:mx-12 lg:grid-cols-[1.4fr_.6fr]">
+            <div>
+              <div className="flex items-end justify-between border-b border-border/60 pb-4">
+                <h2 className="font-display text-3xl tracking-[-0.045em]">Weekly rhythm</h2>
+                <Link href="/program" className="text-sm text-primary hover:underline">
+                  View program
+                </Link>
+              </div>
+              <div className="today-rhythm mt-6">
+                {[
+                  ['M', 'Monday'],
+                  ['T', 'Tuesday'],
+                  ['W', 'Wednesday'],
+                  ['T', 'Thursday'],
+                  ['F', 'Friday'],
+                  ['S', 'Saturday'],
+                  ['S', 'Sunday'],
+                ].map(([day, name], index) => (
+                  <span
+                    key={name}
+                    title={name}
+                    className={index === todayIndex ? 'is-current' : undefined}
+                  >
+                    {day}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                Today&apos;s session is {prescription.label.toLowerCase()}. The schedule gives each
+                day a separate job, so the signal stays readable.
+              </p>
+            </div>
+            <div className="border-t border-border/60 pt-5 lg:border-t-0 lg:border-l lg:pl-8 lg:pt-0">
+              <p className="text-xs text-muted-foreground">Recent session</p>
+              <p className="mt-2 text-lg">
+                {latest ? getSessionPrescription(latest.session_type).label : 'No sessions yet'}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {latest
+                  ? `${formatTarget(latest.longest_continuous_block_ms ?? 0)} longest continuous block`
+                  : 'Your first result will appear here.'}
+              </p>
+              <Link
+                href="/progress"
+                className="mt-6 inline-flex text-sm text-primary hover:underline"
+              >
+                Open progress <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </div>
+          </section>
         </div>
-      </div>
+      )}
     </AppNavigation>
   )
 }

@@ -101,9 +101,20 @@ for (const path of PAGES) {
     test('corner radii stay within the budget', async ({ page }) => {
       await page.goto(path)
 
-      const oversized = await page.evaluate(() =>
-        [...document.querySelectorAll('*')]
+      const oversized = await page.evaluate(() => {
+        // These are the three intentional large-radius scene shapes: the framed
+        // hero and two circular environmental bodies. The budget still rejects
+        // oversized corners on ordinary interface surfaces.
+        const landingSceneRadiusExemptions = [
+          '.landing-hero-scene',
+          '.story-orbit',
+          '.landing-privacy-sun',
+        ]
+
+        return [...document.querySelectorAll('*')]
           .flatMap((element) => {
+            if (landingSceneRadiusExemptions.some((selector) => element.matches(selector))) return []
+
             const px = Number.parseFloat(getComputedStyle(element).borderRadius)
             // A pill is legitimate; a 24px+ card corner is not.
             const tooRound = Number.isFinite(px) && px > 16 && px < 9999
@@ -113,7 +124,7 @@ for (const path of PAGES) {
               : []
           })
           .slice(0, 5)
-      )
+      })
 
       expect(oversized).toEqual([])
     })

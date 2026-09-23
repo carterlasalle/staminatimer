@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { EXPANDED_GUIDE_TOPICS } from '@/lib/seo/guides-data'
 
-const baseUrl = 'https://staminatimer.com'
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://staminatimer.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date().toISOString()

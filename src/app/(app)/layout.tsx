@@ -2,6 +2,10 @@ import { ClarityIdentify } from '@/components/ClarityIdentify'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { GlobalProvider } from '@/contexts/GlobalContext'
 
+const CLARITY_DEPLOYMENT_ENABLED = process.env.VERCEL_ENV
+  ? process.env.VERCEL_ENV === 'production'
+  : process.env.NODE_ENV === 'production'
+
 /**
  * The authenticated application shell.
  *
@@ -23,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <GlobalProvider>
-        <ClarityIdentify />
+        {CLARITY_DEPLOYMENT_ENABLED && <ClarityIdentify />}
         {children}
       </GlobalProvider>
     </AuthProvider>
