@@ -66,6 +66,15 @@ jobs:
         run: yarn test:e2e
       - name: Run Lighthouse accessibility gate
         run: yarn dlx @lhci/cli@0.15.1 autorun
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: browser-diagnostics
+          path: |
+            .lighthouseci/results
+            test-results
+          if-no-files-found: ignore
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
