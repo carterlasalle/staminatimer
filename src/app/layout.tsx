@@ -48,11 +48,14 @@ const CLARITY_DEPLOYMENT_ENABLED = process.env.VERCEL_ENV
   ? process.env.VERCEL_ENV === 'production'
   : process.env.NODE_ENV === 'production'
 
+const publicSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://staminatimer.com'
+
 const siteConfig = {
   name: 'Stamina Timer',
   description:
     'A private training app for building lasting control. Follow a measured guided program, track your progress, and see how each session compares with your own baseline.',
-  url: 'https://staminatimer.com',
+  url: publicSiteUrl,
   ogImage: '/og-image.png',
   keywords: [
     'stamina training',
