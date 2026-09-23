@@ -27,21 +27,23 @@ export function LandingNav() {
       }}
     >
       <motion.div
-        animate={{
-          backgroundColor: scrolled ? 'rgba(7, 21, 33, 0.92)' : 'rgba(7, 21, 33, 0)',
-          borderColor: scrolled ? 'rgba(215, 229, 229, 0.14)' : 'rgba(215, 229, 229, 0)',
-          boxShadow: scrolled ? '0 10px 32px rgba(0,0,0,0.16)' : '0 0 0 rgba(0,0,0,0)',
-        }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="mx-auto flex h-14 max-w-[1600px] items-center justify-between border px-3 sm:px-5"
+        className="relative mx-auto flex h-14 max-w-[1600px] items-center justify-between px-3 sm:px-5"
       >
+        <motion.span
+          aria-hidden
+          animate={{ opacity: scrolled ? 1 : 0 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="pointer-events-none absolute inset-0 border border-landing-mist/15 bg-landing-ink/95"
+        />
         <Link
           href="/"
-          className="font-display text-base font-semibold tracking-tight text-[#edf3f1]"
+          className="relative font-display text-base font-semibold tracking-tight text-landing-paper"
         >
-          Stamina
+          Stamina Timer
         </Link>
-        <nav aria-label="Main" className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Main" className="relative hidden items-center gap-6 md:flex">
           <a href="#how-it-works" className="landing-nav-link">
             How it works
           </a>
@@ -52,10 +54,10 @@ export function LandingNav() {
             Privacy
           </a>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="relative flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden text-sm text-[#d7e5e5] transition-colors hover:text-white sm:block"
+            className="hidden text-sm text-landing-mist transition-colors hover:text-landing-paper sm:block"
           >
             Sign in
           </Link>
