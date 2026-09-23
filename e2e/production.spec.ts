@@ -29,6 +29,7 @@ test('authenticated timer lifecycle persists and progress remains reachable', as
   await page.getByLabel(/password/i).fill(password!)
   await page.getByRole('button', { name: 'Sign in to your account' }).click()
   await expect(page).toHaveURL(/\/dashboard/)
+  await page.getByRole('button', { name: 'Skip tutorial' }).click({ timeout: 2_000 }).catch(() => {})
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible()
 
   await page.goto('/training')
