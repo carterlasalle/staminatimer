@@ -19,12 +19,21 @@ export function AICoachChat() {
   const { messages, isLoading, sendMessage, clearChat, generateInitialInsights } = useAICoach()
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const resultRef = useRef<HTMLElement>(null)
+  const wasLoading = useRef(false)
   const latestAssistantMessage = [...messages]
     .reverse()
     .find((message) => message.role === 'assistant')
 
+  const earlierMessages = messages.filter((message) => message.id !== latestAssistantMessage?.id)
+
   useEffect(() => {
-    if (!isLoading) inputRef.current?.focus()
+    if (wasLoading.current && !isLoading) {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else if (!isLoading) {
+      inputRef.current?.focus()
+    }
+    wasLoading.current = isLoading
   }, [isLoading])
 
   const submit = () => {
@@ -47,7 +56,7 @@ export function AICoachChat() {
         <div>
           <p className="text-sm text-muted-foreground">Latest insight</p>
           {latestAssistantMessage ? (
-            <article className="coach-reading mt-4 border-l border-primary pl-5">
+            <article ref={resultRef} className="coach-reading mt-4 border-l border-primary pl-5">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {latestAssistantMessage.content}
               </ReactMarkdown>
@@ -85,10 +94,10 @@ export function AICoachChat() {
         </aside>
       </section>
 
-      {messages.length > 0 && (
+      {earlierMessages.length > 0 && (
         <section aria-label="Earlier notes" className="border-t border-border/60 pt-8">
           <div className="space-y-8">
-            {messages.map((message) => (
+            {earlierMessages.map((message) => (
               <article
                 key={message.id}
                 className={
@@ -122,7 +131,7 @@ export function AICoachChat() {
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+              if (event.key === 'Enter') {
                 event.preventDefault()
                 submit()
               }
