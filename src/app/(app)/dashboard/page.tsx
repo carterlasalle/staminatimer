@@ -35,24 +35,18 @@ export default function Dashboard() {
   return (
     <AppNavigation>
       <OnboardingTutorial isOpen={showOnboarding} onComplete={completeOnboarding} />
-      {loading || error ? (
+      {error ? (
         <main className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:px-12">
           <p className="text-xs font-medium tracking-[0.16em] text-primary uppercase">Today</p>
           <h1 className="mt-5 font-display text-4xl tracking-[-0.05em]">
-            {error ? 'Your training is unavailable right now.' : 'Loading your training…'}
+            We couldn&apos;t load your training data.
           </h1>
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
-            {error ?? 'Getting your current target and today’s prescription.'}
+          <p role="alert" className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {error}
           </p>
-          {error && (
-            <button
-              className="today-start-action mt-8"
-              type="button"
-              onClick={() => void refresh()}
-            >
-              Try again <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
+          <button className="today-start-action mt-8" type="button" onClick={() => void refresh()}>
+            Try again <ArrowRight className="h-4 w-4" />
+          </button>
         </main>
       ) : (
         <div className="today-page">
@@ -65,24 +59,36 @@ export default function Dashboard() {
             <div className="mt-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {needsOnboarding ? 'Set your starting point first' : prescription.label}
+                  {loading
+                    ? 'Getting today’s prescription'
+                    : needsOnboarding
+                      ? 'Set your starting point first'
+                      : prescription.label}
                 </p>
                 <h1 className="mt-2 font-display text-6xl leading-none tracking-[-0.07em] tabular-nums sm:text-8xl">
                   {loading ? '—' : formatTarget(currentTargetMs)}
                 </h1>
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {needsOnboarding
-                    ? 'Choose a baseline and the program will give you a clear session for today.'
-                    : prescription.summary}
+                  {loading
+                    ? 'Your session details will appear here when the program is ready.'
+                    : needsOnboarding
+                      ? 'Choose a baseline and the program will give you a clear session for today.'
+                      : prescription.summary}
                 </p>
               </div>
-              <Link
-                href={needsOnboarding ? '/program' : `/program/session?type=${sessionType}`}
-                className="today-start-action"
-              >
-                {needsOnboarding ? 'Set up program' : 'Begin session'}{' '}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              {loading ? (
+                <span className="today-start-action cursor-wait opacity-60" aria-live="polite">
+                  Loading session
+                </span>
+              ) : (
+                <Link
+                  href={needsOnboarding ? '/program' : `/program/session?type=${sessionType}`}
+                  className="today-start-action"
+                >
+                  {needsOnboarding ? 'Set up program' : 'Begin session'}{' '}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
             </div>
           </header>
 
@@ -100,19 +106,21 @@ export default function Dashboard() {
               <div className="py-5 sm:px-5">
                 <dt className="text-xs text-muted-foreground">Recent best</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {recentBestMs ? formatTarget(recentBestMs) : '—'}
+                  {loading ? '—' : recentBestMs ? formatTarget(recentBestMs) : '—'}
                 </dd>
               </div>
               <div className="py-5 sm:px-5">
                 <dt className="text-xs text-muted-foreground">Observations</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {gate?.observationCount ?? 0} / {requirement.requiredObservations}
+                  {loading
+                    ? '—'
+                    : `${gate?.observationCount ?? 0} / ${requirement.requiredObservations}`}
                 </dd>
               </div>
               <div className="py-5 sm:px-5 sm:last:pr-0">
                 <dt className="text-xs text-muted-foreground">Passes</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {gate?.passCount ?? 0} / {requirement.requiredPasses}
+                  {loading ? '—' : `${gate?.passCount ?? 0} / ${requirement.requiredPasses}`}
                 </dd>
               </div>
             </dl>
@@ -127,9 +135,18 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="today-rhythm mt-6">
-                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                {[
+                  ['M', 'Monday'],
+                  ['T', 'Tuesday'],
+                  ['W', 'Wednesday'],
+                  ['T', 'Thursday'],
+                  ['F', 'Friday'],
+                  ['S', 'Saturday'],
+                  ['S', 'Sunday'],
+                ].map(([day, name], index) => (
                   <span
-                    key={`${day}-${index}`}
+                    key={name}
+                    title={name}
                     className={index === todayIndex ? 'is-current' : undefined}
                   >
                     {day}
