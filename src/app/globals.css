@@ -690,11 +690,39 @@
 }
 .story-train,
 .story-progress {
+  margin-top: 4rem;
+  padding-top: 4rem;
+  border-top: 1px solid rgba(215, 229, 229, 0.16);
+}
+.story-copy + .story-copy {
+  margin-top: 4rem;
+}
+.story-demo-controls {
+  margin-top: 8rem;
+}
+.landing-story-section.story-enhanced .story-copy:not(:first-of-type) {
+  position: absolute;
+  top: 1.75rem;
+  right: 0;
+  left: 0;
+  margin-top: 0;
+}
+.landing-story-section.story-enhanced .story-train,
+.landing-story-section.story-enhanced .story-progress {
+  position: absolute;
+  inset: 0;
+  margin-top: 0;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border-top: 0;
   visibility: hidden;
   pointer-events: none;
 }
-.story-copy-later {
-  visibility: hidden;
+.landing-story-section.story-enhanced .story-demo-controls {
+  position: absolute;
+  right: clamp(1.5rem, 4vw, 3rem);
+  bottom: clamp(1.5rem, 4vw, 3rem);
+  left: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 0;
 }
 .landing-interface-label {
   color: var(--landing-sky);
