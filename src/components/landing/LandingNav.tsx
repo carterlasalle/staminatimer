@@ -1,12 +1,17 @@
 'use client'
 
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export function LandingNav() {
   const [scrolled, setScrolled] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+  const transition = {
+    duration: prefersReducedMotion ? 0 : 0.28,
+    ease: [0.16, 1, 0.3, 1] as const,
+  }
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 28)
@@ -28,13 +33,13 @@ export function LandingNav() {
     >
       <motion.div
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        transition={transition}
         className="relative mx-auto flex h-14 max-w-[1600px] items-center justify-between px-3 sm:px-5"
       >
         <motion.span
           aria-hidden
           animate={{ opacity: scrolled ? 1 : 0 }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          transition={transition}
           className="pointer-events-none absolute inset-0 border border-landing-mist/15 bg-landing-ink/95"
         />
         <Link
