@@ -5,21 +5,22 @@ type AmbientLandscapeProps = {
   priority?: boolean
 }
 
-/**
- * The commissioned hero plate remains the visual anchor. The translucent
- * atmosphere layers below are deliberately separate so the scene can breathe
- * without asking a background image to behave like a video.
- */
 export function AmbientLandscape({ className, priority = false }: AmbientLandscapeProps) {
   return (
-    <div className={className} aria-hidden="true">
+    <div
+      className={className}
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+      aria-hidden="true"
+    >
       <Image
-        className="landing-sky absolute inset-0 h-full w-full object-cover"
+        className="landing-sky h-full w-full object-cover"
         src="/landing/hero-landscape.png"
         alt=""
-        fill
+        width={1672}
+        height={941}
         priority={priority}
         sizes="100vw"
+        style={{ objectPosition: 'center' }}
       />
       <div className="landing-lake absolute inset-x-0 bottom-0 h-[42%]" />
       <div className="landing-mist absolute inset-0" />
