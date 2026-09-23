@@ -105,7 +105,7 @@ for (const path of PAGES) {
         // These are the three intentional large-radius scene shapes: the framed
         // hero and two circular environmental bodies. The budget still rejects
         // oversized corners on ordinary interface surfaces.
-        const intentionalSceneShapes = [
+        const landingSceneRadiusExemptions = [
           '.landing-hero-scene',
           '.story-orbit',
           '.landing-privacy-sun',
@@ -113,7 +113,7 @@ for (const path of PAGES) {
 
         return [...document.querySelectorAll('*')]
           .flatMap((element) => {
-            if (intentionalSceneShapes.some((selector) => element.matches(selector))) return []
+            if (landingSceneRadiusExemptions.some((selector) => element.matches(selector))) return []
 
             const px = Number.parseFloat(getComputedStyle(element).borderRadius)
             // A pill is legitimate; a 24px+ card corner is not.
