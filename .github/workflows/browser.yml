@@ -38,14 +38,15 @@ jobs:
           {
             echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
             echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000"
             echo "CSRF_SECRET=e2e-only-secret-not-for-production"
             echo "E2E_EMAIL=browser-test@example.test"
             echo "E2E_PASSWORD=BrowserTest-2026!"
           } >> "$GITHUB_ENV"
           cat > .env.local <<EOF
-          NEXT_PUBLIC_SUPABASE_URL=${API_URL}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
-          CSRF_SECRET=e2e-only-secret-not-for-production
+            NEXT_PUBLIC_SUPABASE_URL=${API_URL}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+            CSRF_SECRET=e2e-only-secret-not-for-production
           EOF
           curl --fail-with-body --silent --show-error \
             --request POST "${API_URL}/auth/v1/admin/users" \
