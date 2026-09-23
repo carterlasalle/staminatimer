@@ -29,7 +29,10 @@ export function AICoachChat() {
 
   useEffect(() => {
     if (wasLoading.current && !isLoading) {
-      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth'
+      resultRef.current?.scrollIntoView({ behavior, block: 'start' })
     } else if (!isLoading) {
       inputRef.current?.focus()
     }
