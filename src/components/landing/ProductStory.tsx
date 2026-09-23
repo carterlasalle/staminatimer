@@ -37,6 +37,7 @@ export function ProductStory() {
       if (disposed) return
       await withGsap(({ gsap }) => {
         if (disposed) return
+        section.classList.add('story-enhanced')
         context = gsap.context(() => {
           const states = gsap.utils.toArray<HTMLElement>('.story-state')
           const copies = gsap.utils.toArray<HTMLElement>('.story-copy')
@@ -77,6 +78,7 @@ export function ProductStory() {
     return () => {
       disposed = true
       context?.revert()
+      section.classList.remove('story-enhanced')
     }
   }, [])
 
@@ -87,10 +89,7 @@ export function ProductStory() {
         <div className="landing-story-copy">
           <p className="landing-kicker text-landing-sky">Practice. Measure. Progress.</p>
           {STORY_COPY.map(([label, heading, detail], index) => (
-            <div
-              key={label}
-              className={`story-copy ${index === 0 ? 'relative' : 'story-copy-later absolute inset-x-0 top-7'}`}
-            >
+            <div key={label} className="story-copy">
               <p className="mt-8 text-sm text-landing-soft">
                 0{index + 1} / {label}
               </p>
@@ -120,7 +119,7 @@ export function ProductStory() {
               Begin session <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="story-state story-train absolute inset-0 p-[clamp(1.5rem,4vw,3rem)]">
+          <div className="story-state story-train">
             <p className="landing-interface-label">Control session · 04:18 elapsed</p>
             <div className="mt-20 text-center">
               <p className="font-display text-[clamp(5.5rem,12vw,10rem)] leading-none tracking-[-0.08em] text-landing-paper tabular-nums">
@@ -128,7 +127,7 @@ export function ProductStory() {
               </p>
               <p className="mt-5 text-sm tracking-[0.18em] text-landing-sun uppercase">Steady</p>
             </div>
-            <div className="absolute right-[clamp(1.5rem,4vw,3rem)] bottom-[clamp(1.5rem,4vw,3rem)] left-[clamp(1.5rem,4vw,3rem)] flex items-center justify-between border-t border-landing-mist/15 pt-5 text-sm text-landing-mist">
+            <div className="story-demo-controls flex items-center justify-between border-t border-landing-mist/15 pt-5 text-sm text-landing-mist">
               <span className="flex items-center gap-2">
                 <Pause className="h-4 w-4" /> Pause
               </span>
@@ -137,7 +136,7 @@ export function ProductStory() {
               </span>
             </div>
           </div>
-          <div className="story-state story-progress absolute inset-0 p-[clamp(1.5rem,4vw,3rem)]">
+          <div className="story-state story-progress">
             <p className="landing-interface-label">Current target</p>
             <div className="mt-9 flex items-end justify-between border-b border-landing-mist/15 pb-7">
               <p className="font-display text-6xl tracking-[-0.06em] text-landing-paper tabular-nums">
