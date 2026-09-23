@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRight, Pause, RotateCcw } from 'lucide-react'
+import { getProgressionRequirement } from '@/lib/program/protocol-v2'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 
@@ -18,12 +19,17 @@ const STORY_COPY = [
   ],
 ] as const
 
+const DEMO_TARGET_MS = 300_000
+const DEMO_REQUIREMENT = getProgressionRequirement(DEMO_TARGET_MS)
+
 export function ProductStory() {
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const section = sectionRef.current
-    if (!section || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compactLayout = window.matchMedia('(max-width: 767px)').matches
+    if (!section || reducedMotion || compactLayout) return
 
     let context: { revert: () => void } | undefined
     let disposed = false
@@ -31,7 +37,6 @@ export function ProductStory() {
       if (disposed) return
       await withGsap(({ gsap }) => {
         if (disposed) return
-        section.classList.add('story-enhanced')
         context = gsap.context(() => {
           const states = gsap.utils.toArray<HTMLElement>('.story-state')
           const copies = gsap.utils.toArray<HTMLElement>('.story-copy')
@@ -50,35 +55,18 @@ export function ProductStory() {
           timeline
             .to('.story-orbit', { rotate: 8, scale: 1.05, ease: 'none' }, 0)
             .to('.story-frame', { scale: 1.025, ease: 'none' }, 0)
-            .to(
-              states[0],
-              { autoAlpha: 0, y: -26, scale: 0.98, duration: 0.9, ease: 'power2.inOut' },
-              0.9
-            )
-            .to(copies[0], { autoAlpha: 0, y: -12, duration: 0.55, ease: 'power2.inOut' }, 0.92)
-            .to(
-              states[1],
-              { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' },
-              1.05
-            )
-            .to(copies[1], { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 1.1)
-            .to('.story-frame', { backgroundColor: '#0b1e2a', duration: 0.8 }, 1.2)
-            .to(
-              states[1],
-              { autoAlpha: 0, y: -26, scale: 0.98, duration: 0.9, ease: 'power2.inOut' },
-              2.2
-            )
-            .to(copies[1], { autoAlpha: 0, y: -12, duration: 0.55, ease: 'power2.inOut' }, 2.22)
-            .to(
-              states[2],
-              { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' },
-              2.35
-            )
-            .to(copies[2], { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 2.4)
+            .to(states[0], { autoAlpha: 0, y: -26, scale: 0.98, duration: 0.9, ease: 'none' }, 0.9)
+            .to(copies[0], { autoAlpha: 0, y: -12, duration: 0.55, ease: 'none' }, 0.92)
+            .to(states[1], { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: 'none' }, 1.05)
+            .to(copies[1], { autoAlpha: 1, y: 0, duration: 0.6, ease: 'none' }, 1.1)
+            .to(states[1], { autoAlpha: 0, y: -26, scale: 0.98, duration: 0.9, ease: 'none' }, 2.2)
+            .to(copies[1], { autoAlpha: 0, y: -12, duration: 0.55, ease: 'none' }, 2.22)
+            .to(states[2], { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: 'none' }, 2.35)
+            .to(copies[2], { autoAlpha: 1, y: 0, duration: 0.6, ease: 'none' }, 2.4)
             .fromTo(
               '.story-line',
               { strokeDashoffset: 360 },
-              { strokeDashoffset: 0, duration: 1.1, ease: 'power1.inOut' },
+              { strokeDashoffset: 0, duration: 1.1, ease: 'none' },
               2.6
             )
             .fromTo('.story-dot', { scale: 0 }, { scale: 1, stagger: 0.12, duration: 0.25 }, 3.1)
@@ -89,7 +77,6 @@ export function ProductStory() {
     return () => {
       disposed = true
       context?.revert()
-      section.classList.remove('story-enhanced')
     }
   }, [])
 
@@ -98,16 +85,19 @@ export function ProductStory() {
       <div className="story-orbit" aria-hidden />
       <div className="landing-story-grid">
         <div className="landing-story-copy">
-          <p className="landing-kicker text-[#75a3b2]">Practice. Measure. Progress.</p>
+          <p className="landing-kicker text-landing-sky">Practice. Measure. Progress.</p>
           {STORY_COPY.map(([label, heading, detail], index) => (
-            <div key={label} className="story-copy">
-              <p className="mt-8 text-sm text-[#afc9cf]">
+            <div
+              key={label}
+              className={`story-copy ${index === 0 ? 'relative' : 'story-copy-later absolute inset-x-0 top-7'}`}
+            >
+              <p className="mt-8 text-sm text-landing-soft">
                 0{index + 1} / {label}
               </p>
-              <h2 className="mt-3 max-w-sm font-display text-4xl leading-[0.92] tracking-[-0.055em] text-[#edf3f1] sm:text-5xl">
+              <h2 className="mt-3 max-w-sm font-display text-4xl leading-[0.92] tracking-[-0.055em] text-landing-paper sm:text-5xl">
                 {heading}
               </h2>
-              <p className="mt-5 max-w-xs text-sm leading-relaxed text-[#afc9cf] sm:text-base">
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-landing-soft sm:text-base">
                 {detail}
               </p>
             </div>
@@ -119,8 +109,8 @@ export function ProductStory() {
             <p className="landing-interface-label">Today</p>
             <div className="mt-12 flex items-end justify-between">
               <div>
-                <p className="text-sm text-[#afc9cf]">Control session</p>
-                <p className="mt-3 font-display text-7xl tracking-[-0.07em] text-[#edf3f1] tabular-nums sm:text-8xl">
+                <p className="text-sm text-landing-soft">Control session</p>
+                <p className="mt-3 font-display text-7xl tracking-[-0.07em] text-landing-paper tabular-nums sm:text-8xl">
                   05:00
                 </p>
               </div>
@@ -130,15 +120,15 @@ export function ProductStory() {
               Begin session <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="story-state story-train">
+          <div className="story-state story-train absolute inset-0 p-[clamp(1.5rem,4vw,3rem)]">
             <p className="landing-interface-label">Control session · 04:18 elapsed</p>
             <div className="mt-20 text-center">
-              <p className="font-display text-[clamp(5.5rem,12vw,10rem)] leading-none tracking-[-0.08em] text-[#edf3f1] tabular-nums">
+              <p className="font-display text-[clamp(5.5rem,12vw,10rem)] leading-none tracking-[-0.08em] text-landing-paper tabular-nums">
                 04:18
               </p>
-              <p className="mt-5 text-sm tracking-[0.18em] text-[#d6b46f] uppercase">Steady</p>
+              <p className="mt-5 text-sm tracking-[0.18em] text-landing-sun uppercase">Steady</p>
             </div>
-            <div className="story-train-controls flex w-full items-center justify-between border-t border-[#d7e5e5]/15 pt-5 text-sm text-[#d7e5e5]">
+            <div className="absolute right-[clamp(1.5rem,4vw,3rem)] bottom-[clamp(1.5rem,4vw,3rem)] left-[clamp(1.5rem,4vw,3rem)] flex items-center justify-between border-t border-landing-mist/15 pt-5 text-sm text-landing-mist">
               <span className="flex items-center gap-2">
                 <Pause className="h-4 w-4" /> Pause
               </span>
@@ -147,15 +137,15 @@ export function ProductStory() {
               </span>
             </div>
           </div>
-          <div className="story-state story-progress">
+          <div className="story-state story-progress absolute inset-0 p-[clamp(1.5rem,4vw,3rem)]">
             <p className="landing-interface-label">Current target</p>
-            <div className="mt-9 flex items-end justify-between border-b border-[#d7e5e5]/15 pb-7">
-              <p className="font-display text-6xl tracking-[-0.06em] text-[#edf3f1] tabular-nums">
+            <div className="mt-9 flex items-end justify-between border-b border-landing-mist/15 pb-7">
+              <p className="font-display text-6xl tracking-[-0.06em] text-landing-paper tabular-nums">
                 05:00
               </p>
-              <div className="text-right text-sm leading-6 text-[#afc9cf]">
-                <p>3 / 4 observations</p>
-                <p>2 / 3 passes</p>
+              <div className="text-right text-sm leading-6 text-landing-soft">
+                <p>3 / {DEMO_REQUIREMENT.requiredObservations} observations</p>
+                <p>2 / {DEMO_REQUIREMENT.requiredPasses} passes</p>
               </div>
             </div>
             <svg
@@ -166,7 +156,7 @@ export function ProductStory() {
             >
               <path
                 d="M5 136C65 131 86 100 143 108C196 115 202 70 267 83C325 95 351 40 414 48C467 53 478 22 515 16"
-                stroke="#75A3B2"
+                stroke="var(--landing-sky)"
                 strokeWidth="3"
                 className="story-line"
                 strokeDasharray="360"
@@ -182,7 +172,7 @@ export function ProductStory() {
                   cx={cx}
                   cy={cy}
                   r="5"
-                  fill="#d6b46f"
+                  fill="var(--landing-sun)"
                   className="story-dot origin-center"
                 />
               ))}
