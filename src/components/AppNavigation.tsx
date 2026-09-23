@@ -53,7 +53,8 @@ function RailLink({
         isActive
           ? 'border-primary text-foreground'
           : 'border-transparent text-muted-foreground hover:text-foreground',
-        compact && 'flex-col gap-1 border-l-0 border-t-2 px-1 py-2 text-[10px]'
+        compact &&
+          'flex-1 flex-col justify-center gap-1 border-l-0 border-t-2 px-1 py-2 text-[10px]'
       )}
     >
       <Icon className={cn('h-4 w-4 shrink-0', compact && 'h-5 w-5')} aria-hidden />
@@ -71,7 +72,7 @@ export function AppNavigation({ children }: AppNavigationProps) {
 
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
-      <aside className="hidden min-h-screen border-r border-border/60 px-4 py-6 lg:flex lg:flex-col">
+      <aside className="hidden h-screen border-r border-border/60 px-4 py-6 lg:sticky lg:top-0 lg:flex lg:flex-col lg:overflow-y-auto">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 px-3 font-display text-lg font-semibold tracking-tight"
