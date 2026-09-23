@@ -14,17 +14,39 @@ import {
 } from '@/lib/program/protocol-v2'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
   const { showOnboarding, completeOnboarding } = useOnboarding()
   const { loading, error, refresh, needsOnboarding, currentTargetMs, gate, sessions } =
     useProgramV2Progress()
-  const today = new Date()
+  const [clientNow, setClientNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const updateDate = () => {
+      const now = new Date()
+      setClientNow(now)
+
+      const nextMidnight = new Date(now)
+      nextMidnight.setHours(24, 0, 0, 0)
+      timer = setTimeout(updateDate, nextMidnight.getTime() - now.getTime() + 50)
+    }
+
+    updateDate()
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [])
+
+  const today = clientNow ?? new Date(0)
+  const isPending = loading || clientNow === null
   const sessionType = getScheduledSessionType(today)
   const prescription = getSessionPrescription(sessionType)
   const latest = sessions[0]
   const requirement = getProgressionRequirement(currentTargetMs)
-  const todayIndex = getMondayFirstDayIndex(today)
+  const todayIndex = clientNow ? getMondayFirstDayIndex(today) : -1
   const recentBestMs = sessions.reduce<number | null>((best, session) => {
     const duration = session.longest_continuous_block_ms
     if (duration === null || duration <= 0) return best
@@ -59,24 +81,24 @@ export default function Dashboard() {
             <div className="mt-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {loading
+                  {isPending
                     ? 'Getting today’s prescription'
                     : needsOnboarding
                       ? 'Set your starting point first'
                       : prescription.label}
                 </p>
                 <h1 className="mt-2 font-display text-6xl leading-none tracking-[-0.07em] tabular-nums sm:text-8xl">
-                  {loading ? '—' : formatTarget(currentTargetMs)}
+                  {isPending ? '—' : formatTarget(currentTargetMs)}
                 </h1>
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {loading
+                  {isPending
                     ? 'Your session details will appear here when the program is ready.'
                     : needsOnboarding
                       ? 'Choose a baseline and the program will give you a clear session for today.'
                       : prescription.summary}
                 </p>
               </div>
-              {loading ? (
+              {isPending ? (
                 <span className="today-start-action cursor-wait opacity-60" aria-live="polite">
                   Loading session
                 </span>
@@ -100,19 +122,19 @@ export default function Dashboard() {
               <div className="py-5 sm:px-5 sm:first:pl-0">
                 <dt className="text-xs text-muted-foreground">Current target</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {loading ? '—' : formatTarget(currentTargetMs)}
+                  {isPending ? '—' : formatTarget(currentTargetMs)}
                 </dd>
               </div>
               <div className="py-5 sm:px-5">
                 <dt className="text-xs text-muted-foreground">Recent best</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {loading ? '—' : recentBestMs ? formatTarget(recentBestMs) : '—'}
+                  {isPending ? '—' : recentBestMs ? formatTarget(recentBestMs) : '—'}
                 </dd>
               </div>
               <div className="py-5 sm:px-5">
                 <dt className="text-xs text-muted-foreground">Observations</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {loading
+                  {isPending
                     ? '—'
                     : `${gate?.observationCount ?? 0} / ${requirement.requiredObservations}`}
                 </dd>
@@ -120,7 +142,7 @@ export default function Dashboard() {
               <div className="py-5 sm:px-5 sm:last:pr-0">
                 <dt className="text-xs text-muted-foreground">Passes</dt>
                 <dd className="mt-2 font-display text-3xl tracking-[-0.05em] tabular-nums">
-                  {loading ? '—' : `${gate?.passCount ?? 0} / ${requirement.requiredPasses}`}
+                  {isPending ? '—' : `${gate?.passCount ?? 0} / ${requirement.requiredPasses}`}
                 </dd>
               </div>
             </dl>
