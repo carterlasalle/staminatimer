@@ -131,7 +131,7 @@ export function AICoachChat() {
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                 event.preventDefault()
                 submit()
               }
