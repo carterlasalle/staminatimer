@@ -5,6 +5,11 @@ type AmbientLandscapeProps = {
   priority?: boolean
 }
 
+/**
+ * A composable environmental scene. Each asset is intentionally isolated so a
+ * final commissioned illustration can replace any layer without changing the
+ * layout or motion choreography.
+ */
 export function AmbientLandscape({ className, priority = false }: AmbientLandscapeProps) {
   return (
     <div
@@ -13,18 +18,48 @@ export function AmbientLandscape({ className, priority = false }: AmbientLandsca
       aria-hidden="true"
     >
       <Image
-        className="landing-sky h-full w-full object-cover"
-        src="/landing/hero-landscape.png"
+        className="landing-sky absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-sky.svg"
         alt=""
-        width={1672}
-        height={941}
+        fill
         priority={priority}
         sizes="100vw"
-        style={{ objectPosition: 'center' }}
       />
-      <div className="landing-lake absolute inset-x-0 bottom-0 h-[42%]" />
-      <div className="landing-mist absolute inset-0" />
-      <div className="landing-foreground absolute inset-0" />
+      <Image
+        className="landing-mountains absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-mountains.svg"
+        alt=""
+        fill
+        sizes="100vw"
+      />
+      <Image
+        className="landing-lake absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-lake.svg"
+        alt=""
+        fill
+        sizes="100vw"
+      />
+      <Image
+        className="landing-shore absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-shore.svg"
+        alt=""
+        fill
+        sizes="100vw"
+      />
+      <Image
+        className="landing-mist absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-mist.svg"
+        alt=""
+        fill
+        sizes="100vw"
+      />
+      <Image
+        className="landing-foreground absolute inset-0 h-full w-full object-cover"
+        src="/landing/hero-foreground.svg"
+        alt=""
+        fill
+        sizes="100vw"
+      />
     </div>
   )
 }

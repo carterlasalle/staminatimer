@@ -113,7 +113,8 @@ for (const path of PAGES) {
 
         return [...document.querySelectorAll('*')]
           .flatMap((element) => {
-            if (landingSceneRadiusExemptions.some((selector) => element.matches(selector))) return []
+            if (landingSceneRadiusExemptions.some((selector) => element.matches(selector)))
+              return []
 
             const px = Number.parseFloat(getComputedStyle(element).borderRadius)
             // A pill is legitimate; a 24px+ card corner is not.
