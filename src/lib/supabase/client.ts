@@ -1,5 +1,10 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { processLock, type SupabaseClient } from '@supabase/supabase-js'
+import {
+  processLock,
+  type AuthChangeEvent,
+  type Session,
+  type SupabaseClient,
+} from '@supabase/supabase-js'
 import type { Database } from './types'
 
 // Get environment variables
@@ -46,9 +51,11 @@ function createNoOpClient(): SupabaseClient<Database> {
       signInWithPassword: noOp,
       signInWithOAuth: noOp,
       signUp: noOp,
-      onAuthStateChange: () => ({
-        data: { subscription: { unsubscribe: () => {} } },
-      }),
+      onAuthStateChange: (listener: (event: AuthChangeEvent, session: Session | null) => void) => {
+        listener('INITIAL_SESSION', null)
+
+        return { data: { subscription: { unsubscribe: () => {} } } }
+      },
     },
     from: () => noOpChain(),
     channel: () => ({

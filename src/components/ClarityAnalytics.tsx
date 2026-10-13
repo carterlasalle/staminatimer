@@ -17,13 +17,13 @@ export const CLARITY_ENABLED = Boolean(CLARITY_PROJECT_ID) && process.env.NODE_E
  * the application layout where a session actually exists. Recordings on public
  * pages stay anonymous.
  */
-export function ClarityAnalytics() {
+export function ClarityAnalytics({ enabled = true }: { enabled?: boolean }) {
   const initialized = useRef(false)
 
   useEffect(() => {
     const projectId = CLARITY_PROJECT_ID
 
-    if (!CLARITY_ENABLED || !projectId || initialized.current) {
+    if (!enabled || !CLARITY_ENABLED || !projectId || initialized.current) {
       return
     }
     initialized.current = true
@@ -66,7 +66,7 @@ export function ClarityAnalytics() {
     window.addEventListener('load', startClarity, { once: true })
 
     return () => window.removeEventListener('load', startClarity)
-  }, [])
+  }, [enabled])
 
   return null
 }

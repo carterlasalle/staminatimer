@@ -1,209 +1,126 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { ModeToggle } from '@/components/mode-toggle'
+import { UserMenu } from '@/components/UserMenu'
 import { cn } from '@/lib/utils'
-import {
-  Home,
-  Timer,
-  TrendingUp,
-  Bot,
-  Settings,
-  Menu,
-  X,
-  BookOpen,
-  GraduationCap,
-} from 'lucide-react'
+import { BookOpen, Bot, Compass, Settings, Timer, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UserMenu } from './UserMenu'
-import { ModeToggle } from './mode-toggle'
 
-const navigationItems = [
-  { title: 'Home', href: '/dashboard', icon: Home },
-  { title: 'Train', href: '/training', icon: Timer },
-  { title: 'Program', href: '/program', icon: GraduationCap },
-  { title: 'Progress', href: '/progress', icon: TrendingUp },
-  { title: 'AI Coach', href: '/ai-coach', icon: Bot },
-  { title: 'Guides', href: '/guides', icon: BookOpen },
-]
-
-type AppNavigationProps = {
-  children: React.ReactNode
+type NavigationItem = {
+  title: string
+  href: string
+  icon: typeof Timer
 }
 
-function isNavigationItemActive(pathname: string, href: string): boolean {
+const primary: NavigationItem[] = [
+  { title: 'Today', href: '/dashboard', icon: Compass },
+  { title: 'Train', href: '/training', icon: Timer },
+  { title: 'Progress', href: '/progress', icon: TrendingUp },
+  { title: 'Coach', href: '/ai-coach', icon: Bot },
+]
+
+const secondary: NavigationItem[] = [
+  { title: 'Program', href: '/program', icon: Timer },
+  { title: 'Guides', href: '/guides', icon: BookOpen },
+  { title: 'Settings', href: '/settings', icon: Settings },
+]
+
+type AppNavigationProps = { children: React.ReactNode }
+
+function active(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export function AppNavigation({ children }: AppNavigationProps) {
-  const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const activeNavigationItem = navigationItems.find((item) =>
-    isNavigationItemActive(pathname, item.href)
-  )
-
-  // Close sidebar on route change
-  useEffect(() => {
-    setSidebarOpen(false)
-  }, [pathname])
-
-  // Prevent body scroll when sidebar is open on mobile
-  useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [sidebarOpen])
+function RailLink({
+  item,
+  pathname,
+  compact = false,
+}: {
+  item: NavigationItem
+  pathname: string
+  compact?: boolean
+}) {
+  const isActive = active(pathname, item.href)
+  const Icon = item.icon
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+    <Link
+      href={item.href}
+      aria-current={isActive ? 'page' : undefined}
+      className={cn(
+        'group flex items-center gap-3 border-l-2 px-3 py-2 text-sm transition-colors',
+        isActive
+          ? 'border-primary text-foreground'
+          : 'border-transparent text-muted-foreground hover:text-foreground',
+        compact &&
+          'flex-1 flex-col justify-center gap-1 border-l-0 border-t-2 px-1 py-2 text-[10px]'
       )}
+    >
+      <Icon className={cn('h-4 w-4 shrink-0', compact && 'h-5 w-5')} aria-hidden />
+      {item.title}
+    </Link>
+  )
+}
 
-      {/* Sidebar - Hidden on mobile, shown on lg+ */}
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 border-r border-border/50 bg-background transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:w-56',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
-        <div className="flex h-full flex-col">
-          {/* Header */}
-          <div className="p-4 lg:p-6 border-b border-border/50 safe-area-top">
-            <div className="flex items-center justify-between">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-                  <Timer className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="font-display text-lg font-semibold tracking-tight">
-                  Stamina Timer
-                </span>
-              </Link>
-              {/* Close button for mobile */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-                aria-label="Close navigation"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+/** A quiet navigation rail. Active guided sessions intentionally render outside it. */
+export function AppNavigation({ children }: AppNavigationProps) {
+  const pathname = usePathname()
+  const immersive = pathname.startsWith('/program/session')
 
-          {/* Navigation */}
-          <nav className="flex-1 p-3 lg:p-4 space-y-1 overflow-y-auto">
-            {navigationItems.map((item) => {
-              const isActive = isNavigationItemActive(pathname, item.href)
-              const Icon = item.icon
+  if (immersive) return <>{children}</>
 
-              return (
-                <Link key={item.href} href={item.href} className="block">
-                  <div
-                    className={cn(
-                      'flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors',
-                      'hover:bg-muted/60 hover:text-foreground',
-                      isActive ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground'
-                    )}
-                  >
-                    <Icon className="h-5 w-5 lg:h-4 lg:w-4 mr-3 shrink-0" />
-                    {item.title}
-                  </div>
-                </Link>
-              )
-            })}
-          </nav>
-
-          {/* Footer */}
-          <div className="p-3 lg:p-4 border-t border-border/50">
-            <Link href="/settings" className="block">
-              <div
-                className={cn(
-                  'flex items-center w-full h-11 lg:h-10 px-3 rounded-md text-base lg:text-sm font-normal transition-colors',
-                  'hover:bg-muted/60 hover:text-foreground',
-                  pathname === '/settings'
-                    ? 'bg-primary/10 font-medium text-primary'
-                    : 'text-muted-foreground'
-                )}
-              >
-                <Settings className="h-5 w-5 lg:h-4 lg:w-4 mr-3 shrink-0" />
-                Settings
-              </div>
-            </Link>
-          </div>
+  return (
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[13.5rem_minmax(0,1fr)]">
+      <aside className="hidden h-screen border-r border-border/60 px-4 py-6 lg:sticky lg:top-0 lg:flex lg:flex-col lg:overflow-y-auto">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2.5 px-3 font-display text-lg font-semibold tracking-tight"
+        >
+          <span className="grid h-7 w-7 place-items-center border border-primary/35 bg-primary/10 text-primary">
+            <Timer className="h-4 w-4" aria-hidden />
+          </span>
+          Stamina
+        </Link>
+        <nav aria-label="Primary" className="mt-12 space-y-1">
+          {primary.map((item) => (
+            <RailLink key={item.href} item={item} pathname={pathname} />
+          ))}
+        </nav>
+        <nav aria-label="Secondary" className="mt-10 border-t border-border/60 pt-5 space-y-1">
+          <p className="px-3 pb-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            More
+          </p>
+          {secondary.map((item) => (
+            <RailLink key={item.href} item={item} pathname={pathname} />
+          ))}
+        </nav>
+        <div className="mt-auto flex items-center gap-1 border-t border-border/60 pt-4">
+          <ModeToggle />
+          <UserMenu />
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar */}
-        <header className="h-14 border-b border-border/50 bg-background shrink-0 safe-area-top">
-          <div className="flex h-full items-center justify-between px-4 lg:px-6">
-            <div className="flex items-center gap-3">
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open navigation"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-              <h2 className="font-medium text-sm lg:text-base truncate">
-                {activeNavigationItem?.title || (pathname === '/settings' ? 'Settings' : 'Home')}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 lg:gap-3">
-              <ModeToggle />
-              <UserMenu />
-            </div>
+      <main className="min-w-0 pb-[4.5rem] lg:pb-0">
+        <header className="flex h-14 items-center justify-between border-b border-border/60 px-4 lg:hidden">
+          <Link href="/dashboard" className="font-display text-lg font-semibold tracking-tight">
+            Stamina
+          </Link>
+          <div className="flex items-center gap-1">
+            <ModeToggle />
+            <UserMenu />
           </div>
         </header>
-
-        {/* Page Content - Account for bottom nav on mobile */}
-        <div className="flex-1 overflow-y-auto pb-16 lg:pb-0">{children}</div>
+        {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t border-border/50 lg:hidden z-30 safe-area-bottom">
-        <div className="flex h-full items-center justify-around px-2">
-          {navigationItems.map((item) => {
-            const isActive = isNavigationItemActive(pathname, item.href)
-            const Icon = item.icon
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
-                  'active:bg-muted/60'
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-[10px] font-medium">{item.title}</span>
-              </Link>
-            )
-          })}
-        </div>
+      <nav
+        aria-label="Primary"
+        className="fixed inset-x-0 bottom-0 z-30 flex h-[4.5rem] border-t border-border/60 bg-background/95 px-1 backdrop-blur lg:hidden safe-area-bottom"
+      >
+        {primary.map((item) => (
+          <RailLink key={item.href} item={item} pathname={pathname} compact />
+        ))}
       </nav>
     </div>
   )

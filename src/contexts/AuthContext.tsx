@@ -19,48 +19,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Set once the auth server has spoken; the stored session must never
-    // overwrite a validated answer with a stale one.
-    let validated = false
+    let active = true
 
-    // The stored session is a local read, so a user id is available on the first
-    // tick. Actions that need one — starting a timer session, saving one — must
-    // not be blocked behind a network round-trip, and someone who just landed on
-    // a page should not be told they are signed out.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (validated) return
-
-      // Keep the previous object when it is the same user: a new reference here
-      // would re-run every `[user]`-dependent effect after the validated call
-      // below and double every data fetch on the page.
-      setUser((prev) => (prev?.id === session?.user?.id ? prev : (session?.user ?? null)))
-      setLoading(false)
-    })
-
-    // `getUser()` asks the auth server to validate that session, replacing the
-    // optimistic value above if the token is expired or revoked. This is the
-    // app's one validated auth call — thirteen components used to make their
-    // own, and because each awaited its own round-trip they ran in series and
-    // dominated every authenticated page load.
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      validated = true
-      setUser((prev) => (prev?.id === user?.id ? prev : (user ?? null)))
-      setLoading(false)
-    })
-
+    // The browser client initializes itself. `INITIAL_SESSION` is the one
+    // authoritative read of its persisted session, so issuing `getSession()`
+    // and `getUser()` alongside it only contends for GoTrue's storage lock.
+    // Subsequent server-validated changes arrive through the same subscription.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      // `INITIAL_SESSION` carries the unvalidated stored session, which would
-      // race the validated result above. Real transitions update immediately.
-      if (event === 'INITIAL_SESSION') return
-
-      validated = true
-      setUser(session?.user ?? null)
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+      if (!active) return
+      setUser((previous) =>
+        previous?.id === session?.user?.id ? previous : (session?.user ?? null)
+      )
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   // `loading` starts true and effects do not run while rendering on the server,

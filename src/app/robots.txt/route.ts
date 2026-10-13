@@ -9,7 +9,8 @@ import { NextResponse } from 'next/server'
  */
 export const dynamic = 'force-static'
 
-const BASE_URL = 'https://staminatimer.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://staminatimer.com'
+const SITE_HOST = new URL(BASE_URL).host
 
 const ROBOTS_TXT = `User-Agent: *
 Allow: /
@@ -34,7 +35,7 @@ Disallow: /share/
 
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
-Host: ${BASE_URL}
+Host: ${SITE_HOST}
 Sitemap: ${BASE_URL}/sitemap.xml
 `
 

@@ -41,10 +41,6 @@ export default function LoginPage() {
       }, 0)
     }
 
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) redirectToDashboard()
-    })
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
@@ -236,7 +232,9 @@ export default function LoginPage() {
                   so a click cannot be silently swallowed either. */}
               <div
                 className={
-                  mounted ? 'auth-container' : 'auth-container pointer-events-none opacity-60'
+                  mounted
+                    ? 'auth-container min-h-[320px]'
+                    : 'auth-container min-h-[320px] pointer-events-none opacity-60'
                 }
                 aria-busy={!mounted}
               >

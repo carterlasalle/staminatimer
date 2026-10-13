@@ -1,7 +1,10 @@
+const publicSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || 'https://staminatimer.com'
+
 // SEO Configuration for staminatimer.com
 export const SITE_CONFIG = {
   name: 'Stamina Timer',
-  url: 'https://staminatimer.com',
+  url: publicSiteUrl,
   description:
     'Science-backed stamina training app for men. Build lasting control with data-driven progress tracking, AI coaching, and well-studied approaches.',
   ogImage: '/og-image.png',
