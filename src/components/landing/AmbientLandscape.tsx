@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { useState } from 'react'
 
 type AmbientLandscapeProps = {
   className?: string
@@ -6,11 +9,16 @@ type AmbientLandscapeProps = {
 }
 
 /**
- * A composable environmental scene. Each asset is intentionally isolated so a
- * final commissioned illustration can replace any layer without changing the
- * layout or motion choreography.
+ * The hero plate is a photographic landscape (`hero-landscape.png`) rendered
+ * fullscreen. The vector layers underneath are the fallback scene: if the
+ * plate is missing or fails to decode, they still fill the frame, so the hero
+ * never ships a partial image. Each asset stays isolated so a replacement
+ * plate can be dropped into `public/landing/` without touching layout or
+ * motion choreography.
  */
 export function AmbientLandscape({ className, priority = false }: AmbientLandscapeProps) {
+  const [plateFailed, setPlateFailed] = useState(false)
+
   return (
     <div
       className={className}
@@ -22,7 +30,6 @@ export function AmbientLandscape({ className, priority = false }: AmbientLandsca
         src="/landing/hero-sky.svg"
         alt=""
         fill
-        priority={priority}
         sizes="100vw"
       />
       <Image
@@ -60,6 +67,18 @@ export function AmbientLandscape({ className, priority = false }: AmbientLandsca
         fill
         sizes="100vw"
       />
+      {!plateFailed && (
+        <Image
+          className="landing-plate absolute inset-0 h-full w-full object-cover"
+          src="/landing/hero-landscape.png"
+          alt=""
+          fill
+          priority={priority}
+          sizes="100vw"
+          style={{ objectPosition: 'center' }}
+          onError={() => setPlateFailed(true)}
+        />
+      )}
     </div>
   )
 }

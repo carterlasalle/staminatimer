@@ -544,6 +544,9 @@
   background: var(--landing-water);
 }
 
+.landing-plate {
+  transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px)) scale(1.035);
+}
 .landing-sky {
   transform: translate(calc(var(--px) * 3px), calc(var(--py) * 2px)) scale(1.035);
 }
