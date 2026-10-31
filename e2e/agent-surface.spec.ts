@@ -11,6 +11,11 @@ import { expect, test } from '@playwright/test'
  * No authentication is involved — that is the point.
  */
 
+// The Chromium project normally loads an authenticated storageState from the setup
+// project. These crawler and private-route tests explicitly require a fresh,
+// signed-out browser; otherwise /dashboard returns 200 instead of redirecting.
+test.use({ storageState: { cookies: [], origins: [] } })
+
 const MARKDOWN = { Accept: 'text/markdown' }
 
 test.describe('unknown paths', () => {
