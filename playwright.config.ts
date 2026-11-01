@@ -9,6 +9,8 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
+  // Bound concurrent Chromium processes on CI to avoid runner memory exhaustion.
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: externalBaseUrl ?? localBaseUrl,
